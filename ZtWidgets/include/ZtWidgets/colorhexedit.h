@@ -37,6 +37,11 @@ class CColorHexEdit : public CColorWidgetBase
 {
     Q_OBJECT
 
+    /**
+     * @brief Show or hide the alpha channel
+     */
+    Q_PROPERTY(bool displayAlpha READ displayAlpha WRITE setDisplayAlpha)
+
 public:
     /**
      * @brief Construct an instance of CColorHexEdit
@@ -51,8 +56,23 @@ public:
      * Update the text string representing the color of this widget.
      */
     void updateColor(const QColor& color) override;
+
+    /**
+     * @brief Get the display status of the alpha channel
+     * @return true if alpha channel is displayed in the widget
+     */
+    bool displayAlpha();
+
+public slots:
+    /**
+     * @brief Show or hide the alpha channel
+     * @param visible true if alpha channel should be visible
+     */
+    void setDisplayAlpha(bool visible);
+
 private slots:
     void onTextEdited(const QString& text);
+
 private:
     /**
      * @brief Returns the inner width of this widget

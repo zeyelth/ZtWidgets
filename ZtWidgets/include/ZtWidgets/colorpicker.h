@@ -26,6 +26,7 @@
 #include "colorwidgetbase.h"
 
 class QFrame;
+class QLabel;
 class QShowEvent;
 class CHorizontalColorComponentSlider;
 class CVerticalColorComponentSlider;
@@ -44,6 +45,11 @@ class CColorPicker : public CColorWidgetBase
 {
     Q_OBJECT
 
+    /**
+     * @brief Show or hide the alpha channel
+     */
+    Q_PROPERTY(bool displayAlpha READ displayAlpha WRITE setDisplayAlpha)
+
 public:
     /**
      * @brief Construct an instance of CColorPicker
@@ -52,6 +58,19 @@ public:
     CColorPicker(QWidget* parent = Q_NULLPTR);
 
     void updateColor(const QColor& color) override;
+
+    /**
+     * @brief Get the display status of the alpha channel
+     * @return true if alpha channel is displayed in the widget
+     */
+    bool displayAlpha();
+
+public slots:
+    /**
+     * @brief Show or hide the alpha channel
+     * @param visible true if alpha channel should be visible
+     */
+    void setDisplayAlpha(bool visible);
 
 private slots:
     void onDisplayClicked();
@@ -66,21 +85,26 @@ private:
         void updateColor(const QColor& color) override;
         void showEvent(QShowEvent* event) override;
 
+        bool displayAlpha();
+        void setDisplayAlpha(bool visible);
+
     private:
-        QFrame* m_frame;
-        CColorHexEdit* m_hex;
-        CColorDisplay* m_display;
-        CHueSaturationWheel* m_wheel;
-        CVerticalColorComponentSlider* m_valueSlider;
-        CHorizontalColorComponentSlider* m_redSlider;
-        CHorizontalColorComponentSlider* m_greenSlider;
-        CHorizontalColorComponentSlider* m_blueSlider;
-        CHorizontalColorComponentSlider* m_alphaSlider;
+        QFrame* m_Frame;
+        CColorHexEdit* m_Hex;
+        CColorDisplay* m_Display;
+        CHueSaturationWheel* m_Wheel;
+        CVerticalColorComponentSlider* m_ValueSlider;
+        CHorizontalColorComponentSlider* m_RedSlider;
+        CHorizontalColorComponentSlider* m_GreenSlider;
+        CHorizontalColorComponentSlider* m_BlueSlider;
+        CHorizontalColorComponentSlider* m_AlphaSlider;
+        QLabel* m_AlphaLabel;
     };
 
-    CColorHexEdit* m_hex;
-    CColorDisplay* m_display;
-    CPopup* m_popup;
+    CColorHexEdit* m_Hex;
+    CColorDisplay* m_Display;
+    CPopup* m_Popup;
+    bool m_DisplayAlpha;
 };
 
 #endif // COLORPICKER_H

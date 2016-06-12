@@ -39,41 +39,41 @@ CColorPicker::CPopup::CPopup(QWidget *parent)
 {
     setWindowFlags(Qt::Popup);
     QVBoxLayout* main_layout = new QVBoxLayout;
-    m_frame = new QFrame;
-    m_frame->setFrameStyle(QFrame::Panel);
-    m_frame->setFrameShadow(QFrame::Raised);
+    m_Frame = new QFrame;
+    m_Frame->setFrameStyle(QFrame::Panel);
+    m_Frame->setFrameShadow(QFrame::Raised);
     main_layout->setContentsMargins(0, 0, 0, 0);
-    main_layout->addWidget(m_frame);
+    main_layout->addWidget(m_Frame);
     setLayout(main_layout);
 
     QVBoxLayout* layout = new QVBoxLayout;
-    m_hex = new CColorHexEdit;
+    m_Hex = new CColorHexEdit;
 
-    m_display = new CColorDisplay;
+    m_Display = new CColorDisplay;
 
     QHBoxLayout* top_layout = new QHBoxLayout;
-    top_layout->addWidget(m_display);
-    top_layout->addWidget(m_hex);
+    top_layout->addWidget(m_Display);
+    top_layout->addWidget(m_Hex);
     top_layout->addStretch(100);
 
-    m_wheel = new CHueSaturationWheel;
+    m_Wheel = new CHueSaturationWheel;
     QSizePolicy size_policy;
     size_policy.setVerticalPolicy(QSizePolicy::Expanding);
     size_policy.setHorizontalPolicy(QSizePolicy::Expanding);
-    m_wheel->setSizePolicy(size_policy);
+    m_Wheel->setSizePolicy(size_policy);
 
     int size = 15;
 
-    m_valueSlider = new CVerticalColorComponentSlider(CAbstractColorComponentSlider::Component::Value, size, Qt::black, Qt::white);
+    m_ValueSlider = new CVerticalColorComponentSlider(CAbstractColorComponentSlider::Component::Value, size, Qt::black, Qt::white);
 
-    m_redSlider = new CHorizontalColorComponentSlider(CAbstractColorComponentSlider::Component::Red, size, Qt::black, Qt::red);
-    m_greenSlider = new CHorizontalColorComponentSlider(CAbstractColorComponentSlider::Component::Green, size, Qt::black, Qt::green);
-    m_blueSlider = new CHorizontalColorComponentSlider(CAbstractColorComponentSlider::Component::Blue, size, Qt::black, Qt::blue);
-    m_alphaSlider = new CHorizontalColorComponentSlider(CAbstractColorComponentSlider::Component::Alpha, size, QColor(255, 255, 255, 0), QColor(255, 255, 255, 255));
+    m_RedSlider = new CHorizontalColorComponentSlider(CAbstractColorComponentSlider::Component::Red, size, Qt::black, Qt::red);
+    m_GreenSlider = new CHorizontalColorComponentSlider(CAbstractColorComponentSlider::Component::Green, size, Qt::black, Qt::green);
+    m_BlueSlider = new CHorizontalColorComponentSlider(CAbstractColorComponentSlider::Component::Blue, size, Qt::black, Qt::blue);
+    m_AlphaSlider = new CHorizontalColorComponentSlider(CAbstractColorComponentSlider::Component::Alpha, size, QColor(255, 255, 255, 0), QColor(255, 255, 255, 255));
 
     QHBoxLayout* mid_layout = new QHBoxLayout;
-    mid_layout->addWidget(m_wheel);
-    mid_layout->addWidget(m_valueSlider);
+    mid_layout->addWidget(m_Wheel);
+    mid_layout->addWidget(m_ValueSlider);
     mid_layout->setContentsMargins(5, 0, 5, 0);
 
     QFont font("Monospace");
@@ -96,22 +96,23 @@ CColorPicker::CPopup::CPopup(QWidget *parent)
 
     QHBoxLayout* slayout = new QHBoxLayout;
     slayout->addWidget(labelfunc(CAbstractColorComponentSlider::Component::Red));
-    slayout->addWidget(m_redSlider);
+    slayout->addWidget(m_RedSlider);
     bottom_layout->addLayout(slayout);
 
     slayout = new QHBoxLayout;
     slayout->addWidget(labelfunc(CAbstractColorComponentSlider::Component::Green));
-    slayout->addWidget(m_greenSlider);
+    slayout->addWidget(m_GreenSlider);
     bottom_layout->addLayout(slayout);
 
     slayout = new QHBoxLayout;
     slayout->addWidget(labelfunc(CAbstractColorComponentSlider::Component::Blue));
-    slayout->addWidget(m_blueSlider);
+    slayout->addWidget(m_BlueSlider);
     bottom_layout->addLayout(slayout);
 
     slayout = new QHBoxLayout;
-    slayout->addWidget(labelfunc(CAbstractColorComponentSlider::Component::Alpha));
-    slayout->addWidget(m_alphaSlider);
+    m_AlphaLabel = labelfunc(CAbstractColorComponentSlider::Component::Alpha);
+    slayout->addWidget(m_AlphaLabel);
+    slayout->addWidget(m_AlphaSlider);
     bottom_layout->addLayout(slayout);
 
     layout->addLayout(top_layout);
@@ -119,9 +120,9 @@ CColorPicker::CPopup::CPopup(QWidget *parent)
     layout->addLayout(bottom_layout);
 
     layout->setContentsMargins(2, 2, 2, 2);
-    m_frame->setLayout(layout);
+    m_Frame->setLayout(layout);
 
-    connect(m_display, &CColorDisplay::clicked, this, &CPopup::hide);
+    connect(m_Display, &CColorDisplay::clicked, this, &CPopup::hide);
 
     auto connectfunc = [this](CColorWidgetBase* w)
     {
@@ -131,23 +132,23 @@ CColorPicker::CPopup::CPopup(QWidget *parent)
         connect(w, &CColorWidgetBase::colorChanging, this, &CPopup::colorChanging);
     };
 
-    connectfunc(m_wheel);
-    connectfunc(m_hex);
-    connectfunc(m_display);
-    connectfunc(m_valueSlider);
-    connectfunc(m_redSlider);
-    connectfunc(m_greenSlider);
-    connectfunc(m_blueSlider);
-    connectfunc(m_alphaSlider);
+    connectfunc(m_Wheel);
+    connectfunc(m_Hex);
+    connectfunc(m_Display);
+    connectfunc(m_ValueSlider);
+    connectfunc(m_RedSlider);
+    connectfunc(m_GreenSlider);
+    connectfunc(m_BlueSlider);
+    connectfunc(m_AlphaSlider);
 
     // sync color of all child widgets
-    m_wheel->setColor(m_Color);
+    m_Wheel->setColor(m_Color);
 
-    QWidget::setTabOrder(m_hex, m_redSlider);
-    QWidget::setTabOrder(m_redSlider, m_greenSlider);
-    QWidget::setTabOrder(m_greenSlider, m_blueSlider);
-    QWidget::setTabOrder(m_blueSlider, m_alphaSlider);
-    QWidget::setTabOrder(m_alphaSlider, m_hex);
+    QWidget::setTabOrder(m_Hex, m_RedSlider);
+    QWidget::setTabOrder(m_RedSlider, m_GreenSlider);
+    QWidget::setTabOrder(m_GreenSlider, m_BlueSlider);
+    QWidget::setTabOrder(m_BlueSlider, m_AlphaSlider);
+    QWidget::setTabOrder(m_AlphaSlider, m_Hex);
 }
 
 void CColorPicker::CPopup::updateColor(const QColor& color)
@@ -160,14 +161,14 @@ void CColorPicker::CPopup::updateColor(const QColor& color)
         }
     };
 
-    forward(m_wheel);
-    forward(m_hex);
-    forward(m_display);
-    forward(m_valueSlider);
-    forward(m_redSlider);
-    forward(m_greenSlider);
-    forward(m_blueSlider);
-    forward(m_alphaSlider);
+    forward(m_Wheel);
+    forward(m_Hex);
+    forward(m_Display);
+    forward(m_ValueSlider);
+    forward(m_RedSlider);
+    forward(m_GreenSlider);
+    forward(m_BlueSlider);
+    forward(m_AlphaSlider);
 
     CColorWidgetBase::updateColor(color);
 }
@@ -175,8 +176,8 @@ void CColorPicker::CPopup::updateColor(const QColor& color)
 void CColorPicker::CPopup::showEvent(QShowEvent* event)
 {
     QPoint p(pos());
-    int fw = m_frame->lineWidth();
-    QMargins margins = m_frame->layout()->contentsMargins();
+    int fw = m_Frame->lineWidth();
+    QMargins margins = m_Frame->layout()->contentsMargins();
     p.setX(p.x() - margins.left() - fw);
     p.setY(p.y() - margins.top() -fw);
     QRect r = qApp->desktop()->screenGeometry(this);
@@ -195,26 +196,38 @@ void CColorPicker::CPopup::showEvent(QShowEvent* event)
     CColorWidgetBase::showEvent(event);
 }
 
+void CColorPicker::CPopup::setDisplayAlpha(bool visible)
+{
+    m_AlphaLabel->setVisible(visible);
+    m_AlphaSlider->setVisible(visible);
+    m_Hex->setDisplayAlpha(visible);
+}
+
+bool CColorPicker::CPopup::displayAlpha()
+{
+    return m_Hex->displayAlpha();
+}
+
 CColorPicker::CColorPicker(QWidget *parent)
     : CColorWidgetBase(parent)
 {
     QHBoxLayout* layout = new QHBoxLayout;
-    m_hex = new CColorHexEdit;
+    m_Hex = new CColorHexEdit;
     layout->setContentsMargins(0, 0, 0, 0);
 
-    m_display = new CColorDisplay;
+    m_Display = new CColorDisplay;
 
-    layout->addWidget(m_display);
-    layout->addWidget(m_hex);
+    layout->addWidget(m_Display);
+    layout->addWidget(m_Hex);
 
     setLayout(layout);
     layout->setSizeConstraint(QLayout::SetFixedSize);
 
-    m_popup = new CPopup(this);
-    m_popup->setMinimumSize(185, 290);
-    m_popup->setMaximumSize(185, 290);
+    m_Popup = new CPopup(this);
+    m_Popup->setMinimumSize(185, 290);
+    m_Popup->setMaximumSize(185, 290);
 
-    connect(m_display, &CColorDisplay::clicked, this, &CColorPicker::onDisplayClicked);
+    connect(m_Display, &CColorDisplay::clicked, this, &CColorPicker::onDisplayClicked);
 
     auto connectfunc = [this](CColorWidgetBase* w)
     {
@@ -224,9 +237,9 @@ CColorPicker::CColorPicker(QWidget *parent)
         connect(w, &CColorWidgetBase::colorChanging, this, &CColorPicker::colorChanging);
     };
 
-    connectfunc(m_hex);
-    connectfunc(m_display);
-    connectfunc(m_popup);
+    connectfunc(m_Hex);
+    connectfunc(m_Display);
+    connectfunc(m_Popup);
 
     // set default color and sync child widgets
     setColor(QColor(255, 255, 255, 255));
@@ -242,16 +255,26 @@ void CColorPicker::updateColor(const QColor& color)
         }
     };
 
-    forward(m_hex);
-    forward(m_display);
-    forward(m_popup);
+    forward(m_Hex);
+    forward(m_Display);
+    forward(m_Popup);
 
     CColorWidgetBase::updateColor(color);
 }
 
+void CColorPicker::setDisplayAlpha(bool visible)
+{
+    m_Popup->setDisplayAlpha(visible);
+    m_Hex->setDisplayAlpha(visible);
+}
+
+bool CColorPicker::displayAlpha()
+{
+    return m_Popup->displayAlpha();
+}
 
 void CColorPicker::onDisplayClicked()
 {
-    m_popup->move(mapToGlobal(rect().topLeft()));
-    m_popup->show();
+    m_Popup->move(mapToGlobal(rect().topLeft()));
+    m_Popup->show();
 }
