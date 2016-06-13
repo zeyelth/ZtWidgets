@@ -28,9 +28,14 @@
 #include <QtCore/QTime>
 
 
-static QString floatToString(qreal val)
+static QString toString(qreal val)
 {
     return QString("%1").arg(val, 6, 'f', 4, '0');
+}
+
+static QString toString(int val)
+{
+    return QString("%1").arg(val);
 }
 
 CHorizontalColorComponentSlider::CHorizontalColorComponentSlider(Components components, QWidget *parent)
@@ -44,6 +49,7 @@ CHorizontalColorComponentSlider::CHorizontalColorComponentSlider(Components comp
       m_Font("Monospace", 9),
       m_EditTextCurPos(0),
       m_EditTextSelOffset(0),
+      m_EditType(EditType::Float),
       m_AnimEditCursor(true),
       m_DisplayText(true),
       m_KeyInputEnabled(true)
@@ -95,8 +101,7 @@ void CHorizontalColorComponentSlider::beginEdit()
         return;
     }
 
-    qreal val = componentsValue();
-    m_EditText = floatToString(val);
+    m_EditText = m_EditType == EditType::Float ? toString(componentsValueF()) : toString(componentsValue());
     m_Text = m_EditText;
     m_EditTextCurPos = m_EditText.size();
     m_EditTextSelOffset = -m_EditText.size();
@@ -117,11 +122,28 @@ void CHorizontalColorComponentSlider::endEdit()
     if (m_Text != m_EditText)
     {
         bool valid;
-        qreal val = qBound(0.0, m_EditText.toDouble(&valid), 1.0);
-        if (valid)
+        switch (m_EditType)
         {
-            updateActiveComponents(val);
-            emit colorChanged(m_Color);
+            case EditType::Float:
+                {
+                    qreal val = qBound(0.0, m_EditText.toDouble(&valid), 1.0);
+                    if (valid)
+                    {
+                        updateActiveComponents(val);
+                        emit colorChanged(m_Color);
+                    }
+                }
+                break;
+            case EditType::Int:
+                {
+                    int val = qBound(0, m_EditText.toInt(&valid), 255);
+                    if (valid)
+                    {
+                        updateActiveComponents(val);
+                        emit colorChanged(m_Color);
+                    }
+                }
+                break;
         }
     }
 
@@ -135,10 +157,11 @@ bool CHorizontalColorComponentSlider::isEditing() const
 
 quint32 CHorizontalColorComponentSlider::toEditCursorPos(int pos) const
 {
-    QString text = floatToString(componentsValue());
     QFontMetrics fm(m_Font);
-    QRect font_rect = fm.tightBoundingRect(text);
-    return static_cast<quint32>(qBound(0, (pos + font_rect.width() - rect().width()) / fm.averageCharWidth(), text.size()));;
+    QRect font_rect = fm.tightBoundingRect(m_EditText);
+    int cw = fm.averageCharWidth();
+    int cursor_pos = (pos + font_rect.width() - rect().width() + (int)(cw * 0.5f)) / cw;
+    return static_cast<quint32>(qBound(0, cursor_pos, m_EditText.size()));
 }
 
 void CHorizontalColorComponentSlider::mousePressEvent(QMouseEvent* event)
@@ -293,6 +316,17 @@ void CHorizontalColorComponentSlider::keyPressEvent(QKeyEvent* event)
     }
 }
 
+void CHorizontalColorComponentSlider::setEditType(CHorizontalColorComponentSlider::EditType type)
+{
+    m_EditType = type;
+    update();
+}
+
+CHorizontalColorComponentSlider::EditType CHorizontalColorComponentSlider::editType()
+{
+    return m_EditType;
+}
+
 void CHorizontalColorComponentSlider::paintEvent(QPaintEvent*)
 {
     const QRect& r = rect();
@@ -314,7 +348,7 @@ void CHorizontalColorComponentSlider::paintEvent(QPaintEvent*)
     gradient.setColorAt(1, m_GradientColor1);
     painter.fillRect(r, gradient);
 
-    qreal val = componentsValue();
+    qreal val = componentsValueF();
     int pos;
     QLineF line0;
     QLineF line1;
@@ -326,7 +360,7 @@ void CHorizontalColorComponentSlider::paintEvent(QPaintEvent*)
 
     if (m_DisplayText)
     {
-        QString text = isEditing() ? m_EditText : floatToString(val);
+        QString text = isEditing() ? m_EditText : (m_EditType == EditType::Float ? toString(val) : toString(componentsValue()));
 
         QFontMetrics fm(m_Font);
         int cursor_width = 3;

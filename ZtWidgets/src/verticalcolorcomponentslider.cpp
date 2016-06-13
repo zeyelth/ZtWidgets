@@ -87,7 +87,7 @@ void CVerticalColorComponentSlider::paintEvent(QPaintEvent*)
     gradient.setColorAt(1, m_GradientColor1);
     painter.fillRect(r, gradient);
 
-    qreal val = componentsValue();
+    qreal val = componentsValueF();
     int pos;
     QLineF line0;
     QLineF line1;

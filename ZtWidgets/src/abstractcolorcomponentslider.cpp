@@ -101,7 +101,7 @@ quint32 CAbstractColorComponentSlider::componentCount() const
     return count;
 }
 
-qreal CAbstractColorComponentSlider::componentsValue() const
+qreal CAbstractColorComponentSlider::componentsValueF() const
 {
     qreal val = 0;
     if (m_Components & Component::Red)
@@ -120,6 +120,27 @@ qreal CAbstractColorComponentSlider::componentsValue() const
         val += m_Color.valueF();
 
     return val / qreal(componentCount());
+}
+
+int CAbstractColorComponentSlider::componentsValue() const
+{
+    int val = 0;
+    if (m_Components & Component::Red)
+        val += m_Color.red();
+    if (m_Components & Component::Green)
+        val += m_Color.green();
+    if (m_Components & Component::Blue)
+        val += m_Color.blue();
+    if (m_Components & Component::Alpha)
+        val += m_Color.alpha();
+    if (m_Components & Component::Hue)
+        val += m_Color.hue();
+    if (m_Components & Component::Saturation)
+        val += m_Color.saturation();
+    if (m_Components & Component::Value)
+        val += m_Color.value();
+
+    return val / componentCount();
 }
 
 void CAbstractColorComponentSlider::updateActiveComponents(qreal value)
@@ -146,6 +167,40 @@ void CAbstractColorComponentSlider::updateActiveComponents(qreal value)
         float s = m_Components & Component::Saturation ? value : m_Color.saturationF();
         float v = m_Components & Component::Value ? value : m_Color.valueF();
         color.setHsvF(h, s, v, a);
+    }
+    else
+    {
+        qWarning("Active components set to neither RGBA nor HSV.");
+        return;
+    }
+
+    CColorWidgetBase::updateColor(color);
+}
+
+void CAbstractColorComponentSlider::updateActiveComponents(int value)
+{
+    if ((m_Components & Component::RGBA) && (m_Components & Component::HSV))
+    {
+        qWarning("Can't update RGBA and HSV components at the same time.");
+        return;
+    }
+
+    QColor color;
+    if (m_Components & Component::RGBA)
+    {
+        int r = m_Components & Component::Red ? value : m_Color.red();
+        int g = m_Components & Component::Green ? value : m_Color.green();
+        int b = m_Components & Component::Blue ? value : m_Color.blue();
+        int a = m_Components & Component::Alpha ? value : m_Color.alpha();
+        color.setRgb(r, g, b, a);
+    }
+    else if (m_Components & Component::HSV)
+    {
+        int a = m_Color.alpha();
+        int h = m_Components & Component::Hue ? value : m_Color.hue();
+        int s = m_Components & Component::Saturation ? value : m_Color.saturation();
+        int v = m_Components & Component::Value ? value : m_Color.value();
+        color.setHsv(h, s, v, a);
     }
     else
     {

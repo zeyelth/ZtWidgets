@@ -22,8 +22,6 @@
 
 #include <ZtWidgets/colorhexedit.h>
 
-#include <QDebug>
-
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>

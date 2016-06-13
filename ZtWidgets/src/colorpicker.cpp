@@ -208,6 +208,18 @@ bool CColorPicker::CPopup::displayAlpha()
     return m_Hex->displayAlpha();
 }
 
+void CColorPicker::CPopup::setEditType(CHorizontalColorComponentSlider::EditType editType)
+{
+    m_RedSlider->setEditType(editType);
+    m_GreenSlider->setEditType(editType);
+    m_BlueSlider->setEditType(editType);
+}
+
+CHorizontalColorComponentSlider::EditType CColorPicker::CPopup::editType()
+{
+    return m_RedSlider->editType();
+}
+
 CColorPicker::CColorPicker(QWidget *parent)
     : CColorWidgetBase(parent)
 {
@@ -271,6 +283,16 @@ void CColorPicker::setDisplayAlpha(bool visible)
 bool CColorPicker::displayAlpha()
 {
     return m_Popup->displayAlpha();
+}
+
+void CColorPicker::setEditType(CHorizontalColorComponentSlider::EditType type)
+{
+    m_Popup->setEditType(type);
+}
+
+CHorizontalColorComponentSlider::EditType CColorPicker::editType()
+{
+    return m_Popup->editType();
 }
 
 void CColorPicker::onDisplayClicked()

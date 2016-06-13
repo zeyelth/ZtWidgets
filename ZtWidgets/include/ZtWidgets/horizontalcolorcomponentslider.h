@@ -32,7 +32,20 @@
 class CHorizontalColorComponentSlider : public CAbstractColorComponentSlider
 {
     Q_OBJECT
+
 public:
+
+    /**
+     * @brief Supported edit types. These are used for display and UI.
+     */
+    enum class EditType
+    {
+        Int        = 0,
+        Float      = 1,
+    };
+
+    Q_ENUM(EditType)
+
     /**
      * @brief Construct an instance of CHorizontalColorComponentSlider
      * @param components Set of color components controlled by this widget. Typically one but can be more.
@@ -71,6 +84,18 @@ public:
     void displayText(bool enable);
 
     /**
+     * @brief Set the edit type of this widget. This affects displayed text and key input
+     * @param type Edit type used by this widget
+     */
+    void setEditType(EditType type);
+
+    /**
+     * @brief Get the edit type used by this widget
+     * @return The edit type used by this widget
+     */
+    EditType editType();
+
+    /**
      * @brief Reimplemented from QWidget::paintEvent()
      */
     void paintEvent(QPaintEvent*) override;
@@ -102,6 +127,7 @@ private:
     QTimer m_Timer;
     quint32 m_EditTextCurPos;
     qint32 m_EditTextSelOffset;
+    EditType m_EditType;
     bool m_AnimEditCursor;
     bool m_DisplayText;
     bool m_KeyInputEnabled;

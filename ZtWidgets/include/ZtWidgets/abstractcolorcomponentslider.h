@@ -102,7 +102,16 @@ protected:
      *
      * @return The value
      */
-    qreal componentsValue() const;
+    qreal componentsValueF() const;
+
+    /**
+     * @brief Get the value of components represented by this widget.
+     *
+     * Get the value of components represented by this widget. If the widget represents more than one component, an average is returned.
+     *
+     * @return The value
+     */
+    int componentsValue() const;
 
     /**
      * @brief Get the number of components represented by this widget
@@ -115,6 +124,12 @@ protected:
      * @param value Value to update all components with
      */
     void updateActiveComponents(qreal value);
+
+    /**
+     * @brief Update all components represented by this widget with a given value
+     * @param value Value to update all components with
+     */
+    void updateActiveComponents(int value);
 
     /**
      * @brief Update the QColor of this component based on user interaction

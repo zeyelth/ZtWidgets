@@ -25,7 +25,6 @@
 
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QLineEdit>
-#include <QDebug>
 #include <QStyle>
 
 #include <ZtWidgets/colorpicker.h>

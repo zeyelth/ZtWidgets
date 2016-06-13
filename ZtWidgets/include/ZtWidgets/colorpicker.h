@@ -24,11 +24,11 @@
 #define COLORPICKER_H
 
 #include "colorwidgetbase.h"
+#include "horizontalcolorcomponentslider.h"
 
 class QFrame;
 class QLabel;
 class QShowEvent;
-class CHorizontalColorComponentSlider;
 class CVerticalColorComponentSlider;
 class CColorHexEdit;
 class CColorDisplay;
@@ -50,7 +50,13 @@ class CColorPicker : public CColorWidgetBase
      */
     Q_PROPERTY(bool displayAlpha READ displayAlpha WRITE setDisplayAlpha)
 
+    /**
+     * @brief Select the type used by the UI when directly editing values
+     */
+    Q_PROPERTY(CHorizontalColorComponentSlider::EditType editType READ editType WRITE setEditType)
+
 public:
+
     /**
      * @brief Construct an instance of CColorPicker
      * @param parent Parent widget
@@ -65,12 +71,24 @@ public:
      */
     bool displayAlpha();
 
+    /**
+     * @brief Get the type used when directly editing values
+     * @return The type used when directly editing values
+     */
+    CHorizontalColorComponentSlider::EditType editType();
+
 public slots:
     /**
      * @brief Show or hide the alpha channel
      * @param visible true if alpha channel should be visible
      */
     void setDisplayAlpha(bool visible);
+
+    /**
+     * @brief Set the type used when directly editing values
+     * @param type The type used by the widget
+     */
+    void setEditType(CHorizontalColorComponentSlider::EditType type);
 
 private slots:
     void onDisplayClicked();
@@ -87,6 +105,9 @@ private:
 
         bool displayAlpha();
         void setDisplayAlpha(bool visible);
+
+        CHorizontalColorComponentSlider::EditType editType();
+        void setEditType(CHorizontalColorComponentSlider::EditType editType);
 
     private:
         QFrame* m_Frame;
