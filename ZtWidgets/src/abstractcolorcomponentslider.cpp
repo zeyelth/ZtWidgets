@@ -23,8 +23,8 @@
 #include <ZtWidgets/abstractcolorcomponentslider.h>
 
 
-CAbstractColorComponentSlider::CAbstractColorComponentSlider(Components components, quint32 width, const QColor& color0, const QColor& color1, QWidget* parent)
-    : CColorWidgetBase(parent),
+AbstractColorComponentSlider::AbstractColorComponentSlider(Components components, quint32 width, const QColor& color0, const QColor& color1, QWidget* parent)
+    : ColorWidgetBase(parent),
       m_GradientColor0(color0),
       m_GradientColor1(color1),
       m_Components(components),
@@ -33,18 +33,18 @@ CAbstractColorComponentSlider::CAbstractColorComponentSlider(Components componen
     setFocusPolicy(Qt::StrongFocus);
 }
 
-void CAbstractColorComponentSlider::setActiveComponents(Components components)
+void AbstractColorComponentSlider::setActiveComponents(Components components)
 {
     m_Components = components;
 }
 
-void CAbstractColorComponentSlider::setGradient(const QColor& color0, const QColor& color1)
+void AbstractColorComponentSlider::setGradient(const QColor& color0, const QColor& color1)
 {
     m_GradientColor0 = color0;
     m_GradientColor1 = color1;
 }
 
-QString CAbstractColorComponentSlider::componentName(Component component, bool abbreviate)
+QString AbstractColorComponentSlider::componentName(Component component, bool abbreviate)
 {
     switch(component)
     {
@@ -67,7 +67,7 @@ QString CAbstractColorComponentSlider::componentName(Component component, bool a
     }
 }
 
-QString CAbstractColorComponentSlider::activeComponentsName() const
+QString AbstractColorComponentSlider::activeComponentsName() const
 {
     QList<Component> components;
     QString name;
@@ -85,7 +85,7 @@ QString CAbstractColorComponentSlider::activeComponentsName() const
     return name.isEmpty() ? "Unknown" : name;
 }
 
-quint32 CAbstractColorComponentSlider::componentCount() const
+quint32 AbstractColorComponentSlider::componentCount() const
 {
     quint32 count = 0;
     int val = m_Components;
@@ -101,7 +101,7 @@ quint32 CAbstractColorComponentSlider::componentCount() const
     return count;
 }
 
-qreal CAbstractColorComponentSlider::componentsValueF() const
+qreal AbstractColorComponentSlider::componentsValueF() const
 {
     qreal val = 0;
     if (m_Components & Component::Red)
@@ -122,7 +122,7 @@ qreal CAbstractColorComponentSlider::componentsValueF() const
     return val / qreal(componentCount());
 }
 
-int CAbstractColorComponentSlider::componentsValue() const
+int AbstractColorComponentSlider::componentsValue() const
 {
     int val = 0;
     if (m_Components & Component::Red)
@@ -143,7 +143,7 @@ int CAbstractColorComponentSlider::componentsValue() const
     return val / componentCount();
 }
 
-void CAbstractColorComponentSlider::updateActiveComponents(qreal value)
+void AbstractColorComponentSlider::updateActiveComponents(qreal value)
 {
     if ((m_Components & Component::RGBA) && (m_Components & Component::HSV))
     {
@@ -174,10 +174,10 @@ void CAbstractColorComponentSlider::updateActiveComponents(qreal value)
         return;
     }
 
-    CColorWidgetBase::updateColor(color);
+    ColorWidgetBase::updateColor(color);
 }
 
-void CAbstractColorComponentSlider::updateActiveComponents(int value)
+void AbstractColorComponentSlider::updateActiveComponents(int value)
 {
     if ((m_Components & Component::RGBA) && (m_Components & Component::HSV))
     {
@@ -208,5 +208,5 @@ void CAbstractColorComponentSlider::updateActiveComponents(int value)
         return;
     }
 
-    CColorWidgetBase::updateColor(color);
+    ColorWidgetBase::updateColor(color);
 }

@@ -38,14 +38,14 @@ static QString toString(int val)
     return QString("%1").arg(val);
 }
 
-CHorizontalColorComponentSlider::CHorizontalColorComponentSlider(Components components, QWidget *parent)
-    : CHorizontalColorComponentSlider(components, 20, Qt::white, Qt::black, parent)
+HorizontalColorComponentSlider::HorizontalColorComponentSlider(Components components, QWidget *parent)
+    : HorizontalColorComponentSlider(components, 20, Qt::white, Qt::black, parent)
 {
 
 }
 
-CHorizontalColorComponentSlider::CHorizontalColorComponentSlider(Components components, quint32 width, const QColor& color0, const QColor& color1, QWidget* parent)
-    : CAbstractColorComponentSlider(components, width, color0, color1, parent),
+HorizontalColorComponentSlider::HorizontalColorComponentSlider(Components components, quint32 width, const QColor& color0, const QColor& color1, QWidget* parent)
+    : AbstractColorComponentSlider(components, width, color0, color1, parent),
       m_Font("Monospace", 9),
       m_EditTextCurPos(0),
       m_EditTextSelOffset(0),
@@ -65,27 +65,27 @@ CHorizontalColorComponentSlider::CHorizontalColorComponentSlider(Components comp
     connect(&m_Timer, &QTimer::timeout, this, [this](){ m_AnimEditCursor = true; update(); });
 }
 
-void CHorizontalColorComponentSlider::enableKeyInput()
+void HorizontalColorComponentSlider::enableKeyInput()
 {
     m_KeyInputEnabled = true;
 }
 
-void CHorizontalColorComponentSlider::disableKeyInput()
+void HorizontalColorComponentSlider::disableKeyInput()
 {
     m_KeyInputEnabled = false;
 }
 
-bool CHorizontalColorComponentSlider::keyInputEnabled() const
+bool HorizontalColorComponentSlider::keyInputEnabled() const
 {
     return m_KeyInputEnabled;
 }
 
-void CHorizontalColorComponentSlider::displayText(bool show)
+void HorizontalColorComponentSlider::displayText(bool show)
 {
     m_DisplayText = show;
 }
 
-void CHorizontalColorComponentSlider::updateColor(const QPointF& pos)
+void HorizontalColorComponentSlider::updateColor(const QPointF& pos)
 {
     const QRectF& r = rect();
     qreal value;
@@ -94,7 +94,7 @@ void CHorizontalColorComponentSlider::updateColor(const QPointF& pos)
     updateActiveComponents(value);
 }
 
-void CHorizontalColorComponentSlider::beginEdit()
+void HorizontalColorComponentSlider::beginEdit()
 {
     if (!keyInputEnabled())
     {
@@ -108,7 +108,7 @@ void CHorizontalColorComponentSlider::beginEdit()
     m_Timer.start(1000);
 }
 
-void CHorizontalColorComponentSlider::cancelEdit()
+void HorizontalColorComponentSlider::cancelEdit()
 {
     m_EditText = QString();
     m_EditTextCurPos = 0;
@@ -117,7 +117,7 @@ void CHorizontalColorComponentSlider::cancelEdit()
     update();
 }
 
-void CHorizontalColorComponentSlider::endEdit()
+void HorizontalColorComponentSlider::endEdit()
 {
     if (m_Text != m_EditText)
     {
@@ -150,12 +150,12 @@ void CHorizontalColorComponentSlider::endEdit()
     cancelEdit();
 }
 
-bool CHorizontalColorComponentSlider::isEditing() const
+bool HorizontalColorComponentSlider::isEditing() const
 {
     return keyInputEnabled() && !m_EditText.isNull();
 }
 
-quint32 CHorizontalColorComponentSlider::toEditCursorPos(int pos) const
+quint32 HorizontalColorComponentSlider::toEditCursorPos(int pos) const
 {
     QFontMetrics fm(m_Font);
     QRect font_rect = fm.tightBoundingRect(m_EditText);
@@ -164,7 +164,7 @@ quint32 CHorizontalColorComponentSlider::toEditCursorPos(int pos) const
     return static_cast<quint32>(qBound(0, cursor_pos, m_EditText.size()));
 }
 
-void CHorizontalColorComponentSlider::mousePressEvent(QMouseEvent* event)
+void HorizontalColorComponentSlider::mousePressEvent(QMouseEvent* event)
 {
     if (isEditing())
     {
@@ -180,7 +180,7 @@ void CHorizontalColorComponentSlider::mousePressEvent(QMouseEvent* event)
     }
 }
 
-void CHorizontalColorComponentSlider::mouseMoveEvent(QMouseEvent* event)
+void HorizontalColorComponentSlider::mouseMoveEvent(QMouseEvent* event)
 {
     if (isEditing())
     {
@@ -189,7 +189,7 @@ void CHorizontalColorComponentSlider::mouseMoveEvent(QMouseEvent* event)
     mousePressEvent(event);
 }
 
-void CHorizontalColorComponentSlider::mouseReleaseEvent(QMouseEvent* event)
+void HorizontalColorComponentSlider::mouseReleaseEvent(QMouseEvent* event)
 {
     if (!isEditing())
     {
@@ -199,13 +199,13 @@ void CHorizontalColorComponentSlider::mouseReleaseEvent(QMouseEvent* event)
     update();
 }
 
-void CHorizontalColorComponentSlider::mouseDoubleClickEvent(QMouseEvent*)
+void HorizontalColorComponentSlider::mouseDoubleClickEvent(QMouseEvent*)
 {
     cancelEdit();
     beginEdit();
 }
 
-void CHorizontalColorComponentSlider::focusInEvent(QFocusEvent* event)
+void HorizontalColorComponentSlider::focusInEvent(QFocusEvent* event)
 {
     int reason = event->reason();
     if(reason == Qt::TabFocusReason || reason == Qt::BacktabFocusReason)
@@ -215,7 +215,7 @@ void CHorizontalColorComponentSlider::focusInEvent(QFocusEvent* event)
     }
 }
 
-void CHorizontalColorComponentSlider::focusOutEvent(QFocusEvent* event)
+void HorizontalColorComponentSlider::focusOutEvent(QFocusEvent* event)
 {
     int reason = event->reason();
     if(reason == Qt::TabFocusReason || reason == Qt::BacktabFocusReason)
@@ -228,7 +228,7 @@ void CHorizontalColorComponentSlider::focusOutEvent(QFocusEvent* event)
     }
 }
 
-void CHorizontalColorComponentSlider::keyPressEvent(QKeyEvent* event)
+void HorizontalColorComponentSlider::keyPressEvent(QKeyEvent* event)
 {
     if (isEditing())
     {
@@ -316,18 +316,18 @@ void CHorizontalColorComponentSlider::keyPressEvent(QKeyEvent* event)
     }
 }
 
-void CHorizontalColorComponentSlider::setEditType(CHorizontalColorComponentSlider::EditType type)
+void HorizontalColorComponentSlider::setEditType(HorizontalColorComponentSlider::EditType type)
 {
     m_EditType = type;
     update();
 }
 
-CHorizontalColorComponentSlider::EditType CHorizontalColorComponentSlider::editType()
+HorizontalColorComponentSlider::EditType HorizontalColorComponentSlider::editType()
 {
     return m_EditType;
 }
 
-void CHorizontalColorComponentSlider::paintEvent(QPaintEvent*)
+void HorizontalColorComponentSlider::paintEvent(QPaintEvent*)
 {
     const QRect& r = rect();
     QPainter painter(this);

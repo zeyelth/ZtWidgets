@@ -26,7 +26,7 @@
 #include <QtGui/QPainter>
 #include <QtCore/QRect>
 
-void CColorWidgetBase::drawCheckerboard(QPainter& painter, const QRect& rect, quint32 size)
+void ColorWidgetBase::drawCheckerboard(QPainter& painter, const QRect& rect, quint32 size)
 {
     QColor color1(153, 153, 152);
     QColor color2(102, 102, 102);
@@ -59,17 +59,17 @@ void CColorWidgetBase::drawCheckerboard(QPainter& painter, const QRect& rect, qu
 }
 
 
-CColorWidgetBase::CColorWidgetBase(QWidget* parent)
+ColorWidgetBase::ColorWidgetBase(QWidget* parent)
     : QWidget(parent)
 {
 }
 
-QColor CColorWidgetBase::color() const
+QColor ColorWidgetBase::color() const
 {
     return m_Color;
 }
 
-void CColorWidgetBase::updateColor(const QColor& color)
+void ColorWidgetBase::updateColor(const QColor& color)
 {
     if (m_Color == color)
     {
@@ -80,7 +80,7 @@ void CColorWidgetBase::updateColor(const QColor& color)
     update();
 }
 
-void CColorWidgetBase::setColor(const QColor& color)
+void ColorWidgetBase::setColor(const QColor& color)
 {
     if (m_Color == color)
     {

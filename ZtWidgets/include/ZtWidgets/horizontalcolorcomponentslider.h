@@ -29,7 +29,7 @@
 /**
  * @brief A horizontally oriented color component slider
  */
-class CHorizontalColorComponentSlider : public CAbstractColorComponentSlider
+class HorizontalColorComponentSlider : public AbstractColorComponentSlider
 {
     Q_OBJECT
 
@@ -47,21 +47,21 @@ public:
     Q_ENUM(EditType)
 
     /**
-     * @brief Construct an instance of CHorizontalColorComponentSlider
+     * @brief Construct an instance of HorizontalColorComponentSlider
      * @param components Set of color components controlled by this widget. Typically one but can be more.
      * @param parent Parent widget
      */
-    CHorizontalColorComponentSlider(Components components, QWidget* parent = Q_NULLPTR);
+    HorizontalColorComponentSlider(Components components, QWidget* parent = Q_NULLPTR);
 
     /**
-     * @brief Construct an instance of CHorizontalColorComponentSlider
+     * @brief Construct an instance of HorizontalColorComponentSlider
      * @param components Set of color components controlled by this widget. Typically one but can be more.
      * @param width Width of the widget in pixels
      * @param color0 Start color of gradient
      * @param color1 End color of gradient
      * @param parent Parent widget
      */
-    CHorizontalColorComponentSlider(Components components, quint32 width, const QColor& color0, const QColor& color1, QWidget* parent = Q_NULLPTR);
+    HorizontalColorComponentSlider(Components components, quint32 width, const QColor& color0, const QColor& color1, QWidget* parent = Q_NULLPTR);
 
     /**
      * @brief Enables keyboard input, used to manually set the components' value

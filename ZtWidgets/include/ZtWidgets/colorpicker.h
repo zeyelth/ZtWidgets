@@ -29,10 +29,10 @@
 class QFrame;
 class QLabel;
 class QShowEvent;
-class CVerticalColorComponentSlider;
-class CColorHexEdit;
-class CColorDisplay;
-class CHueSaturationWheel;
+class VerticalColorComponentSlider;
+class ColorHexEdit;
+class ColorDisplay;
+class HueSaturationWheel;
 
 
 /**
@@ -41,7 +41,7 @@ class CHueSaturationWheel;
  * A compact color picker widget with a hue and saturation wheel.
  * Additional sliders for value, red, green, blue and alpha channels.
  */
-class CColorPicker : public CColorWidgetBase
+class ColorPicker : public ColorWidgetBase
 {
     Q_OBJECT
 
@@ -53,15 +53,15 @@ class CColorPicker : public CColorWidgetBase
     /**
      * @brief Select the type used by the UI when directly editing values
      */
-    Q_PROPERTY(CHorizontalColorComponentSlider::EditType editType READ editType WRITE setEditType)
+    Q_PROPERTY(HorizontalColorComponentSlider::EditType editType READ editType WRITE setEditType)
 
 public:
 
     /**
-     * @brief Construct an instance of CColorPicker
+     * @brief Construct an instance of ColorPicker
      * @param parent Parent widget
      */
-    CColorPicker(QWidget* parent = Q_NULLPTR);
+    ColorPicker(QWidget* parent = Q_NULLPTR);
 
     void updateColor(const QColor& color) override;
 
@@ -75,7 +75,7 @@ public:
      * @brief Get the type used when directly editing values
      * @return The type used when directly editing values
      */
-    CHorizontalColorComponentSlider::EditType editType();
+    HorizontalColorComponentSlider::EditType editType();
 
 public slots:
     /**
@@ -88,13 +88,13 @@ public slots:
      * @brief Set the type used when directly editing values
      * @param type The type used by the widget
      */
-    void setEditType(CHorizontalColorComponentSlider::EditType type);
+    void setEditType(HorizontalColorComponentSlider::EditType type);
 
 private slots:
     void onDisplayClicked();
 
 private:
-    class CPopup : public CColorWidgetBase
+    class CPopup : public ColorWidgetBase
     {
 
     public:
@@ -106,24 +106,24 @@ private:
         bool displayAlpha();
         void setDisplayAlpha(bool visible);
 
-        CHorizontalColorComponentSlider::EditType editType();
-        void setEditType(CHorizontalColorComponentSlider::EditType editType);
+        HorizontalColorComponentSlider::EditType editType();
+        void setEditType(HorizontalColorComponentSlider::EditType editType);
 
     private:
         QFrame* m_Frame;
-        CColorHexEdit* m_Hex;
-        CColorDisplay* m_Display;
-        CHueSaturationWheel* m_Wheel;
-        CVerticalColorComponentSlider* m_ValueSlider;
-        CHorizontalColorComponentSlider* m_RedSlider;
-        CHorizontalColorComponentSlider* m_GreenSlider;
-        CHorizontalColorComponentSlider* m_BlueSlider;
-        CHorizontalColorComponentSlider* m_AlphaSlider;
+        ColorHexEdit* m_Hex;
+        ColorDisplay* m_Display;
+        HueSaturationWheel* m_Wheel;
+        VerticalColorComponentSlider* m_ValueSlider;
+        HorizontalColorComponentSlider* m_RedSlider;
+        HorizontalColorComponentSlider* m_GreenSlider;
+        HorizontalColorComponentSlider* m_BlueSlider;
+        HorizontalColorComponentSlider* m_AlphaSlider;
         QLabel* m_AlphaLabel;
     };
 
-    CColorHexEdit* m_Hex;
-    CColorDisplay* m_Display;
+    ColorHexEdit* m_Hex;
+    ColorDisplay* m_Display;
     CPopup* m_Popup;
     bool m_DisplayAlpha;
 };

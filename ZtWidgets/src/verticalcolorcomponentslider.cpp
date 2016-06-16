@@ -24,14 +24,14 @@
 #include <QtGui/QMouseEvent>
 #include <QtGui/QPainter>
 
-CVerticalColorComponentSlider::CVerticalColorComponentSlider(Components components, QWidget *parent)
-    : CVerticalColorComponentSlider(components, 20, Qt::white, Qt::black, parent)
+VerticalColorComponentSlider::VerticalColorComponentSlider(Components components, QWidget *parent)
+    : VerticalColorComponentSlider(components, 20, Qt::white, Qt::black, parent)
 {
 
 }
 
-CVerticalColorComponentSlider::CVerticalColorComponentSlider(Components components, quint32 width, const QColor& color0, const QColor& color1, QWidget* parent)
-    : CAbstractColorComponentSlider(components, width, color0, color1, parent)
+VerticalColorComponentSlider::VerticalColorComponentSlider(Components components, quint32 width, const QColor& color0, const QColor& color1, QWidget* parent)
+    : AbstractColorComponentSlider(components, width, color0, color1, parent)
 {
     setMinimumHeight(0);
     setMaximumHeight(QWIDGETSIZE_MAX);
@@ -39,7 +39,7 @@ CVerticalColorComponentSlider::CVerticalColorComponentSlider(Components componen
     setMaximumWidth(m_Width);
 }
 
-void CVerticalColorComponentSlider::updateColor(const QPointF& pos)
+void VerticalColorComponentSlider::updateColor(const QPointF& pos)
 {
     const QRectF& r = rect();
     qreal value;
@@ -48,25 +48,25 @@ void CVerticalColorComponentSlider::updateColor(const QPointF& pos)
     updateActiveComponents(value);
 }
 
-void CVerticalColorComponentSlider::mousePressEvent(QMouseEvent* event)
+void VerticalColorComponentSlider::mousePressEvent(QMouseEvent* event)
 {
     updateColor(event->pos());
     emit colorChanging(m_Color);
 }
 
-void CVerticalColorComponentSlider::mouseMoveEvent(QMouseEvent* event)
+void VerticalColorComponentSlider::mouseMoveEvent(QMouseEvent* event)
 {
     mousePressEvent(event);
 }
 
-void CVerticalColorComponentSlider::mouseReleaseEvent(QMouseEvent* event)
+void VerticalColorComponentSlider::mouseReleaseEvent(QMouseEvent* event)
 {
     updateColor(event->pos());
     emit colorChanged(m_Color);
     update();
 }
 
-void CVerticalColorComponentSlider::paintEvent(QPaintEvent*)
+void VerticalColorComponentSlider::paintEvent(QPaintEvent*)
 {
     const QRect& r = rect();
     QPainter painter(this);

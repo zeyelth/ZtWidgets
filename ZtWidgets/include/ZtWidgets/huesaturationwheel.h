@@ -32,18 +32,18 @@
 /**
  * @brief A color wheel for controlling hue and saturation
  */
-class CHueSaturationWheel : public CColorWidgetBase
+class HueSaturationWheel : public ColorWidgetBase
 {
     Q_OBJECT
 public:
     /**
-     * @brief Construct an instance of CHueSaturationWheel
+     * @brief Construct an instance of HueSaturationWheel
      * @param parent Parent widget
      */
-    CHueSaturationWheel(QWidget* parent = Q_NULLPTR);
+    HueSaturationWheel(QWidget* parent = Q_NULLPTR);
 
     /**
-     * @brief Reimplemented from CColorWidgetBase::updateColor()
+     * @brief Reimplemented from ColorWidgetBase::updateColor()
      */
     void updateColor(const QColor&) override;
 

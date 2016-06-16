@@ -26,7 +26,7 @@
 #include <QtWidgets/QWidget>
 
 /*! Base class for color manipulating widgets */
-class CColorWidgetBase : public QWidget
+class ColorWidgetBase : public QWidget
 {
     Q_OBJECT
 
@@ -75,7 +75,7 @@ protected:
      * @brief Constructor, can be called from subclass
      * @param parent Parent widget
      */
-    CColorWidgetBase(QWidget* parent = Q_NULLPTR);
+    ColorWidgetBase(QWidget* parent = Q_NULLPTR);
 
     /**
      * @brief Draw a checkerboard pattern

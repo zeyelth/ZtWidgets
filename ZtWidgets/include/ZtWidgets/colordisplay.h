@@ -30,15 +30,15 @@
  *
  * A simple color display widget, including alpha values
  */
-class CColorDisplay : public CColorWidgetBase
+class ColorDisplay : public ColorWidgetBase
 {
     Q_OBJECT
 public:
     /**
-     * @brief Construct an instance of CColorDisplay
+     * @brief Construct an instance of ColorDisplay
      * @param parent Parent widget
      */
-    CColorDisplay(QWidget* parent = Q_NULLPTR);
+    ColorDisplay(QWidget* parent = Q_NULLPTR);
 
     /**
      * @brief Reimplemented from QWidget::mouseReleaseEvent()

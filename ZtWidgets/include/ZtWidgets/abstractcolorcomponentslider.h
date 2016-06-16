@@ -29,7 +29,7 @@
 /**
  * @brief A custom slider for manipulating color components.
  */
-class CAbstractColorComponentSlider : public CColorWidgetBase
+class AbstractColorComponentSlider : public ColorWidgetBase
 {
     Q_OBJECT
 
@@ -60,7 +60,7 @@ public:
      * @param color1 End color of gradient
      * @param parent Parent widget
      */
-    CAbstractColorComponentSlider(Components components, quint32 width, const QColor& color0, const QColor& color1, QWidget* parent = Q_NULLPTR);
+    AbstractColorComponentSlider(Components components, quint32 width, const QColor& color0, const QColor& color1, QWidget* parent = Q_NULLPTR);
 
     /**
      * @brief Choose components affected by this widget. Can be more than one.
@@ -147,6 +147,6 @@ protected:
     quint32 m_Width;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(CAbstractColorComponentSlider::Components)
+Q_DECLARE_OPERATORS_FOR_FLAGS(AbstractColorComponentSlider::Components)
 
 #endif // ABSTRACTCOLORCOMPONENTSLIDER_H

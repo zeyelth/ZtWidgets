@@ -53,8 +53,8 @@ static QString colorToString(const QColor& color, bool include_alpha)
             .arg(color.blue(), 2, 16, fill).toUpper();
 }
 
-CColorHexEdit::CColorHexEdit(QWidget *parent)
-    : CColorWidgetBase(parent),
+ColorHexEdit::ColorHexEdit(QWidget *parent)
+    : ColorWidgetBase(parent),
       m_Modified(false)
 {
     QHBoxLayout* layout = new QHBoxLayout;
@@ -76,14 +76,14 @@ CColorHexEdit::CColorHexEdit(QWidget *parent)
         }
     };
 
-    connect(m_LineEdit, &QLineEdit::textEdited, this, &CColorHexEdit::onTextEdited);
+    connect(m_LineEdit, &QLineEdit::textEdited, this, &ColorHexEdit::onTextEdited);
     connect(m_LineEdit, &QLineEdit::editingFinished, this, on_editing_finished);
 
     layout->addWidget(m_LineEdit);
     setLayout(layout);
 }
 
-int CColorHexEdit::editWidth() const
+int ColorHexEdit::editWidth() const
 {
     QFontMetrics fm(m_LineEdit->fontMetrics());
     const QStyle* style = m_LineEdit->style();
@@ -104,13 +104,13 @@ int CColorHexEdit::editWidth() const
     return size.width();
 }
 
-void CColorHexEdit::updateColor(const QColor& color)
+void ColorHexEdit::updateColor(const QColor& color)
 {
     m_LineEdit->setText(colorToString(color, displayAlpha()));
-    CColorWidgetBase::updateColor(color);
+    ColorWidgetBase::updateColor(color);
 }
 
-void CColorHexEdit::onTextEdited(const QString& text)
+void ColorHexEdit::onTextEdited(const QString& text)
 {
     if (text.size() < m_LineEdit->maxLength())
     {
@@ -129,7 +129,7 @@ void CColorHexEdit::onTextEdited(const QString& text)
     emit colorChanging(m_Color);
 }
 
-void CColorHexEdit::setDisplayAlpha(bool visible)
+void ColorHexEdit::setDisplayAlpha(bool visible)
 {
     if (visible)
     {
@@ -155,7 +155,7 @@ void CColorHexEdit::setDisplayAlpha(bool visible)
     m_LineEdit->setText(colorToString(m_Color, visible));
 }
 
-bool CColorHexEdit::displayAlpha()
+bool ColorHexEdit::displayAlpha()
 {
    return m_LineEdit->maxLength() == 8;
 }

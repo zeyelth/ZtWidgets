@@ -41,14 +41,14 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->label->setPalette(palette);
     };
 
-    connect(ui->colorPickerArgb, &CColorPicker::colorChanging, this, set_label_color);
-    connect(ui->colorPickerArgb, &CColorPicker::colorChanged, this, set_label_color);
+    connect(ui->colorPickerArgb, &ColorPicker::colorChanging, this, set_label_color);
+    connect(ui->colorPickerArgb, &ColorPicker::colorChanged, this, set_label_color);
 
-    connect(ui->colorPickerRgb, &CColorPicker::colorChanging, this, set_label_color);
-    connect(ui->colorPickerRgb, &CColorPicker::colorChanged, this, set_label_color);
+    connect(ui->colorPickerRgb, &ColorPicker::colorChanging, this, set_label_color);
+    connect(ui->colorPickerRgb, &ColorPicker::colorChanged, this, set_label_color);
 
-    connect(ui->colorPickerArgb, &CColorPicker::colorChanged, ui->colorPickerRgb, &CColorPicker::updateColor);
-    connect(ui->colorPickerRgb, &CColorPicker::colorChanged, ui->colorPickerArgb, &CColorPicker::updateColor);
+    connect(ui->colorPickerArgb, &ColorPicker::colorChanged, ui->colorPickerRgb, &ColorPicker::updateColor);
+    connect(ui->colorPickerRgb, &ColorPicker::colorChanged, ui->colorPickerArgb, &ColorPicker::updateColor);
 
     show();
 }

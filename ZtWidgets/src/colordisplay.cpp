@@ -27,8 +27,8 @@
 #include <QtWidgets/QSizePolicy>
 
 
-CColorDisplay::CColorDisplay(QWidget* parent)
-    : CColorWidgetBase(parent)
+ColorDisplay::ColorDisplay(QWidget* parent)
+    : ColorWidgetBase(parent)
 {
     setMinimumSize(15, 15);
     QSizePolicy size_policy;
@@ -36,12 +36,12 @@ CColorDisplay::CColorDisplay(QWidget* parent)
     setSizePolicy(size_policy);
 }
 
-void CColorDisplay::mouseReleaseEvent(QMouseEvent*)
+void ColorDisplay::mouseReleaseEvent(QMouseEvent*)
 {
     emit clicked();
 }
 
-void CColorDisplay::paintEvent(QPaintEvent*)
+void ColorDisplay::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
     painter.save();

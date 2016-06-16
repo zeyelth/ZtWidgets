@@ -33,7 +33,7 @@ class QLineEdit;
  * A line edit widget, configured to manipulate color values on the form of \#AARRGGBB
  * where AA, RR, GG and BB represents the alpha, red, green, and blue channels respectively.
  */
-class CColorHexEdit : public CColorWidgetBase
+class ColorHexEdit : public ColorWidgetBase
 {
     Q_OBJECT
 
@@ -44,10 +44,10 @@ class CColorHexEdit : public CColorWidgetBase
 
 public:
     /**
-     * @brief Construct an instance of CColorHexEdit
+     * @brief Construct an instance of ColorHexEdit
      * @param parent Parent widget
      */
-    CColorHexEdit(QWidget* parent = Q_NULLPTR);
+    ColorHexEdit(QWidget* parent = Q_NULLPTR);
 
     /**
      * @brief Update the text string

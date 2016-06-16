@@ -40,7 +40,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="CColorPicker" name="colorPickerArgb">
+       <widget class="ColorPicker" name="colorPickerArgb">
         <property name="toolTip">
          <string/>
         </property>
@@ -57,7 +57,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="CColorPicker" name="colorPickerRgb">
+       <widget class="ColorPicker" name="colorPickerRgb">
         <property name="toolTip">
          <string/>
         </property>
@@ -68,7 +68,7 @@
          <bool>false</bool>
         </property>
         <property name="editType">
-         <enum>CHorizontalColorComponentSlider::EditType::Int</enum>
+         <enum>HorizontalColorComponentSlider::EditType::Int</enum>
         </property>
        </widget>
       </item>
@@ -136,7 +136,7 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>CColorPicker</class>
+   <class>ColorPicker</class>
    <extends>QWidget</extends>
    <header location="global">ZtWidgets/colorpicker.h</header>
   </customwidget>

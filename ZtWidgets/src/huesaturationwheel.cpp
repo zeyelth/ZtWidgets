@@ -46,8 +46,8 @@ static QRect fittedSquare(const QRect& rect)
     return square;
 }
 
-CHueSaturationWheel::CHueSaturationWheel(QWidget* parent)
-    : CColorWidgetBase(parent)
+HueSaturationWheel::HueSaturationWheel(QWidget* parent)
+    : ColorWidgetBase(parent)
 {
     setFocusPolicy(Qt::ClickFocus);
 
@@ -56,7 +56,7 @@ CHueSaturationWheel::CHueSaturationWheel(QWidget* parent)
     setMinimumSize(10, 10);
 }
 
-void CHueSaturationWheel::updateMarkerPos()
+void HueSaturationWheel::updateMarkerPos()
 {
     QRect square = fittedSquare(rect());
     qreal radius = square.width() * 0.5;
@@ -71,7 +71,7 @@ void CHueSaturationWheel::updateMarkerPos()
     m_markerPos = line.p2();
 }
 
-void CHueSaturationWheel::rebuildColorWheel()
+void HueSaturationWheel::rebuildColorWheel()
 {
     QRect square = fittedSquare(rect());
     m_wheelImg = QImage(square.size(), QImage::Format_ARGB32_Premultiplied);
@@ -120,7 +120,7 @@ void CHueSaturationWheel::rebuildColorWheel()
     update();
 }
 
-void CHueSaturationWheel::updateColor(const QPointF &pos)
+void HueSaturationWheel::updateColor(const QPointF &pos)
 {
     QRect square = fittedSquare(rect());
 
@@ -135,12 +135,12 @@ void CHueSaturationWheel::updateColor(const QPointF &pos)
     m_Color.setHsvF(h, s, v, a);
 }
 
-void CHueSaturationWheel::updateColor(const QColor& color)
+void HueSaturationWheel::updateColor(const QColor& color)
 {
     if (color.rgb() == m_Color.rgb())
     {
         // alpha may have changed
-        CColorWidgetBase::updateColor(color);
+        ColorWidgetBase::updateColor(color);
         return;
     }
 
@@ -165,29 +165,29 @@ void CHueSaturationWheel::updateColor(const QColor& color)
         rebuildColorWheel();
     }
 
-    CColorWidgetBase::updateColor(color);
+    ColorWidgetBase::updateColor(color);
 }
 
-void CHueSaturationWheel::resizeEvent(QResizeEvent* event)
+void HueSaturationWheel::resizeEvent(QResizeEvent* event)
 {
     rebuildColorWheel();
     updateMarkerPos();
-    CColorWidgetBase::resizeEvent(event);
+    ColorWidgetBase::resizeEvent(event);
 }
 
-void CHueSaturationWheel::mousePressEvent(QMouseEvent* event)
+void HueSaturationWheel::mousePressEvent(QMouseEvent* event)
 {
     updateColor(event->pos());
     updateMarkerPos();
     emit colorChanging(m_Color);
 }
 
-void CHueSaturationWheel::mouseMoveEvent(QMouseEvent* event)
+void HueSaturationWheel::mouseMoveEvent(QMouseEvent* event)
 {
     mousePressEvent(event);
 }
 
-void CHueSaturationWheel::mouseReleaseEvent(QMouseEvent* event)
+void HueSaturationWheel::mouseReleaseEvent(QMouseEvent* event)
 {
     updateColor(event->pos());
     updateMarkerPos();
@@ -195,7 +195,7 @@ void CHueSaturationWheel::mouseReleaseEvent(QMouseEvent* event)
     emit colorChanged(m_Color);
 }
 
-void CHueSaturationWheel::paintEvent(QPaintEvent*)
+void HueSaturationWheel::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
     painter.save();

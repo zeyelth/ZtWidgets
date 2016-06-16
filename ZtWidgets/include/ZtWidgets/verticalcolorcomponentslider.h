@@ -29,26 +29,26 @@
 /**
  * @brief A vertically oriented color component slider
  */
-class CVerticalColorComponentSlider : public CAbstractColorComponentSlider
+class VerticalColorComponentSlider : public AbstractColorComponentSlider
 {
     Q_OBJECT
 public:
     /**
-     * @brief Construct an instance of CVerticalColorComponentSlider
+     * @brief Construct an instance of VerticalColorComponentSlider
      * @param components Set of color components controlled by this widget. Typically one but can be more.
      * @param parent Parent widget
      */
-    CVerticalColorComponentSlider(Components components, QWidget* parent = Q_NULLPTR);
+    VerticalColorComponentSlider(Components components, QWidget* parent = Q_NULLPTR);
 
     /**
-     * @brief Construct an instance of CVerticalColorComponentSlider
+     * @brief Construct an instance of VerticalColorComponentSlider
      * @param components Set of color components controlled by this widget. Typically one but can be more.
      * @param width Width of the widget in pixels
      * @param color0 Start color of gradient
      * @param color1 End color of gradient
      * @param parent Parent widget
      */
-    CVerticalColorComponentSlider(Components components, quint32 width, const QColor& color0, const QColor& color1, QWidget* parent = Q_NULLPTR);
+    VerticalColorComponentSlider(Components components, quint32 width, const QColor& color0, const QColor& color1, QWidget* parent = Q_NULLPTR);
 
     void paintEvent(QPaintEvent*) override;
 

@@ -45,12 +45,12 @@ bool ColorPickerPlugin::isInitialized() const
 
 QWidget* ColorPickerPlugin::createWidget(QWidget* parent)
 {
-    return new CColorPicker(parent);
+    return new ColorPicker(parent);
 }
 
 QString ColorPickerPlugin::name() const
 {
-    return "CColorPicker";
+    return "ColorPicker";
 }
 
 QString ColorPickerPlugin::group() const
@@ -81,7 +81,7 @@ bool ColorPickerPlugin::isContainer() const
 QString ColorPickerPlugin::domXml() const
 {
     return "<ui language=\"c++\">\n"
-           " <widget class=\"CColorPicker\" name=\"colorPicker\">\n"
+           " <widget class=\"ColorPicker\" name=\"colorPicker\">\n"
            "  <property name=\"geometry\">\n"
            "   <rect>\n"
            "    <x>0</x>\n"
