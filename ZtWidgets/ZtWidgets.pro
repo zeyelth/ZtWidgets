@@ -16,6 +16,8 @@ TARGET = $$qtLibraryTarget($$TARGET)
 
 INCLUDEPATH += include
 
+DEFINES += ZTWIDGETS_LIB
+
 CONFIG(debug, debug|release) {
     target.path = $$ZTWIDGETS_INSTALL_PATH/debug
 } else {
@@ -41,4 +43,5 @@ HEADERS += include/ZtWidgets/colorpicker.h \
     include/ZtWidgets/huesaturationwheel.h \
     include/ZtWidgets/abstractcolorcomponentslider.h \
     include/ZtWidgets/horizontalcolorcomponentslider.h \
-    include/ZtWidgets/verticalcolorcomponentslider.h
+    include/ZtWidgets/verticalcolorcomponentslider.h \
+    include/ZtWidgets/ztwidgets_global.h

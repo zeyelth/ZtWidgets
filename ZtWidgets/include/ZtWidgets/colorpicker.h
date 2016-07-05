@@ -23,6 +23,7 @@
 #ifndef COLORPICKER_H
 #define COLORPICKER_H
 
+#include "ztwidgets_global.h"
 #include "colorwidgetbase.h"
 #include "horizontalcolorcomponentslider.h"
 
@@ -41,7 +42,7 @@ class HueSaturationWheel;
  * A compact color picker widget with a hue and saturation wheel.
  * Additional sliders for value, red, green, blue and alpha channels.
  */
-class ColorPicker : public ColorWidgetBase
+class ZTWIDGETS_EXPORT ColorPicker : public ColorWidgetBase
 {
     Q_OBJECT
 
