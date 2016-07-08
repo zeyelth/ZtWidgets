@@ -23,10 +23,12 @@
 #ifndef COLORWIDGETBASE_H
 #define COLORWIDGETBASE_H
 
+#include "ztwidgets_global.h"
+
 #include <QtWidgets/QWidget>
 
 /*! Base class for color manipulating widgets */
-class ColorWidgetBase : public QWidget
+class ZTWIDGETS_EXPORT ColorWidgetBase : public QWidget
 {
     Q_OBJECT
 
