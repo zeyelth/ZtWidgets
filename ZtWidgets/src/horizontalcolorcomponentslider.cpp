@@ -55,6 +55,7 @@ HorizontalColorComponentSlider::HorizontalColorComponentSlider(Components compon
       m_KeyInputEnabled(true)
 {
     m_Font.setStyleHint(QFont::TypeWriter);
+    m_Font.setWeight(QFont::ExtraBold);
     m_Font.setStyleStrategy(QFont::ForceOutline);
 
     setMinimumWidth(0);
