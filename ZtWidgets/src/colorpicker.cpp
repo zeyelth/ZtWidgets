@@ -33,11 +33,10 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDesktopWidget>
 
-
 ColorPicker::Popup::Popup(QWidget *parent)
     : ColorWidgetBase(parent)
 {
-    setWindowFlags(Qt::Popup);
+    setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
     QVBoxLayout* main_layout = new QVBoxLayout;
     m_Frame = new QFrame;
     m_Frame->setFrameStyle(QFrame::Panel);
@@ -194,6 +193,14 @@ void ColorPicker::Popup::showEvent(QShowEvent* event)
     move(p);
 
     ColorWidgetBase::showEvent(event);
+}
+
+void ColorPicker::Popup::changeEvent(QEvent* event)
+{
+    if(event->type() == QEvent::ActivationChange && !isActiveWindow())
+    {
+        hide();
+    }
 }
 
 void ColorPicker::Popup::setDisplayAlpha(bool visible)

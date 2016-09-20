@@ -103,6 +103,7 @@ private:
 
         void updateColor(const QColor& color) override;
         void showEvent(QShowEvent* event) override;
+        void changeEvent(QEvent* event) override;
 
         bool displayAlpha();
         void setDisplayAlpha(bool visible);
