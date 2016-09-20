@@ -34,7 +34,7 @@
 #include <QtWidgets/QDesktopWidget>
 
 
-ColorPicker::CPopup::CPopup(QWidget *parent)
+ColorPicker::Popup::Popup(QWidget *parent)
     : ColorWidgetBase(parent)
 {
     setWindowFlags(Qt::Popup);
@@ -122,14 +122,14 @@ ColorPicker::CPopup::CPopup(QWidget *parent)
     layout->setContentsMargins(2, 2, 2, 2);
     m_Frame->setLayout(layout);
 
-    connect(m_Display, &ColorDisplay::clicked, this, &CPopup::hide);
+    connect(m_Display, &ColorDisplay::clicked, this, &Popup::hide);
 
     auto connectfunc = [this](ColorWidgetBase* w)
     {
-        connect(w, &ColorWidgetBase::colorChanged, this, &CPopup::updateColor);
-        connect(w, &ColorWidgetBase::colorChanged, this, &CPopup::colorChanged);
-        connect(w, &ColorWidgetBase::colorChanging, this, &CPopup::updateColor);
-        connect(w, &ColorWidgetBase::colorChanging, this, &CPopup::colorChanging);
+        connect(w, &ColorWidgetBase::colorChanged, this, &Popup::updateColor);
+        connect(w, &ColorWidgetBase::colorChanged, this, &Popup::colorChanged);
+        connect(w, &ColorWidgetBase::colorChanging, this, &Popup::updateColor);
+        connect(w, &ColorWidgetBase::colorChanging, this, &Popup::colorChanging);
     };
 
     connectfunc(m_Wheel);
@@ -151,7 +151,7 @@ ColorPicker::CPopup::CPopup(QWidget *parent)
     QWidget::setTabOrder(m_AlphaSlider, m_Hex);
 }
 
-void ColorPicker::CPopup::updateColor(const QColor& color)
+void ColorPicker::Popup::updateColor(const QColor& color)
 {
     auto forward = [&](ColorWidgetBase* w)
     {
@@ -173,7 +173,7 @@ void ColorPicker::CPopup::updateColor(const QColor& color)
     ColorWidgetBase::updateColor(color);
 }
 
-void ColorPicker::CPopup::showEvent(QShowEvent* event)
+void ColorPicker::Popup::showEvent(QShowEvent* event)
 {
     QPoint p(pos());
     int fw = m_Frame->lineWidth();
@@ -196,26 +196,26 @@ void ColorPicker::CPopup::showEvent(QShowEvent* event)
     ColorWidgetBase::showEvent(event);
 }
 
-void ColorPicker::CPopup::setDisplayAlpha(bool visible)
+void ColorPicker::Popup::setDisplayAlpha(bool visible)
 {
     m_AlphaLabel->setVisible(visible);
     m_AlphaSlider->setVisible(visible);
     m_Hex->setDisplayAlpha(visible);
 }
 
-bool ColorPicker::CPopup::displayAlpha()
+bool ColorPicker::Popup::displayAlpha()
 {
     return m_Hex->displayAlpha();
 }
 
-void ColorPicker::CPopup::setEditType(HorizontalColorComponentSlider::EditType editType)
+void ColorPicker::Popup::setEditType(HorizontalColorComponentSlider::EditType editType)
 {
     m_RedSlider->setEditType(editType);
     m_GreenSlider->setEditType(editType);
     m_BlueSlider->setEditType(editType);
 }
 
-HorizontalColorComponentSlider::EditType ColorPicker::CPopup::editType()
+HorizontalColorComponentSlider::EditType ColorPicker::Popup::editType()
 {
     return m_RedSlider->editType();
 }
@@ -235,7 +235,7 @@ ColorPicker::ColorPicker(QWidget *parent)
     setLayout(layout);
     layout->setSizeConstraint(QLayout::SetFixedSize);
 
-    m_Popup = new CPopup(this);
+    m_Popup = new Popup(this);
     m_Popup->setMinimumSize(185, 290);
     m_Popup->setMaximumSize(185, 290);
 

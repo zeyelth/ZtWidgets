@@ -95,11 +95,11 @@ private slots:
     void onDisplayClicked();
 
 private:
-    class CPopup : public ColorWidgetBase
+    class Popup : public ColorWidgetBase
     {
 
     public:
-        CPopup(QWidget* parent = Q_NULLPTR);
+        Popup(QWidget* parent = Q_NULLPTR);
 
         void updateColor(const QColor& color) override;
         void showEvent(QShowEvent* event) override;
@@ -125,7 +125,7 @@ private:
 
     ColorHexEdit* m_Hex;
     ColorDisplay* m_Display;
-    CPopup* m_Popup;
+    Popup* m_Popup;
     bool m_DisplayAlpha;
 };
 
