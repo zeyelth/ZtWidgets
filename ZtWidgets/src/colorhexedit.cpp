@@ -59,6 +59,7 @@ ColorHexEdit::ColorHexEdit(QWidget *parent)
 {
     QHBoxLayout* layout = new QHBoxLayout;
     layout->setSpacing(0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     QLabel* hash_label = new QLabel;
     hash_label->setText("#");
