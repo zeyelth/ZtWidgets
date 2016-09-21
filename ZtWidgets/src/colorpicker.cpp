@@ -36,7 +36,8 @@
 ColorPicker::Popup::Popup(QWidget *parent)
     : ColorWidgetBase(parent)
 {
-    setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
+    setWindowFlags(Qt::Window | Qt::BypassWindowManagerHint | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
+    setAttribute(Qt::WA_QuitOnClose, false);
     QVBoxLayout* main_layout = new QVBoxLayout;
     m_Frame = new QFrame;
     m_Frame->setFrameStyle(QFrame::Panel);
@@ -201,6 +202,7 @@ void ColorPicker::Popup::changeEvent(QEvent* event)
     {
         hide();
     }
+    ColorWidgetBase::changeEvent(event);
 }
 
 void ColorPicker::Popup::setDisplayAlpha(bool visible)
@@ -242,7 +244,7 @@ ColorPicker::ColorPicker(QWidget *parent)
     setLayout(layout);
     layout->setSizeConstraint(QLayout::SetFixedSize);
 
-    m_Popup = new Popup(this);
+    m_Popup = new Popup;
     m_Popup->setMinimumSize(185, 290);
     m_Popup->setMaximumSize(185, 290);
 
@@ -262,6 +264,11 @@ ColorPicker::ColorPicker(QWidget *parent)
 
     // set default color and sync child widgets
     setColor(QColor(255, 255, 255, 255));
+}
+
+ColorPicker::~ColorPicker()
+{
+    delete m_Popup;
 }
 
 void ColorPicker::updateColor(const QColor& color)

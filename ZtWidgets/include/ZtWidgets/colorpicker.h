@@ -64,6 +64,8 @@ public:
      */
     ColorPicker(QWidget* parent = Q_NULLPTR);
 
+    virtual ~ColorPicker();
+
     void updateColor(const QColor& color) override;
 
     /**
