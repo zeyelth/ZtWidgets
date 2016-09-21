@@ -27,13 +27,8 @@
 #include "colorwidgetbase.h"
 #include "horizontalcolorcomponentslider.h"
 
-class QFrame;
-class QLabel;
-class QShowEvent;
-class VerticalColorComponentSlider;
 class ColorHexEdit;
 class ColorDisplay;
-class HueSaturationWheel;
 
 
 /**
@@ -97,37 +92,9 @@ private slots:
     void onDisplayClicked();
 
 private:
-    class Popup : public ColorWidgetBase
-    {
-
-    public:
-        Popup(QWidget* parent = Q_NULLPTR);
-
-        void updateColor(const QColor& color) override;
-        void showEvent(QShowEvent* event) override;
-        void changeEvent(QEvent* event) override;
-
-        bool displayAlpha();
-        void setDisplayAlpha(bool visible);
-
-        HorizontalColorComponentSlider::EditType editType();
-        void setEditType(HorizontalColorComponentSlider::EditType editType);
-
-    private:
-        QFrame* m_Frame;
-        ColorHexEdit* m_Hex;
-        ColorDisplay* m_Display;
-        HueSaturationWheel* m_Wheel;
-        VerticalColorComponentSlider* m_ValueSlider;
-        HorizontalColorComponentSlider* m_RedSlider;
-        HorizontalColorComponentSlider* m_GreenSlider;
-        HorizontalColorComponentSlider* m_BlueSlider;
-        HorizontalColorComponentSlider* m_AlphaSlider;
-        QLabel* m_AlphaLabel;
-    };
-
     ColorHexEdit* m_Hex;
     ColorDisplay* m_Display;
+    class Popup;
     Popup* m_Popup;
     bool m_DisplayAlpha;
 };
