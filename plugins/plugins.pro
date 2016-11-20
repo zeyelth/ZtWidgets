@@ -40,6 +40,10 @@ ztwidgets_copy.files = $$ZTWIDGETS_INSTALL_PATH/$$CONF/libZtWidgets.*
 
 INSTALLS += target ztwidgets_copy
 
-SOURCES += src/colorpickerplugin.cpp
+SOURCES += src/colorpickerplugin.cpp \
+    src/slidereditplugin.cpp \
+    src/ztwidgetsplugincollection.cpp
 
-HEADERS += src/colorpickerplugin.h
+HEADERS += src/colorpickerplugin.h \
+    src/slidereditplugin.h \
+    src/ztwidgetsplugincollection.h

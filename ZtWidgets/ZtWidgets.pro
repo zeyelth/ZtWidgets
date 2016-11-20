@@ -34,7 +34,8 @@ SOURCES += src/colorpicker.cpp \
     src/huesaturationwheel.cpp \
     src/abstractcolorcomponentslider.cpp \
     src/horizontalcolorcomponentslider.cpp \
-    src/verticalcolorcomponentslider.cpp
+    src/verticalcolorcomponentslider.cpp \
+    src/slideredit.cpp
 
 HEADERS += include/ZtWidgets/colorpicker.h \
     include/ZtWidgets/colorwidgetbase.h \
@@ -44,4 +45,5 @@ HEADERS += include/ZtWidgets/colorpicker.h \
     include/ZtWidgets/abstractcolorcomponentslider.h \
     include/ZtWidgets/horizontalcolorcomponentslider.h \
     include/ZtWidgets/verticalcolorcomponentslider.h \
-    include/ZtWidgets/ztwidgets_global.h
+    include/ZtWidgets/ztwidgets_global.h \
+    include/ZtWidgets/slideredit.h

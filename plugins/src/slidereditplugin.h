@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Victor Wåhlström
+ * Copyright (c) 2016 Victor Wåhlström
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -20,18 +20,18 @@
  * 3. This notice may not be removed or altered from any source
  */
 
-#ifndef COLORPICKERPLUGIN_H
-#define COLORPICKERPLUGIN_H
+#ifndef SLIDEREDITPLUGIN_H
+#define SLIDEREDITPLUGIN_H
 
 #include <QtCore/QObject>
 #include <QtUiPlugin/QDesignerCustomWidgetInterface>
 
-class ColorPickerPlugin : public QObject, public QDesignerCustomWidgetInterface
+class SliderEditPlugin : public QObject, public QDesignerCustomWidgetInterface
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 public:
-    explicit ColorPickerPlugin(QObject *parent = Q_NULLPTR);
+    explicit SliderEditPlugin(QObject *parent = Q_NULLPTR);
 
     bool isContainer() const Q_DECL_OVERRIDE;
     bool isInitialized() const Q_DECL_OVERRIDE;
@@ -49,4 +49,4 @@ private:
     bool m_Initialized;
 };
 
-#endif // COLORPICKERPLUGIN_H
+#endif // SLIDEREDITPLUGIN_H

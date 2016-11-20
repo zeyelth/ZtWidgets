@@ -16,6 +16,28 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
+     <widget class="SliderEdit" name="sliderEdit">
+      <property name="toolTip">
+       <string/>
+      </property>
+      <property name="whatsThis">
+       <string/>
+      </property>
+      <property name="maximum">
+       <double>100.000000000000000</double>
+      </property>
+      <property name="value">
+       <double>50.000000000000000</double>
+      </property>
+      <property name="label">
+       <string>Test</string>
+      </property>
+      <property name="unit">
+       <string>%</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QLabel" name="label">
       <property name="font">
        <font>
@@ -139,6 +161,11 @@
    <class>ColorPicker</class>
    <extends>QWidget</extends>
    <header location="global">ZtWidgets/colorpicker.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SliderEdit</class>
+   <extends>QWidget</extends>
+   <header location="global">ZtWidgets/slideredit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

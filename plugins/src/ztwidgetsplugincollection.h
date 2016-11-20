@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Victor Wåhlström
+ * Copyright (c) 2016 Victor Wåhlström
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -20,32 +20,29 @@
  * 3. This notice may not be removed or altered from any source
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef ZTWIDGETSPLUGINCOLLECTION_H
+#define ZTWIDGETSPLUGINCOLLECTION_H
 
-#include <QMainWindow>
+#include "colorpickerplugin.h"
+#include "slidereditplugin.h"
 
-namespace Ui {
-class MainWindow;
-}
+#include <QtDesigner/QtDesigner>
+#include <QtCore/qplugin.h>
 
-/**
- * @brief Example application demonstrating ZtWidgets
- */
-class MainWindow : public QMainWindow
+
+class ZtWidgetsPluginCollection : public QObject, public QDesignerCustomWidgetCollectionInterface
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QDesignerCustomWidgetCollectionInterface")
+    Q_INTERFACES(QDesignerCustomWidgetCollectionInterface)
 
 public:
-    /**
-     * @brief Construct a main window
-     * @param parent Parent widget
-     */
-    explicit MainWindow(QWidget* parent = Q_NULLPTR);
-    ~MainWindow();
+    ZtWidgetsPluginCollection(QObject* parent = Q_NULLPTR);
+
+    QList<QDesignerCustomWidgetInterface*> customWidgets() const Q_DECL_OVERRIDE;
 
 private:
-    Ui::MainWindow *ui;
+    QList<QDesignerCustomWidgetInterface*> m_Widgets;
 };
 
-#endif // MAINWINDOW_H
+#endif // ZTWIDGETSPLUGINCOLLECTION_H
