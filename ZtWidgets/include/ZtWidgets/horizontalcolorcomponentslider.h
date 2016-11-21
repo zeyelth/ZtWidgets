@@ -38,7 +38,7 @@ public:
     /**
      * @brief Supported edit types. These are used for display and UI.
      */
-    enum class EditType
+    enum EditType
     {
         Int        = 0,
         Float      = 1,

@@ -90,7 +90,7 @@
          <bool>false</bool>
         </property>
         <property name="editType">
-         <enum>HorizontalColorComponentSlider::EditType::Int</enum>
+         <enum>HorizontalColorComponentSlider::Int</enum>
         </property>
        </widget>
       </item>
