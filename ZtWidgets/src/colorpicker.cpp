@@ -323,6 +323,7 @@ ColorPicker::~ColorPicker()
 {
     Q_D(ColorPicker);
     delete d->m_Popup;
+    delete d_ptr;
 }
 
 void ColorPicker::updateColor(const QColor& color)

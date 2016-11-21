@@ -25,9 +25,7 @@
 
 #include "colorwidgetbase.h"
 
-#include <QtGui/QColor>
-#include <QtGui/QImage>
-#include <QtCore/QPointF>
+class HueSaturationWheelPrivate;
 
 /**
  * @brief A color wheel for controlling hue and saturation
@@ -35,12 +33,18 @@
 class HueSaturationWheel : public ColorWidgetBase
 {
     Q_OBJECT
+
+    Q_DISABLE_COPY(HueSaturationWheel)
+    Q_DECLARE_PRIVATE(HueSaturationWheel)
+
 public:
     /**
      * @brief Construct an instance of HueSaturationWheel
      * @param parent Parent widget
      */
     HueSaturationWheel(QWidget* parent = Q_NULLPTR);
+
+    virtual ~HueSaturationWheel();
 
     /**
      * @brief Reimplemented from ColorWidgetBase::updateColor()
@@ -73,12 +77,7 @@ public:
     void paintEvent(QPaintEvent*) override;
 
 private:
-    void updateColor(const QPointF& pos);
-    void updateMarkerPos();
-    void rebuildColorWheel();
-
-    QImage m_wheelImg;
-    QPointF m_markerPos;
+    HueSaturationWheelPrivate* const d_ptr;
 };
 
 #endif // HUESATURATIONWHEEL_H
