@@ -32,6 +32,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDesktopWidget>
+#include <QFontDatabase>
 
 //! @cond Doxygen_Suppress
 class PopupInternal : public ColorWidgetBase
@@ -81,15 +82,11 @@ public:
         mid_layout->addWidget(m_ValueSlider);
         mid_layout->setContentsMargins(5, 0, 5, 0);
 
-        QFont font("Monospace");
-        font.setStyleHint(QFont::TypeWriter);
-
         bool abbreviate = true;
 
         auto labelfunc = [&](AbstractColorComponentSlider::Component component)
         {
             QLabel* label = new QLabel(AbstractColorComponentSlider::componentName(component, abbreviate));
-            label->setFont(font);
             label->setMaximumHeight(size);
             label->setMinimumWidth(size);
             label->setMaximumWidth(size);
@@ -310,6 +307,13 @@ ColorPicker::ColorPicker(QWidget *parent)
     connectfunc(d->m_Hex);
     connectfunc(d->m_Display);
     connectfunc(d->m_Popup);
+
+    QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    font.setStyleHint(QFont::TypeWriter);
+    font.setWeight(QFont::ExtraBold);
+    font.setStyleStrategy(QFont::ForceOutline);
+    setFont(font);
+    d->m_Popup->setFont(font);
 
     // set default color and sync child widgets
     setColor(QColor(255, 255, 255, 255));

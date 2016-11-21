@@ -123,7 +123,6 @@ private:
 
     QString m_EditText;
     QString m_Text;
-    QFont m_Font;
     QTimer m_Timer;
     quint32 m_EditTextCurPos;
     qint32 m_EditTextSelOffset;

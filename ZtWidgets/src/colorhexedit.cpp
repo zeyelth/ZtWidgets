@@ -147,9 +147,6 @@ void ColorHexEdit::setDisplayAlpha(bool visible)
         m_LineEdit->setToolTip(tr("A hexadecimal value on the form RRGGBB:\n\nRR = red\nGG = green\nBB = blue"));
     }
 
-    QFont font("Monospace");
-    font.setStyleHint(QFont::TypeWriter);
-    m_LineEdit->setFont(font);
     m_LineEdit->setAlignment(Qt::AlignCenter);
 
     m_LineEdit->setFixedWidth(editWidth());

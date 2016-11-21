@@ -46,7 +46,6 @@ HorizontalColorComponentSlider::HorizontalColorComponentSlider(Components compon
 
 HorizontalColorComponentSlider::HorizontalColorComponentSlider(Components components, quint32 width, const QColor& color0, const QColor& color1, QWidget* parent)
     : AbstractColorComponentSlider(components, width, color0, color1, parent),
-      m_Font("Monospace", 9),
       m_EditTextCurPos(0),
       m_EditTextSelOffset(0),
       m_EditType(EditType::Float),
@@ -54,9 +53,6 @@ HorizontalColorComponentSlider::HorizontalColorComponentSlider(Components compon
       m_DisplayText(true),
       m_KeyInputEnabled(true)
 {
-    m_Font.setStyleHint(QFont::TypeWriter);
-    m_Font.setWeight(QFont::ExtraBold);
-    m_Font.setStyleStrategy(QFont::ForceOutline);
 
     setMinimumWidth(0);
     setMaximumWidth(QWIDGETSIZE_MAX);
@@ -158,7 +154,7 @@ bool HorizontalColorComponentSlider::isEditing() const
 
 quint32 HorizontalColorComponentSlider::toEditCursorPos(int pos) const
 {
-    QFontMetrics fm(m_Font);
+    QFontMetrics fm(font());
     QRect font_rect = fm.tightBoundingRect(m_EditText);
     int cw = fm.averageCharWidth();
     int cursor_pos = (pos + font_rect.width() - rect().width() + (int)(cw * 0.5f)) / cw;
@@ -363,7 +359,7 @@ void HorizontalColorComponentSlider::paintEvent(QPaintEvent*)
     {
         QString text = isEditing() ? m_EditText : (m_EditType == EditType::Float ? toString(val) : toString(componentsValue()));
 
-        QFontMetrics fm(m_Font);
+        QFontMetrics fm(font());
         int cursor_width = 3;
         int font_width = fm.width(text);
         int text_cur_pos = 0;
@@ -392,7 +388,7 @@ void HorizontalColorComponentSlider::paintEvent(QPaintEvent*)
         painter.setBrush(QColor(255, 255, 255, 224));
         QPainterPath text_path;
         qreal y_pos = r.height() - fm.descent() / 2;
-        text_path.addText(r.width() - font_width - cursor_width, y_pos, m_Font, text);
+        text_path.addText(r.width() - font_width - cursor_width, y_pos, font(), text);
         painter.drawPath(text_path);
 
         if (isEditing() && (!m_AnimEditCursor || (QTime::currentTime().second() % 2) == 0))
