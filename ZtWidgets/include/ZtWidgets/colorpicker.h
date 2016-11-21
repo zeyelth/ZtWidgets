@@ -27,9 +27,7 @@
 #include "colorwidgetbase.h"
 #include "horizontalcolorcomponentslider.h"
 
-class ColorHexEdit;
-class ColorDisplay;
-
+class ColorPickerPrivate;
 
 /**
  * @brief A compact color picker widget
@@ -40,6 +38,9 @@ class ColorDisplay;
 class ZTWIDGETS_EXPORT ColorPicker : public ColorWidgetBase
 {
     Q_OBJECT
+
+    Q_DISABLE_COPY(ColorPicker)
+    Q_DECLARE_PRIVATE(ColorPicker)
 
     /**
      * @brief Show or hide the alpha channel
@@ -88,15 +89,8 @@ public slots:
      */
     void setEditType(HorizontalColorComponentSlider::EditType type);
 
-private slots:
-    void onDisplayClicked();
-
 private:
-    ColorHexEdit* m_Hex;
-    ColorDisplay* m_Display;
-    class Popup;
-    Popup* m_Popup;
-    bool m_DisplayAlpha;
+    ColorPickerPrivate* const d_ptr;
 };
 
 #endif // COLORPICKER_H

@@ -33,13 +33,12 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDesktopWidget>
 
-
 //! @cond Doxygen_Suppress
-class ColorPicker::Popup : public ColorWidgetBase
+class PopupInternal : public ColorWidgetBase
 {
 
 public:
-    Popup(QWidget* parent = Q_NULLPTR)
+    PopupInternal(QWidget* parent = Q_NULLPTR)
         : ColorWidgetBase(parent)
     {
         setWindowFlags(Qt::Window | Qt::BypassWindowManagerHint | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
@@ -128,14 +127,14 @@ public:
         layout->setContentsMargins(2, 2, 2, 2);
         m_Frame->setLayout(layout);
 
-        connect(m_Display, &ColorDisplay::clicked, this, &Popup::hide);
+        connect(m_Display, &ColorDisplay::clicked, this, &PopupInternal::hide);
 
         auto connectfunc = [this](ColorWidgetBase* w)
         {
-            connect(w, &ColorWidgetBase::colorChanged, this, &Popup::updateColor);
-            connect(w, &ColorWidgetBase::colorChanged, this, &Popup::colorChanged);
-            connect(w, &ColorWidgetBase::colorChanging, this, &Popup::updateColor);
-            connect(w, &ColorWidgetBase::colorChanging, this, &Popup::colorChanging);
+            connect(w, &ColorWidgetBase::colorChanged, this, &PopupInternal::updateColor);
+            connect(w, &ColorWidgetBase::colorChanged, this, &PopupInternal::colorChanged);
+            connect(w, &ColorWidgetBase::colorChanging, this, &PopupInternal::updateColor);
+            connect(w, &ColorWidgetBase::colorChanging, this, &PopupInternal::colorChanging);
         };
 
         connectfunc(m_Wheel);
@@ -248,28 +247,57 @@ private:
     HorizontalColorComponentSlider* m_AlphaSlider;
     QLabel* m_AlphaLabel;
 };
+
+class ColorPickerPrivate
+{
+    Q_DISABLE_COPY(ColorPickerPrivate)
+    Q_DECLARE_PUBLIC(ColorPicker)
+
+private:
+    explicit ColorPickerPrivate(ColorPicker*);
+
+    ColorPicker* const q_ptr;
+
+    ColorHexEdit* m_Hex;
+    ColorDisplay* m_Display;
+    PopupInternal* m_Popup;
+    bool m_DisplayAlpha;
+};
+
+ColorPickerPrivate::ColorPickerPrivate(ColorPicker* colorpicker)
+    : q_ptr(colorpicker)
+{}
 //! @endcond
 
 ColorPicker::ColorPicker(QWidget *parent)
     : ColorWidgetBase(parent)
+    , d_ptr(new ColorPickerPrivate(this))
 {
+    Q_D(ColorPicker);
     QHBoxLayout* layout = new QHBoxLayout;
-    m_Hex = new ColorHexEdit;
+    d->m_Hex = new ColorHexEdit;
     layout->setContentsMargins(0, 0, 0, 0);
 
-    m_Display = new ColorDisplay;
+    d->m_Display = new ColorDisplay;
 
-    layout->addWidget(m_Display);
-    layout->addWidget(m_Hex);
+    layout->addWidget(d->m_Display);
+    layout->addWidget(d->m_Hex);
 
     setLayout(layout);
     layout->setSizeConstraint(QLayout::SetFixedSize);
 
-    m_Popup = new Popup;
-    m_Popup->setMinimumSize(185, 290);
-    m_Popup->setMaximumSize(185, 290);
+    d->m_Popup = new PopupInternal;
+    d->m_Popup->setMinimumSize(185, 290);
+    d->m_Popup->setMaximumSize(185, 290);
 
-    connect(m_Display, &ColorDisplay::clicked, this, &ColorPicker::onDisplayClicked);
+    auto on_display_clicked = [this]()
+    {
+        Q_D(ColorPicker);
+        d->m_Popup->move(mapToGlobal(rect().topLeft()));
+        d->m_Popup->show();
+    };
+
+    connect(d->m_Display, &ColorDisplay::clicked, this, on_display_clicked);
 
     auto connectfunc = [this](ColorWidgetBase* w)
     {
@@ -279,9 +307,9 @@ ColorPicker::ColorPicker(QWidget *parent)
         connect(w, &ColorWidgetBase::colorChanging, this, &ColorPicker::colorChanging);
     };
 
-    connectfunc(m_Hex);
-    connectfunc(m_Display);
-    connectfunc(m_Popup);
+    connectfunc(d->m_Hex);
+    connectfunc(d->m_Display);
+    connectfunc(d->m_Popup);
 
     // set default color and sync child widgets
     setColor(QColor(255, 255, 255, 255));
@@ -289,11 +317,13 @@ ColorPicker::ColorPicker(QWidget *parent)
 
 ColorPicker::~ColorPicker()
 {
-    delete m_Popup;
+    Q_D(ColorPicker);
+    delete d->m_Popup;
 }
 
 void ColorPicker::updateColor(const QColor& color)
 {
+    Q_D(ColorPicker);
     auto forward = [&](ColorWidgetBase* w)
     {
         if (w != sender())
@@ -302,36 +332,34 @@ void ColorPicker::updateColor(const QColor& color)
         }
     };
 
-    forward(m_Hex);
-    forward(m_Display);
-    forward(m_Popup);
+    forward(d->m_Hex);
+    forward(d->m_Display);
+    forward(d->m_Popup);
 
     ColorWidgetBase::updateColor(color);
 }
 
 void ColorPicker::setDisplayAlpha(bool visible)
 {
-    m_Popup->setDisplayAlpha(visible);
-    m_Hex->setDisplayAlpha(visible);
+    Q_D(ColorPicker);
+    d->m_Popup->setDisplayAlpha(visible);
+    d->m_Hex->setDisplayAlpha(visible);
 }
 
 bool ColorPicker::displayAlpha()
 {
-    return m_Popup->displayAlpha();
+    Q_D(ColorPicker);
+    return d->m_Popup->displayAlpha();
 }
 
 void ColorPicker::setEditType(HorizontalColorComponentSlider::EditType type)
 {
-    m_Popup->setEditType(type);
+    Q_D(ColorPicker);
+    d->m_Popup->setEditType(type);
 }
 
 HorizontalColorComponentSlider::EditType ColorPicker::editType()
 {
-    return m_Popup->editType();
-}
-
-void ColorPicker::onDisplayClicked()
-{
-    m_Popup->move(mapToGlobal(rect().topLeft()));
-    m_Popup->show();
+    Q_D(ColorPicker);
+    return d->m_Popup->editType();
 }
