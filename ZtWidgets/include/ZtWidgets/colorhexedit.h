@@ -25,7 +25,7 @@
 
 #include "colorwidgetbase.h"
 
-class QLineEdit;
+class ColorHexEditPrivate;
 
 /**
  * @brief A line edit widget showing a hex value of the color it represents
@@ -36,6 +36,9 @@ class QLineEdit;
 class ColorHexEdit : public ColorWidgetBase
 {
     Q_OBJECT
+
+    Q_DISABLE_COPY(ColorHexEdit)
+    Q_DECLARE_PRIVATE(ColorHexEdit)
 
     /**
      * @brief Show or hide the alpha channel
@@ -48,6 +51,8 @@ public:
      * @param parent Parent widget
      */
     ColorHexEdit(QWidget* parent = Q_NULLPTR);
+
+    virtual ~ColorHexEdit();
 
     /**
      * @brief Update the text string
@@ -70,18 +75,8 @@ public slots:
      */
     void setDisplayAlpha(bool visible);
 
-private slots:
-    void onTextEdited(const QString& text);
-
 private:
-    /**
-     * @brief Returns the inner width of this widget
-     * @return The inner width of this widget
-     */
-    int editWidth() const;
-
-    QLineEdit* m_LineEdit;
-    bool m_Modified;
+    ColorHexEditPrivate* const d_ptr;
 };
 
 #endif // COLORHEXEDIT_H
