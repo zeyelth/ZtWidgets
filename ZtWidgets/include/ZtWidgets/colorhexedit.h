@@ -63,6 +63,11 @@ public:
     void updateColor(const QColor& color) override;
 
     /**
+     * @brief Overridden from QWidget
+     */
+    void showEvent(QShowEvent* event) override;
+
+    /**
      * @brief Get the display status of the alpha channel
      * @return true if alpha channel is displayed in the widget
      */

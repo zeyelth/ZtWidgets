@@ -63,16 +63,19 @@ private:
     explicit ColorHexEditPrivate(ColorHexEdit* hex_edit);
 
     int editWidth() const;
+    void refresh();
 
     ColorHexEdit* const q_ptr;
 
     QLineEdit* m_LineEdit;
-    bool m_Modified;
+    bool m_DisplayAlpha : 1;
+    bool m_Modified : 1;
 };
 
 ColorHexEditPrivate::ColorHexEditPrivate(ColorHexEdit* hex_edit)
     : q_ptr(hex_edit)
     , m_LineEdit(nullptr)
+    , m_DisplayAlpha(true)
     , m_Modified(false)
 {}
 
@@ -96,6 +99,32 @@ int ColorHexEditPrivate::editWidth() const
 
     return size.width();
 }
+
+void ColorHexEditPrivate::refresh()
+{
+    Q_Q(ColorHexEdit);
+
+    if (m_DisplayAlpha)
+    {
+        m_LineEdit->setMaxLength(8);
+        m_LineEdit->setInputMask(">HHHHHHHH");
+        m_LineEdit->setPlaceholderText("AARRGGBB");
+        m_LineEdit->setToolTip(q->tr("A hexadecimal value on the form AARRGGBB:\n\nAA = alpha\nRR = red\nGG = green\nBB = blue"));
+    }
+    else
+    {
+        m_LineEdit->setMaxLength(6);
+        m_LineEdit->setInputMask(">HHHHHH");
+        m_LineEdit->setPlaceholderText("RRGGBB");
+        m_LineEdit->setToolTip(q->tr("A hexadecimal value on the form RRGGBB:\n\nRR = red\nGG = green\nBB = blue"));
+    }
+
+    m_LineEdit->setAlignment(Qt::AlignCenter);
+
+    m_LineEdit->setFixedWidth(editWidth());
+    m_LineEdit->setText(colorToString(q->m_Color, q->displayAlpha()));
+}
+
 //! @endcond
 
 
@@ -113,7 +142,6 @@ ColorHexEdit::ColorHexEdit(QWidget *parent)
     layout->addWidget(hash_label);
 
     d->m_LineEdit = new QLineEdit;
-    setDisplayAlpha(true);
 
     auto on_editing_finished = [this]()
     {
@@ -158,6 +186,14 @@ ColorHexEdit::~ColorHexEdit()
     delete d_ptr;
 }
 
+void ColorHexEdit::showEvent(QShowEvent* event)
+{
+    Q_D(ColorHexEdit);
+    // refresh the UI here as fonts, styles, and other things affecting this widget may have changed
+    d->refresh();
+    ColorWidgetBase::showEvent(event);
+}
+
 void ColorHexEdit::updateColor(const QColor& color)
 {
     Q_D(ColorHexEdit);
@@ -168,29 +204,12 @@ void ColorHexEdit::updateColor(const QColor& color)
 void ColorHexEdit::setDisplayAlpha(bool visible)
 {
     Q_D(ColorHexEdit);
-    if (visible)
-    {
-        d->m_LineEdit->setMaxLength(8);
-        d->m_LineEdit->setInputMask(">HHHHHHHH");
-        d->m_LineEdit->setPlaceholderText("AARRGGBB");
-        d->m_LineEdit->setToolTip(tr("A hexadecimal value on the form AARRGGBB:\n\nAA = alpha\nRR = red\nGG = green\nBB = blue"));
-    }
-    else
-    {
-        d->m_LineEdit->setMaxLength(6);
-        d->m_LineEdit->setInputMask(">HHHHHH");
-        d->m_LineEdit->setPlaceholderText("RRGGBB");
-        d->m_LineEdit->setToolTip(tr("A hexadecimal value on the form RRGGBB:\n\nRR = red\nGG = green\nBB = blue"));
-    }
-
-    d->m_LineEdit->setAlignment(Qt::AlignCenter);
-
-    d->m_LineEdit->setFixedWidth(d->editWidth());
-    d->m_LineEdit->setText(colorToString(m_Color, visible));
+    d->m_DisplayAlpha = visible;
+    d->refresh();
 }
 
 bool ColorHexEdit::displayAlpha()
 {
    Q_D(ColorHexEdit);
-   return d->m_LineEdit->maxLength() == 8;
+   return d->m_DisplayAlpha;
 }

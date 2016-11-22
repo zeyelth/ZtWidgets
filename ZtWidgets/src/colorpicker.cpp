@@ -197,6 +197,7 @@ public:
         move(p);
 
         ColorWidgetBase::showEvent(event);
+        activateWindow();
     }
 
     void changeEvent(QEvent* event) override
@@ -258,11 +259,17 @@ private:
     ColorHexEdit* m_Hex;
     ColorDisplay* m_Display;
     PopupInternal* m_Popup;
-    bool m_DisplayAlpha;
+    HorizontalColorComponentSlider::EditType m_EditType;
+    bool m_DisplayAlpha : 1;
 };
 
 ColorPickerPrivate::ColorPickerPrivate(ColorPicker* colorpicker)
     : q_ptr(colorpicker)
+    , m_Hex(nullptr)
+    , m_Display(nullptr)
+    , m_Popup(nullptr)
+    , m_EditType(HorizontalColorComponentSlider::Float)
+    , m_DisplayAlpha(true)
 {}
 //! @endcond
 
@@ -283,18 +290,11 @@ ColorPicker::ColorPicker(QWidget *parent)
     setLayout(layout);
     layout->setSizeConstraint(QLayout::SetFixedSize);
 
-    d->m_Popup = new PopupInternal;
-    d->m_Popup->setMinimumSize(185, 290);
-    d->m_Popup->setMaximumSize(185, 290);
-
-    auto on_display_clicked = [this]()
-    {
-        Q_D(ColorPicker);
-        d->m_Popup->move(mapToGlobal(rect().topLeft()));
-        d->m_Popup->show();
-    };
-
-    connect(d->m_Display, &ColorDisplay::clicked, this, on_display_clicked);
+    QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    font.setStyleHint(QFont::TypeWriter);
+    font.setWeight(QFont::ExtraBold);
+    font.setStyleStrategy(QFont::ForceOutline);
+    setFont(font);
 
     auto connectfunc = [this](ColorWidgetBase* w)
     {
@@ -304,16 +304,29 @@ ColorPicker::ColorPicker(QWidget *parent)
         connect(w, &ColorWidgetBase::colorChanging, this, &ColorPicker::colorChanging);
     };
 
+    auto on_display_clicked = [this, connectfunc]()
+    {
+        Q_D(ColorPicker);
+        if(!d->m_Popup)
+        {
+            d->m_Popup = new PopupInternal;
+            d->m_Popup->setMinimumSize(185, 290);
+            d->m_Popup->setMaximumSize(185, 290);
+            d->m_Popup->setDisplayAlpha(d->m_DisplayAlpha);
+            d->m_Popup->setEditType(d->m_EditType);
+            d->m_Popup->setFont(this->font());
+            d->m_Popup->setColor(m_Color);
+            connectfunc(d->m_Popup);
+        }
+
+        d->m_Popup->move(mapToGlobal(rect().topLeft()));
+        d->m_Popup->show();
+    };
+
+    connect(d->m_Display, &ColorDisplay::clicked, this, on_display_clicked);
+
     connectfunc(d->m_Hex);
     connectfunc(d->m_Display);
-    connectfunc(d->m_Popup);
-
-    QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-    font.setStyleHint(QFont::TypeWriter);
-    font.setWeight(QFont::ExtraBold);
-    font.setStyleStrategy(QFont::ForceOutline);
-    setFont(font);
-    d->m_Popup->setFont(font);
 
     // set default color and sync child widgets
     setColor(QColor(255, 255, 255, 255));
@@ -322,7 +335,11 @@ ColorPicker::ColorPicker(QWidget *parent)
 ColorPicker::~ColorPicker()
 {
     Q_D(ColorPicker);
-    delete d->m_Popup;
+    if(d->m_Popup)
+    {
+        delete d->m_Popup;
+    }
+
     delete d_ptr;
 }
 
@@ -339,7 +356,10 @@ void ColorPicker::updateColor(const QColor& color)
 
     forward(d->m_Hex);
     forward(d->m_Display);
-    forward(d->m_Popup);
+    if(d->m_Popup)
+    {
+        forward(d->m_Popup);
+    }
 
     ColorWidgetBase::updateColor(color);
 }
@@ -347,24 +367,33 @@ void ColorPicker::updateColor(const QColor& color)
 void ColorPicker::setDisplayAlpha(bool visible)
 {
     Q_D(ColorPicker);
-    d->m_Popup->setDisplayAlpha(visible);
+    d->m_DisplayAlpha = visible;
+    if(d->m_Popup)
+    {
+        d->m_Popup->setDisplayAlpha(visible);
+    }
+
     d->m_Hex->setDisplayAlpha(visible);
 }
 
 bool ColorPicker::displayAlpha()
 {
     Q_D(ColorPicker);
-    return d->m_Popup->displayAlpha();
+    return d->m_DisplayAlpha;
 }
 
 void ColorPicker::setEditType(HorizontalColorComponentSlider::EditType type)
 {
     Q_D(ColorPicker);
-    d->m_Popup->setEditType(type);
+    d->m_EditType = type;
+    if(d->m_Popup)
+    {
+        d->m_Popup->setEditType(type);
+    }
 }
 
 HorizontalColorComponentSlider::EditType ColorPicker::editType()
 {
     Q_D(ColorPicker);
-    return d->m_Popup->editType();
+    return d->m_EditType;
 }
