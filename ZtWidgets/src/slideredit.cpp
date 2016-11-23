@@ -369,6 +369,10 @@ void SliderEdit::mouseReleaseEvent(QMouseEvent* event)
             d->cancelEdit();
             d->beginEdit();
         }
+        else
+        {
+            setValue(d->valueFromMousePos(event->pos()));
+        }
     }
     else
     {
