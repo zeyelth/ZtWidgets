@@ -617,10 +617,19 @@ void SliderEdit::paintEvent(QPaintEvent*)
 
         QString text = QString("%1%2%3").arg(d->m_Label.isEmpty() ? "" : d->m_Label + ": ").arg(toString(d->m_Value, d->m_Precision)).arg(d->m_Unit.isEmpty() ? "" : " " + d->m_Unit);
 
-        painter.fillRect(QRect(r.x(), r.y(), rect_pos, r.height()), palette().highlight());
+        QRect filled_rect(r.x(), r.y(), rect_pos, r.height());
+        painter.fillRect(filled_rect, palette().highlight());
 
+        painter.setClipRect(filled_rect);
+        painter.setPen(palette().highlightedText().color());
+        painter.drawText(r, Qt::AlignCenter, text);
+
+        QRect empty_rect(r.x() + rect_pos, r.y(), r.width() - rect_pos, r.height());
+
+        painter.setClipRect(empty_rect);
         painter.setPen(palette().text().color());
         painter.drawText(r, Qt::AlignCenter, text);
+        painter.setClipRect(rect());
     }
 
     if(hasFocus())
