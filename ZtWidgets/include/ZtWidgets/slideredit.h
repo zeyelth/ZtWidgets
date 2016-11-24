@@ -162,6 +162,12 @@ public:
     void setValue(qreal value);
 
     /**
+     * @brief Update the value without emitting any signals
+     * @param value new value
+     */
+    void updateValue(qreal value);
+
+    /**
      * @brief Set the display unit of the slider
      * @param unit unit to be displayed after the value
      */

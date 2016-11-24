@@ -204,17 +204,22 @@ QSize SliderEdit::sizeHint() const
                  fm.height() + S_DRAW_PADDING * 2);
 }
 
+void SliderEdit::updateValue(qreal value)
+{
+    Q_D(SliderEdit);
+    qreal val = qBound(d->m_Min, value, d->m_Max);
+    d->m_Value = val;
+
+    update();
+}
+
 void SliderEdit::setValue(qreal value)
 {
     Q_D(SliderEdit);
     qreal val = qBound(d->m_Min, value, d->m_Max);
-    bool changed = val != d->m_Value;
     d->m_Value = val;
 
-    if(changed)
-    {
-        emit valueChanged(d->m_Value);
-    }
+    emit valueChanged(d->m_Value);
 
     update();
 }
