@@ -86,6 +86,11 @@ class ZTWIDGETS_EXPORT SliderEdit : public QWidget
      */
     Q_PROPERTY(quint32 precision READ precision WRITE setPrecision)
 
+    /**
+     * @brief Display a marker over the current value
+     */
+    Q_PROPERTY(bool displayMarker READ displayMarker WRITE setDisplayMarker)
+
 public:
 
     /**
@@ -202,6 +207,18 @@ public:
      * @return The precision of the displayed value
      */
     quint32 precision() const;
+
+    /**
+     * @brief Set whether to display a marker over the current value
+     * @param display true if the marker should be displayed, false otherwise
+     */
+    void setDisplayMarker(bool display);
+
+    /**
+     * @brief Display status of the marker
+     * @return true if the marker is displayed, false otherwise
+     */
+    bool displayMarker() const;
 
 signals:
     /**

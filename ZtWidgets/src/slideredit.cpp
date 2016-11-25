@@ -68,6 +68,7 @@ private:
     qreal m_SingleStep;
     qreal m_PageStep;
     quint32 m_Precision;
+    bool m_DisplayMarker : 1;
     bool m_AnimEditCursor : 1;
     bool m_AnimEditCursorVisible : 1;
 };
@@ -81,6 +82,7 @@ SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
     , m_SingleStep(1.0)
     , m_PageStep(10.0)
     , m_Precision(3)
+    , m_DisplayMarker(false)
     , m_AnimEditCursor(true)
     , m_AnimEditCursorVisible(true)
 {
@@ -308,6 +310,20 @@ quint32 SliderEdit::precision() const
     Q_D(const SliderEdit);
     return d->m_Precision;
 }
+
+void SliderEdit::setDisplayMarker(bool display)
+{
+    Q_D(SliderEdit);
+    d->m_DisplayMarker = display;
+    update();
+}
+
+bool SliderEdit::displayMarker() const
+{
+    Q_D(const SliderEdit);
+    return d->m_DisplayMarker;
+}
+
 
 void SliderEdit::setUnit(const QString& unit)
 {
@@ -608,6 +624,7 @@ void SliderEdit::paintEvent(QPaintEvent*)
             painter.setRenderHint(QPainter::Antialiasing, false);
             painter.setPen(pen);
             painter.drawLine(cursor);
+            painter.setRenderHint(QPainter::Antialiasing);
         }
     }
     else
@@ -630,6 +647,16 @@ void SliderEdit::paintEvent(QPaintEvent*)
         painter.setPen(palette().text().color());
         painter.drawText(r, Qt::AlignCenter, text);
         painter.setClipRect(rect());
+
+        if(d->m_DisplayMarker)
+        {
+            painter.setRenderHint(QPainter::Antialiasing, false);
+            int marker_pos = qBound(0, r.x() + rect_pos, r.width());
+            painter.setBrush(palette().highlightedText());
+            painter.setPen(palette().base().color());
+            painter.drawRect(QRect(marker_pos - 1, r.top(), 2, r.height()));
+            painter.setRenderHint(QPainter::Antialiasing);
+        }
     }
 
     if(hasFocus())
