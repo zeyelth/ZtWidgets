@@ -617,7 +617,7 @@ void SliderEdit::paintEvent(QPaintEvent*)
 
         if(!d->m_AnimEditCursor || d->m_AnimEditCursorVisible)
         {
-            QLine cursor(qBound(0, text_cur_pos, r.width()), r.y(), text_cur_pos, r.bottom());
+            QLine cursor(qBound(0, text_cur_pos, r.width()), r.y(), text_cur_pos, r.y() + r.height());
 
             QPen pen(palette().text().color());
             pen.setWidth(1);
@@ -652,7 +652,7 @@ void SliderEdit::paintEvent(QPaintEvent*)
         {
             painter.setRenderHint(QPainter::Antialiasing, false);
             int marker_pos = qBound(0, r.x() + rect_pos, r.width());
-            painter.setBrush(palette().highlightedText());
+            painter.setBrush(palette().text());
             painter.setPen(palette().base().color());
             painter.drawRect(QRect(marker_pos - 1, r.top(), 2, r.height()));
             painter.setRenderHint(QPainter::Antialiasing);
