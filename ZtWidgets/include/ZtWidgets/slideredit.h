@@ -91,6 +91,11 @@ class ZTWIDGETS_EXPORT SliderEdit : public QWidget
      */
     Q_PROPERTY(bool displayMarker READ displayMarker WRITE setDisplayMarker)
 
+    /**
+     * @brief This property holds the alignment of any displayed text in the widget
+     */
+    Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
+
 public:
 
     /**
@@ -219,6 +224,18 @@ public:
      * @return true if the marker is displayed, false otherwise
      */
     bool displayMarker() const;
+
+    /**
+     * @brief Set the alignment of any text displayed in the widget
+     * @param alignment Alignment of the text. This includes the label, value, and unit.
+     */
+    void setAlignment(Qt::Alignment alignment);
+
+    /**
+     * @brief Alignment of any text displayed in the widget
+     * @return Alignment of displayed text
+     */
+    Qt::Alignment alignment() const;
 
 signals:
     /**

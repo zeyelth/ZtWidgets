@@ -68,6 +68,7 @@ private:
     qreal m_SingleStep;
     qreal m_PageStep;
     quint32 m_Precision;
+    Qt::Alignment m_Alignment;
     bool m_DisplayMarker : 1;
     bool m_AnimEditCursor : 1;
     bool m_AnimEditCursorVisible : 1;
@@ -82,6 +83,7 @@ SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
     , m_SingleStep(1.0)
     , m_PageStep(10.0)
     , m_Precision(3)
+    , m_Alignment(Qt::AlignCenter)
     , m_DisplayMarker(false)
     , m_AnimEditCursor(true)
     , m_AnimEditCursorVisible(true)
@@ -324,6 +326,18 @@ bool SliderEdit::displayMarker() const
     return d->m_DisplayMarker;
 }
 
+void SliderEdit::setAlignment(Qt::Alignment alignment)
+{
+    Q_D(SliderEdit);
+    d->m_Alignment = alignment;
+    update();
+}
+
+Qt::Alignment SliderEdit::alignment() const
+{
+    Q_D(const SliderEdit);
+    return d->m_Alignment;
+}
 
 void SliderEdit::setUnit(const QString& unit)
 {
@@ -581,17 +595,16 @@ void SliderEdit::paintEvent(QPaintEvent*)
 
     if(d->isEditing())
     {
-        const QString& text = d->m_EditText;
         QFontMetrics fm(fnt);
         int text_offset = 2;
         int cursor_width = 1;
         QRect text_rect = r.adjusted(text_offset, 0, 0, 0);
-        int text_cur_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(text.mid(0, d->m_EditTextCurPos));
-        int text_sel_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(text.mid(0, d->m_EditTextCurPos + d->m_EditTextSelOffset));
+        int text_cur_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(d->m_Text.mid(0, d->m_EditTextCurPos));
+        int text_sel_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(d->m_Text.mid(0, d->m_EditTextCurPos + d->m_EditTextSelOffset));
 
         if(d->m_EditTextSelOffset != 0)
         {
-            QRect font_rect = fm.tightBoundingRect(text);
+            QRect font_rect = fm.tightBoundingRect(d->m_Text);
             font_rect.moveLeft(qMin(text_cur_pos, text_sel_pos));
             font_rect.setRight(qMax(text_cur_pos, text_sel_pos));
             font_rect.setY(r.y());
@@ -601,18 +614,18 @@ void SliderEdit::paintEvent(QPaintEvent*)
             // paint text inside the highlighted area
             painter.setClipRect(font_rect);
             painter.setPen(palette().highlightedText().color());
-            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, text);
+            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, d->m_Text);
 
             // paint text outside the highlighted area
             painter.setClipRegion(QRegion(rect()).subtracted(font_rect));
             painter.setPen(palette().text().color());
-            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, text);
+            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, d->m_Text);
             painter.setClipRect(rect());
         }
         else
         {
             painter.setPen(palette().text().color());
-            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, text);
+            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, d->m_Text);
         }
 
         if(!d->m_AnimEditCursor || d->m_AnimEditCursorVisible)
@@ -632,20 +645,34 @@ void SliderEdit::paintEvent(QPaintEvent*)
         qreal rel_pos = (d->m_Value - d->m_Min) / (d->m_Max - d->m_Min);
         int rect_pos = rel_pos * r.width();
 
-        QString text = QString("%1%2%3").arg(d->m_Label.isEmpty() ? "" : d->m_Label + ": ").arg(toString(d->m_Value, d->m_Precision)).arg(d->m_Unit.isEmpty() ? "" : " " + d->m_Unit);
-
         QRect filled_rect(r.x(), r.y(), rect_pos, r.height());
         painter.fillRect(filled_rect, palette().highlight());
 
+        QString text = toString(d->m_Value, d->m_Precision) + (d->m_Unit.isEmpty() ? "" : " " + d->m_Unit);
+
+        auto draw_text = [&]()
+        {
+            if(d->m_Alignment & Qt::AlignJustify)
+            {
+                if(!d->m_Label.isEmpty())
+                    painter.drawText(r, Qt::AlignLeft, d->m_Label + ":");
+
+                painter.drawText(r, Qt::AlignRight, text);
+            }
+            else
+            {
+                painter.drawText(r, d->m_Alignment, QString("%1%2").arg(d->m_Label.isEmpty() ? "" : d->m_Label + ": ").arg(text));
+            }
+        };
+
         painter.setClipRect(filled_rect);
         painter.setPen(palette().highlightedText().color());
-        painter.drawText(r, Qt::AlignCenter, text);
+        draw_text();
 
         QRect empty_rect(r.x() + rect_pos, r.y(), r.width() - rect_pos, r.height());
-
         painter.setClipRect(empty_rect);
         painter.setPen(palette().text().color());
-        painter.drawText(r, Qt::AlignCenter, text);
+        draw_text();
         painter.setClipRect(rect());
 
         if(d->m_DisplayMarker)
