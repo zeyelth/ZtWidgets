@@ -599,12 +599,12 @@ void SliderEdit::paintEvent(QPaintEvent*)
         int text_offset = 2;
         int cursor_width = 1;
         QRect text_rect = r.adjusted(text_offset, 0, 0, 0);
-        int text_cur_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(d->m_Text.mid(0, d->m_EditTextCurPos));
-        int text_sel_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(d->m_Text.mid(0, d->m_EditTextCurPos + d->m_EditTextSelOffset));
+        int text_cur_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(d->m_EditText.mid(0, d->m_EditTextCurPos));
+        int text_sel_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(d->m_EditText.mid(0, d->m_EditTextCurPos + d->m_EditTextSelOffset));
 
         if(d->m_EditTextSelOffset != 0)
         {
-            QRect font_rect = fm.tightBoundingRect(d->m_Text);
+            QRect font_rect = fm.tightBoundingRect(d->m_EditText);
             font_rect.moveLeft(qMin(text_cur_pos, text_sel_pos));
             font_rect.setRight(qMax(text_cur_pos, text_sel_pos));
             font_rect.setY(r.y());
@@ -614,18 +614,18 @@ void SliderEdit::paintEvent(QPaintEvent*)
             // paint text inside the highlighted area
             painter.setClipRect(font_rect);
             painter.setPen(palette().highlightedText().color());
-            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, d->m_Text);
+            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, d->m_EditText);
 
             // paint text outside the highlighted area
             painter.setClipRegion(QRegion(rect()).subtracted(font_rect));
             painter.setPen(palette().text().color());
-            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, d->m_Text);
+            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, d->m_EditText);
             painter.setClipRect(rect());
         }
         else
         {
             painter.setPen(palette().text().color());
-            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, d->m_Text);
+            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, d->m_EditText);
         }
 
         if(!d->m_AnimEditCursor || d->m_AnimEditCursorVisible)
