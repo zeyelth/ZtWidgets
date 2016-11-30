@@ -90,20 +90,16 @@ SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
 {
     QObject::connect(&m_AnimEditCursorActivationTimer, &QTimer::timeout, [this]()
     {
+        Q_Q(SliderEdit);
         m_AnimEditCursor = true;
-        if( q_ptr )
-        {
-            q_ptr->update();
-        }
+        q->update();
     });
 
     QObject::connect(&m_AnimEditCursorBlinkTimer, &QTimer::timeout, [this]()
     {
+        Q_Q(SliderEdit);
         m_AnimEditCursorVisible = !m_AnimEditCursorVisible;
-        if( q_ptr )
-        {
-            q_ptr->update();
-        }
+        q->update();
     });
 }
 
