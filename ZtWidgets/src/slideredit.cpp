@@ -69,7 +69,7 @@ private:
     qreal m_PageStep;
     quint32 m_Precision;
     Qt::Alignment m_Alignment;
-    bool m_DisplayMarker : 1;
+    SliderEdit::SliderComponents m_SliderComponents;
     bool m_AnimEditCursor : 1;
     bool m_AnimEditCursorVisible : 1;
 };
@@ -84,7 +84,7 @@ SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
     , m_PageStep(10.0)
     , m_Precision(3)
     , m_Alignment(Qt::AlignCenter)
-    , m_DisplayMarker(false)
+    , m_SliderComponents(SliderEdit::SliderComponent::Text | SliderEdit::SliderComponent::Gauge)
     , m_AnimEditCursor(true)
     , m_AnimEditCursorVisible(true)
 {
@@ -309,17 +309,17 @@ quint32 SliderEdit::precision() const
     return d->m_Precision;
 }
 
-void SliderEdit::setDisplayMarker(bool display)
+void SliderEdit::setSliderComponents(SliderComponents components)
 {
     Q_D(SliderEdit);
-    d->m_DisplayMarker = display;
+    d->m_SliderComponents = components;
     update();
 }
 
-bool SliderEdit::displayMarker() const
+SliderEdit::SliderComponents SliderEdit::sliderComponents() const
 {
     Q_D(const SliderEdit);
-    return d->m_DisplayMarker;
+    return d->m_SliderComponents;
 }
 
 void SliderEdit::setAlignment(Qt::Alignment alignment)
@@ -642,12 +642,16 @@ void SliderEdit::paintEvent(QPaintEvent*)
         int rect_pos = rel_pos * r.width();
 
         QRect filled_rect(r.x(), r.y(), rect_pos, r.height());
-        painter.fillRect(filled_rect, palette().highlight());
 
-        QString text = toString(d->m_Value, d->m_Precision) + (d->m_Unit.isEmpty() ? "" : " " + d->m_Unit);
+        if(d->m_SliderComponents & SliderComponent::Gauge)
+            painter.fillRect(filled_rect, palette().highlight());
 
         auto draw_text = [&]()
         {
+            if(!(d->m_SliderComponents & SliderComponent::Text))
+                return;
+
+            QString text = toString(d->m_Value, d->m_Precision) + (d->m_Unit.isEmpty() ? "" : " " + d->m_Unit);
             if(d->m_Alignment & Qt::AlignJustify)
             {
                 if(!d->m_Label.isEmpty())
@@ -661,17 +665,21 @@ void SliderEdit::paintEvent(QPaintEvent*)
             }
         };
 
-        painter.setClipRect(filled_rect);
-        painter.setPen(palette().highlightedText().color());
-        draw_text();
+        if(d->m_SliderComponents & SliderComponent::Gauge)
+        {
+            painter.setClipRect(filled_rect);
+            painter.setPen(palette().highlightedText().color());
+            draw_text();
 
-        QRect empty_rect(r.x() + rect_pos, r.y(), r.width() - rect_pos, r.height());
-        painter.setClipRect(empty_rect);
+            QRect empty_rect(r.x() + rect_pos, r.y(), r.width() - rect_pos, r.height());
+            painter.setClipRect(empty_rect);
+        }
+
         painter.setPen(palette().text().color());
         draw_text();
         painter.setClipRect(rect());
 
-        if(d->m_DisplayMarker)
+        if(d->m_SliderComponents & SliderComponent::Marker)
         {
             painter.setRenderHint(QPainter::Antialiasing, false);
             int marker_pos = qBound(0, r.x() + rect_pos, r.width());

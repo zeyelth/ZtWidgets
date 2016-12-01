@@ -87,16 +87,29 @@ class ZTWIDGETS_EXPORT SliderEdit : public QWidget
     Q_PROPERTY(quint32 precision READ precision WRITE setPrecision)
 
     /**
-     * @brief Display a marker over the current value
-     */
-    Q_PROPERTY(bool displayMarker READ displayMarker WRITE setDisplayMarker)
-
-    /**
      * @brief This property holds the alignment of any displayed text in the widget
      */
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
 
+    /**
+     * @brief This property holds the active slider components used by the widget
+     */
+    Q_PROPERTY(SliderComponents sliderComponents READ sliderComponents WRITE setSliderComponents)
+
 public:
+
+    /**
+     * @brief Supported components
+     */
+    enum SliderComponent
+    {
+        Text   = 1 << 0,
+        Marker = 1 << 1,
+        Gauge  = 1 << 2,
+    };
+
+    Q_DECLARE_FLAGS(SliderComponents, SliderComponent)
+    Q_FLAG(SliderComponents)
 
     /**
      * @brief Construct an instance of SliderEdit
@@ -214,16 +227,16 @@ public:
     quint32 precision() const;
 
     /**
-     * @brief Set whether to display a marker over the current value
-     * @param display true if the marker should be displayed, false otherwise
+     * @brief This property holds the active slider components used by the widget
+     * @param components this slider widget should use
      */
-    void setDisplayMarker(bool display);
+    void setSliderComponents(SliderComponents components);
 
     /**
-     * @brief Display status of the marker
-     * @return true if the marker is displayed, false otherwise
+     * @brief Active slider components
+     * @return Active slider components
      */
-    bool displayMarker() const;
+    SliderComponents sliderComponents() const;
 
     /**
      * @brief Set the alignment of any text displayed in the widget
@@ -296,5 +309,7 @@ protected:
 private:
     SliderEditPrivate* const d_ptr;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(SliderEdit::SliderComponents)
 
 #endif // SLIDEREDIT_H
