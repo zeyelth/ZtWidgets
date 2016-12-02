@@ -69,6 +69,7 @@ private:
     qreal m_PageStep;
     quint32 m_Precision;
     Qt::Alignment m_Alignment;
+    Qt::Orientation m_Orientation;
     SliderEdit::SliderComponents m_SliderComponents;
     bool m_Editable : 1;
     bool m_AnimEditCursor : 1;
@@ -85,6 +86,7 @@ SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
     , m_PageStep(10.0)
     , m_Precision(3)
     , m_Alignment(Qt::AlignCenter)
+    , m_Orientation(Qt::Horizontal)
     , m_SliderComponents(SliderEdit::SliderComponent::Text | SliderEdit::SliderComponent::Gauge)
     , m_Editable(true)
     , m_AnimEditCursor(true)
@@ -108,7 +110,9 @@ SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
 void SliderEditPrivate::beginEdit()
 {
     Q_Q(SliderEdit);
-    if(!m_Editable)
+    // editing not supported (yet) when oriented vertically
+    bool editable = m_Editable && !(m_Orientation == Qt::Vertical);
+    if(!editable)
         return;
 
     m_EditText = toString(m_Value, m_Precision);
@@ -179,7 +183,12 @@ qreal SliderEditPrivate::valueFromMousePos(const QPointF& pos) const
     Q_Q(const SliderEdit);
     const QRectF& r = q->rect();
     qreal value;
-    value = qBound(r.x(), pos.x(), r.x() + r.width()) / r.width();
+
+    if(m_Orientation == Qt::Horizontal)
+        value = qBound(r.x(), pos.x(), r.x() + r.width()) / r.width();
+    else
+        value = qBound(r.y(), r.height() - pos.y(), r.y() + r.height()) / r.height();
+
     return value * (m_Max - m_Min) + m_Min;
 }
 //! @endcond
@@ -189,7 +198,7 @@ SliderEdit::SliderEdit(QWidget* parent, Qt::WindowFlags f)
     , d_ptr(new SliderEditPrivate(this))
 {
     setFocusPolicy(Qt::StrongFocus);
-    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    setOrientation(orientation());
 }
 
 SliderEdit::~SliderEdit()
@@ -205,8 +214,10 @@ QSize SliderEdit::sizeHint() const
     QString t_min = toString(d->m_Min, d->m_Precision);
     QString t_max = toString(d->m_Max, d->m_Precision);
 
-    return QSize(qMax(fm.width(t_min), fm.width(t_max)) + S_DRAW_PADDING * 2,
-                 fm.height() + S_DRAW_PADDING * 2);
+    int w = qMax(fm.width(t_min), fm.width(t_max)) + S_DRAW_PADDING * 2;
+    int h = fm.height() + S_DRAW_PADDING * 2;
+
+    return d->m_Orientation == Qt::Horizontal ? QSize(w, h) : QSize(h, w);
 }
 
 void SliderEdit::updateValue(qreal value)
@@ -350,6 +361,24 @@ Qt::Alignment SliderEdit::alignment() const
 {
     Q_D(const SliderEdit);
     return d->m_Alignment;
+}
+
+void SliderEdit::setOrientation(Qt::Orientation orientation)
+{
+    Q_D(SliderEdit);
+    d->m_Orientation = orientation;
+    if(d->m_Orientation == Qt::Horizontal)
+        setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    else
+        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+
+    update();
+}
+
+Qt::Orientation SliderEdit::orientation() const
+{
+    Q_D(const SliderEdit);
+    return d->m_Orientation;
 }
 
 void SliderEdit::setUnit(const QString& unit)
@@ -609,11 +638,11 @@ void SliderEdit::paintEvent(QPaintEvent*)
     if(d->isEditing())
     {
         QFontMetrics fm(fnt);
-        int text_offset = 2;
-        int cursor_width = 1;
-        QRect text_rect = r.adjusted(text_offset, 0, 0, 0);
-        int text_cur_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(d->m_EditText.mid(0, d->m_EditTextCurPos));
-        int text_sel_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(d->m_EditText.mid(0, d->m_EditTextCurPos + d->m_EditTextSelOffset));
+        const int text_offset = 2;
+        const int cursor_width = 1;
+        const QRect text_rect = r.adjusted(text_offset, 0, 0, 0);
+        const int text_cur_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(d->m_EditText.mid(0, d->m_EditTextCurPos));
+        const int text_sel_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(d->m_EditText.mid(0, d->m_EditTextCurPos + d->m_EditTextSelOffset));
 
         if(d->m_EditTextSelOffset != 0)
         {
@@ -656,16 +685,26 @@ void SliderEdit::paintEvent(QPaintEvent*)
     else
     {
         qreal rel_pos = (d->m_Value - d->m_Min) / (d->m_Max - d->m_Min);
-        int rect_pos = rel_pos * r.width();
-
-        QRect filled_rect(r.x(), r.y(), rect_pos, r.height());
+        int rect_pos;
+        QRect filled_rect;
+        if(d->m_Orientation == Qt::Horizontal)
+        {
+            rect_pos = rel_pos * r.width();
+            filled_rect = QRect(r.x(), r.y(), rect_pos, r.height());
+        }
+        else
+        {
+            rect_pos = rel_pos * r.height();
+            filled_rect = QRect(r.x(), r.y() + r.height() - rect_pos, r.width(), rect_pos);
+        }
 
         if(d->m_SliderComponents & SliderComponent::Gauge)
             painter.fillRect(filled_rect, palette().highlight());
 
         auto draw_text = [&]()
         {
-            if(!(d->m_SliderComponents & SliderComponent::Text))
+            bool can_draw_text = (d->m_SliderComponents & SliderComponent::Text) && d->m_Orientation == Qt::Horizontal;
+            if(!can_draw_text)
                 return;
 
             QString text = toString(d->m_Value, d->m_Precision) + (d->m_Unit.isEmpty() ? "" : " " + d->m_Unit);
@@ -699,10 +738,22 @@ void SliderEdit::paintEvent(QPaintEvent*)
         if(d->m_SliderComponents & SliderComponent::Marker)
         {
             painter.setRenderHint(QPainter::Antialiasing, false);
-            int marker_pos = qBound(0, r.x() + rect_pos, r.width());
+            int marker_pos;
+            QRect marker_rect;
+            if(d->m_Orientation == Qt::Horizontal)
+            {
+                marker_pos = qBound(0, r.x() + rect_pos, r.width());
+                marker_rect = QRect(marker_pos - 1, r.y(), 2, r.height() - 1);
+            }
+            else
+            {
+                marker_pos = qBound(0, r.y() + rect_pos, r.height());
+                marker_rect = QRect(r.x() - 1, r.height() - marker_pos + 1, r.width(), 2);
+            }
+
             painter.setBrush(palette().text());
             painter.setPen(palette().base().color());
-            painter.drawRect(QRect(marker_pos - 1, r.top(), 2, r.height()));
+            painter.drawRect(marker_rect);
             painter.setRenderHint(QPainter::Antialiasing);
         }
     }

@@ -97,6 +97,11 @@ class ZTWIDGETS_EXPORT SliderEdit : public QWidget
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
 
     /**
+     * @brief This property holds the orientation of the widget
+     */
+    Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
+
+    /**
      * @brief This property holds the active slider components used by the widget
      */
     Q_PROPERTY(SliderComponents sliderComponents READ sliderComponents WRITE setSliderComponents)
@@ -267,6 +272,18 @@ public:
      * @return Alignment of displayed text
      */
     Qt::Alignment alignment() const;
+
+    /**
+     * @brief Set the orientation of the widget
+     * @param orientation Orientation of the widget
+     */
+    void setOrientation(Qt::Orientation orientation);
+
+    /**
+     * @brief Current orientation of the widget
+     * @return Current orientation of the widget
+     */
+    Qt::Orientation orientation() const;
 
 signals:
     /**
