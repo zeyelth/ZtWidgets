@@ -55,6 +55,11 @@ class ZTWIDGETS_EXPORT SliderEdit : public QWidget
     Q_PROPERTY(qreal maximum READ maximum WRITE setMaximum)
 
     /**
+     * @brief This property holds whether the slider can be edited via keyboard input
+     */
+    Q_PROPERTY(bool editable READ editable WRITE setEditable)
+
+    /**
      * @brief This property controls the small incremental stepping behavior
      */
     Q_PROPERTY(qreal singleStep READ singleStep WRITE setSingleStep)
@@ -140,6 +145,7 @@ public:
 
     /**
      * @brief Get the maximum allowed value
+     * @return The current maximum allowed value
      */
     qreal maximum() const;
 
@@ -150,6 +156,18 @@ public:
      * @note This may modify the minimum allowed value and adjust the value to the new limits
      */
     void setMaximum(qreal maximum);
+
+    /**
+     * @brief Get the edit status of the widget
+     * @return true if the slider widget can be edited with a keyboard, false otherwise
+     */
+    bool editable() const;
+
+    /**
+     * @brief Set the edit status of the widget
+     * @param editable true if it should be possible to edit this widget's value with a keyboard
+     */
+    void setEditable(bool editable);
 
     /**
      * @brief Get the small step value, e.g. when using arrow keys

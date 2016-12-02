@@ -70,6 +70,7 @@ private:
     quint32 m_Precision;
     Qt::Alignment m_Alignment;
     SliderEdit::SliderComponents m_SliderComponents;
+    bool m_Editable : 1;
     bool m_AnimEditCursor : 1;
     bool m_AnimEditCursorVisible : 1;
 };
@@ -85,6 +86,7 @@ SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
     , m_Precision(3)
     , m_Alignment(Qt::AlignCenter)
     , m_SliderComponents(SliderEdit::SliderComponent::Text | SliderEdit::SliderComponent::Gauge)
+    , m_Editable(true)
     , m_AnimEditCursor(true)
     , m_AnimEditCursorVisible(true)
 {
@@ -106,6 +108,9 @@ SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
 void SliderEditPrivate::beginEdit()
 {
     Q_Q(SliderEdit);
+    if(!m_Editable)
+        return;
+
     m_EditText = toString(m_Value, m_Precision);
     m_Text = m_EditText;
     m_EditTextCurPos = m_EditText.size();
@@ -230,26 +235,6 @@ qreal SliderEdit::value() const
     return d->m_Value;
 }
 
-void SliderEdit::setMaximum(qreal maximum)
-{
-    Q_D(SliderEdit);
-    d->m_Max = maximum;
-    if(d->m_Max < d->m_Min)
-    {
-        d->m_Min = d->m_Max;
-    }
-
-    setValue(d->m_Value);
-
-    update();
-}
-
-qreal SliderEdit::maximum() const
-{
-    Q_D(const SliderEdit);
-    return d->m_Max;
-}
-
 void SliderEdit::setMinimum(qreal minimum)
 {
     Q_D(SliderEdit);
@@ -268,6 +253,38 @@ qreal SliderEdit::minimum() const
 {
     Q_D(const SliderEdit);
     return d->m_Min;
+}
+
+void SliderEdit::setMaximum(qreal maximum)
+{
+    Q_D(SliderEdit);
+    d->m_Max = maximum;
+    if(d->m_Max < d->m_Min)
+    {
+        d->m_Min = d->m_Max;
+    }
+
+    setValue(d->m_Value);
+
+    update();
+}
+
+bool SliderEdit::editable() const
+{
+    Q_D(const SliderEdit);
+    return d->m_Editable;
+}
+
+void SliderEdit::setEditable(bool editable)
+{
+    Q_D(SliderEdit);
+    d->m_Editable = editable;
+}
+
+qreal SliderEdit::maximum() const
+{
+    Q_D(const SliderEdit);
+    return d->m_Max;
 }
 
 void SliderEdit::setSingleStep(qreal step)
