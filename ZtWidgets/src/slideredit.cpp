@@ -748,7 +748,7 @@ void SliderEdit::paintEvent(QPaintEvent*)
             else
             {
                 marker_pos = qBound(0, r.y() + rect_pos, r.height());
-                marker_rect = QRect(r.x() - 1, r.height() - marker_pos + 1, r.width(), 2);
+                marker_rect = QRect(r.x(), r.height() - marker_pos + 1, r.width() - 1, 2);
             }
 
             painter.setBrush(palette().text());
