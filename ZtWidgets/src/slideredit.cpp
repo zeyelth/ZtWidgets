@@ -644,15 +644,16 @@ void SliderEdit::paintEvent(QPaintEvent*)
     if(d->isEditing())
     {
         QFontMetrics fm(fnt);
-        const int text_offset = 2;
+        QRect font_rect = fm.tightBoundingRect(d->m_EditText);
+        const int text_offset = d->m_Alignment & Qt::AlignRight ? r.width() - font_rect.width() - 1 : 2;
         const int cursor_width = 1;
         const QRect text_rect = r.adjusted(text_offset, 0, 0, 0);
+
         const int text_cur_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(d->m_EditText.mid(0, d->m_EditTextCurPos));
         const int text_sel_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(d->m_EditText.mid(0, d->m_EditTextCurPos + d->m_EditTextSelOffset));
 
         if(d->m_EditTextSelOffset != 0)
         {
-            QRect font_rect = fm.tightBoundingRect(d->m_EditText);
             font_rect.moveLeft(qMin(text_cur_pos, text_sel_pos));
             font_rect.setRight(qMax(text_cur_pos, text_sel_pos));
             font_rect.setY(r.y());
@@ -757,8 +758,8 @@ void SliderEdit::paintEvent(QPaintEvent*)
                 marker_rect = QRect(r.x(), r.height() - marker_pos + 1, r.width() - 1, 2);
             }
 
-            painter.setBrush(palette().text());
-            painter.setPen(palette().base().color());
+            painter.setBrush(Qt::white);
+            painter.setPen(Qt::black);
             painter.drawRect(marker_rect);
             painter.setRenderHint(QPainter::Antialiasing);
         }
