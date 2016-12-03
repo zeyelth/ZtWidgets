@@ -368,9 +368,9 @@ void SliderEdit::setOrientation(Qt::Orientation orientation)
     Q_D(SliderEdit);
     d->m_Orientation = orientation;
     if(d->m_Orientation == Qt::Horizontal)
-        setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     else
-        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 
     update();
 }
