@@ -30,10 +30,13 @@
        <double>50.000000000000000</double>
       </property>
       <property name="label">
-       <string>Test</string>
+       <string>Strength</string>
       </property>
       <property name="unit">
        <string>%</string>
+      </property>
+      <property name="sliderComponents">
+       <set>SliderEdit::Gauge|SliderEdit::Marker|SliderEdit::Text</set>
       </property>
      </widget>
     </item>
@@ -90,7 +93,7 @@
          <bool>false</bool>
         </property>
         <property name="editType">
-         <enum>HorizontalColorComponentSlider::Int</enum>
+         <enum>ColorPicker::Int</enum>
         </property>
        </widget>
       </item>

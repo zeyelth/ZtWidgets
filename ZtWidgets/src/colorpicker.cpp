@@ -21,11 +21,13 @@
  */
 
 #include <ZtWidgets/colorpicker.h>
-#include <ZtWidgets/horizontalcolorcomponentslider.h>
-#include <ZtWidgets/verticalcolorcomponentslider.h>
+#include <ZtWidgets/slideredit.h>
 #include <ZtWidgets/colorhexedit.h>
 #include <ZtWidgets/colordisplay.h>
 #include <ZtWidgets/huesaturationwheel.h>
+
+#include <QtGui/QResizeEvent>
+#include <QtGui/QPainter>
 
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QFrame>
@@ -34,217 +36,396 @@
 #include <QtWidgets/QDesktopWidget>
 #include <QFontDatabase>
 
+#include <QtCore/QtMath>
+
 //! @cond Doxygen_Suppress
-class PopupInternal : public ColorWidgetBase
+enum class ColorChannel
+{
+    Red,
+    Blue,
+    Green,
+    Alpha,
+    HsvValue
+};
+
+static bool isBright(const QColor& c)
+{
+    return qSqrt(qPow(c.redF(), 2) * 0.299f +
+                 qPow(c.greenF(), 2) * 0.587f +
+                 qPow(c.blueF(), 2) * 0.114f ) > 0.6f;
+}
+
+static void drawCheckerboard(QPainter& painter, const QRect& rect, quint32 size)
+{
+    QColor color1(153, 153, 152);
+    QColor color2(102, 102, 102);
+
+    painter.save();
+    painter.fillRect(rect, color1);
+    QRect square(0, 0, size, size);
+    quint32 step_x(size * 2);
+    quint32 step_y(size);
+    bool odd = true;
+    while(square.top() < rect.bottom())
+    {
+        while(square.left() < rect.right())
+        {
+            painter.fillRect(square, color2);
+            square.moveLeft(square.left() + step_x);
+        }
+
+        square.moveLeft(0);
+        if(odd)
+        {
+            square.moveLeft(square.left() + step_x * 0.5);
+        }
+
+        square.moveTop(square.top() + step_y);
+        odd = !odd;
+    }
+
+    painter.restore();
+}
+
+class ColorSliderEdit : public SliderEdit
+{
+public:
+    explicit ColorSliderEdit(const QColor& c0, const QColor& c1)
+        : SliderEdit()
+        , m_Color0(c0)
+        , m_Color1(c1)
+        , m_TextColor(isBright(c1) ? Qt::black : Qt::white)
+    {
+        setSliderComponents(SliderEdit::SliderComponent::Marker | SliderEdit::SliderComponent::Text);
+        setAlignment(Qt::AlignRight);
+    }
+
+protected:
+    void resizeEvent(QResizeEvent* event)
+    {
+        QPalette p = palette();
+
+        QImage img(event->size(), QImage::Format_ARGB32_Premultiplied);
+        img.fill(0);
+
+        QRect r = img.rect();
+        QPainter painter(&img);
+
+        if (m_Color0.alpha() < 255 || m_Color1.alpha() < 255)
+        {
+            quint32 size = qMin(r.width(), r.height()) / 2;
+            drawCheckerboard(painter, r, size);
+        }
+
+        QLinearGradient g;
+        if(orientation() == Qt::Horizontal)
+            g = QLinearGradient(QPointF(0.0f, 0.0f), QPointF((float)event->size().width(), 0.0f));
+        else
+            g = QLinearGradient(QPointF(0.0f, 0.0f), QPointF(0.0f, (float)event->size().height()));
+        g.setColorAt(0, m_Color0);
+        g.setColorAt(1, m_Color1);
+
+        painter.fillRect(r, g);
+
+        p.setBrush(QPalette::Base, img);
+        p.setBrush(QPalette::Text, m_TextColor);
+        setPalette(p);
+    }
+private:
+    const QColor m_Color0;
+    const QColor m_Color1;
+    const QColor m_TextColor;
+};
+
+class Popup : public ColorWidgetBase
 {
 
 public:
-    PopupInternal(QWidget* parent = Q_NULLPTR)
-        : ColorWidgetBase(parent)
-    {
-        setWindowFlags(Qt::Window | Qt::BypassWindowManagerHint | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
-        setAttribute(Qt::WA_QuitOnClose, false);
-        QVBoxLayout* main_layout = new QVBoxLayout;
-        m_Frame = new QFrame;
-        m_Frame->setFrameStyle(QFrame::Panel);
-        m_Frame->setFrameShadow(QFrame::Raised);
-        main_layout->setContentsMargins(0, 0, 0, 0);
-        main_layout->addWidget(m_Frame);
-        setLayout(main_layout);
+    explicit Popup(QWidget* parent = Q_NULLPTR);
 
-        QVBoxLayout* layout = new QVBoxLayout;
-        m_Hex = new ColorHexEdit;
+    void updateColor(const QColor& color) override;
+    void showEvent(QShowEvent* event) override;
+    void changeEvent(QEvent* event) override;
+    bool displayAlpha();
+    void setDisplayAlpha(bool visible);
 
-        m_Display = new ColorDisplay;
+    ColorPicker::EditType editType();
+    void setEditType(ColorPicker::EditType edit_type);
 
-        QHBoxLayout* top_layout = new QHBoxLayout;
-        top_layout->addWidget(m_Display);
-        top_layout->addWidget(m_Hex);
-        top_layout->addStretch(100);
-
-        m_Wheel = new HueSaturationWheel;
-        QSizePolicy size_policy;
-        size_policy.setVerticalPolicy(QSizePolicy::Expanding);
-        size_policy.setHorizontalPolicy(QSizePolicy::Expanding);
-        m_Wheel->setSizePolicy(size_policy);
-
-        int size = 15;
-
-        m_ValueSlider = new VerticalColorComponentSlider(AbstractColorComponentSlider::Component::Value, size, Qt::black, Qt::white);
-
-        m_RedSlider = new HorizontalColorComponentSlider(AbstractColorComponentSlider::Component::Red, size, Qt::black, Qt::red);
-        m_GreenSlider = new HorizontalColorComponentSlider(AbstractColorComponentSlider::Component::Green, size, Qt::black, Qt::green);
-        m_BlueSlider = new HorizontalColorComponentSlider(AbstractColorComponentSlider::Component::Blue, size, Qt::black, Qt::blue);
-        m_AlphaSlider = new HorizontalColorComponentSlider(AbstractColorComponentSlider::Component::Alpha, size, QColor(255, 255, 255, 0), QColor(255, 255, 255, 255));
-
-        QHBoxLayout* mid_layout = new QHBoxLayout;
-        mid_layout->addWidget(m_Wheel);
-        mid_layout->addWidget(m_ValueSlider);
-        mid_layout->setContentsMargins(5, 0, 5, 0);
-
-        bool abbreviate = true;
-
-        auto labelfunc = [&](AbstractColorComponentSlider::Component component)
-        {
-            QLabel* label = new QLabel(AbstractColorComponentSlider::componentName(component, abbreviate));
-            label->setMaximumHeight(size);
-            label->setMinimumWidth(size);
-            label->setMaximumWidth(size);
-            return label;
-        };
-
-        QVBoxLayout* bottom_layout = new QVBoxLayout;
-        bottom_layout->setSpacing(2);
-
-        QHBoxLayout* slayout = new QHBoxLayout;
-        slayout->addWidget(labelfunc(AbstractColorComponentSlider::Component::Red));
-        slayout->addWidget(m_RedSlider);
-        bottom_layout->addLayout(slayout);
-
-        slayout = new QHBoxLayout;
-        slayout->addWidget(labelfunc(AbstractColorComponentSlider::Component::Green));
-        slayout->addWidget(m_GreenSlider);
-        bottom_layout->addLayout(slayout);
-
-        slayout = new QHBoxLayout;
-        slayout->addWidget(labelfunc(AbstractColorComponentSlider::Component::Blue));
-        slayout->addWidget(m_BlueSlider);
-        bottom_layout->addLayout(slayout);
-
-        slayout = new QHBoxLayout;
-        m_AlphaLabel = labelfunc(AbstractColorComponentSlider::Component::Alpha);
-        slayout->addWidget(m_AlphaLabel);
-        slayout->addWidget(m_AlphaSlider);
-        bottom_layout->addLayout(slayout);
-
-        layout->addLayout(top_layout);
-        layout->addLayout(mid_layout);
-        layout->addLayout(bottom_layout);
-
-        layout->setContentsMargins(2, 2, 2, 2);
-        m_Frame->setLayout(layout);
-
-        connect(m_Display, &ColorDisplay::clicked, this, &PopupInternal::hide);
-
-        auto connectfunc = [this](ColorWidgetBase* w)
-        {
-            connect(w, &ColorWidgetBase::colorChanged, this, &PopupInternal::updateColor);
-            connect(w, &ColorWidgetBase::colorChanged, this, &PopupInternal::colorChanged);
-            connect(w, &ColorWidgetBase::colorChanging, this, &PopupInternal::updateColor);
-            connect(w, &ColorWidgetBase::colorChanging, this, &PopupInternal::colorChanging);
-        };
-
-        connectfunc(m_Wheel);
-        connectfunc(m_Hex);
-        connectfunc(m_Display);
-        connectfunc(m_ValueSlider);
-        connectfunc(m_RedSlider);
-        connectfunc(m_GreenSlider);
-        connectfunc(m_BlueSlider);
-        connectfunc(m_AlphaSlider);
-
-        // sync color of all child widgets
-        m_Wheel->setColor(m_Color);
-
-        QWidget::setTabOrder(m_Hex, m_RedSlider);
-        QWidget::setTabOrder(m_RedSlider, m_GreenSlider);
-        QWidget::setTabOrder(m_GreenSlider, m_BlueSlider);
-        QWidget::setTabOrder(m_BlueSlider, m_AlphaSlider);
-        QWidget::setTabOrder(m_AlphaSlider, m_Hex);
-    }
-
-
-    void updateColor(const QColor& color) override
-    {
-        auto forward = [&](ColorWidgetBase* w)
-        {
-            if (w != sender())
-            {
-                w->updateColor(color);
-            }
-        };
-
-        forward(m_Wheel);
-        forward(m_Hex);
-        forward(m_Display);
-        forward(m_ValueSlider);
-        forward(m_RedSlider);
-        forward(m_GreenSlider);
-        forward(m_BlueSlider);
-        forward(m_AlphaSlider);
-
-        ColorWidgetBase::updateColor(color);
-    }
-
-    void showEvent(QShowEvent* event) override
-    {
-        QPoint p(pos());
-        int fw = m_Frame->lineWidth();
-        QMargins margins = m_Frame->layout()->contentsMargins();
-        p.setX(p.x() - margins.left() - fw);
-        p.setY(p.y() - margins.top() -fw);
-        QRect r = qApp->desktop()->screenGeometry(this);
-
-        if (p.x() + width() > r.x() + r.width())
-        {
-            p.setX(r.x() + r.width() - width());
-        }
-        if (p.y() + height() > r.y() + r.height())
-        {
-            p.setY(r.y() + r.height() - height());
-        }
-
-        move(p);
-
-        ColorWidgetBase::showEvent(event);
-        activateWindow();
-    }
-
-    void changeEvent(QEvent* event) override
-    {
-        if(event->type() == QEvent::ActivationChange && !isActiveWindow())
-        {
-            hide();
-        }
-        ColorWidgetBase::changeEvent(event);
-    }
-
-    bool displayAlpha()
-    {
-        return m_Hex->displayAlpha();
-    }
-
-    void setDisplayAlpha(bool visible)
-    {
-        m_AlphaLabel->setVisible(visible);
-        m_AlphaSlider->setVisible(visible);
-        m_Hex->setDisplayAlpha(visible);
-    }
-
-    HorizontalColorComponentSlider::EditType editType()
-    {
-        return m_RedSlider->editType();
-    }
-
-    void setEditType(HorizontalColorComponentSlider::EditType editType)
-    {
-        m_RedSlider->setEditType(editType);
-        m_GreenSlider->setEditType(editType);
-        m_BlueSlider->setEditType(editType);
-    }
+private slots:
+    void onSliderValueChanging(qreal val, ColorChannel channel);
+    void onSliderValueChanged(qreal val, ColorChannel channel);
 
 private:
     QFrame* m_Frame;
     ColorHexEdit* m_Hex;
     ColorDisplay* m_Display;
     HueSaturationWheel* m_Wheel;
-    VerticalColorComponentSlider* m_ValueSlider;
-    HorizontalColorComponentSlider* m_RedSlider;
-    HorizontalColorComponentSlider* m_GreenSlider;
-    HorizontalColorComponentSlider* m_BlueSlider;
-    HorizontalColorComponentSlider* m_AlphaSlider;
+    ColorSliderEdit* m_ValueSlider;
+    ColorSliderEdit* m_RedSlider;
+    ColorSliderEdit* m_GreenSlider;
+    ColorSliderEdit* m_BlueSlider;
+    ColorSliderEdit* m_AlphaSlider;
     QLabel* m_AlphaLabel;
+    ColorPicker::EditType m_EditType;
 };
+
+Popup::Popup(QWidget* parent)
+    : ColorWidgetBase(parent)
+{
+    setWindowFlags(Qt::Window | Qt::BypassWindowManagerHint | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
+    setAttribute(Qt::WA_QuitOnClose, false);
+    QVBoxLayout* main_layout = new QVBoxLayout;
+    m_Frame = new QFrame;
+    m_Frame->setFrameStyle(QFrame::Panel);
+    m_Frame->setFrameShadow(QFrame::Raised);
+    main_layout->setContentsMargins(0, 0, 0, 0);
+    main_layout->addWidget(m_Frame);
+    setLayout(main_layout);
+
+    QVBoxLayout* layout = new QVBoxLayout;
+    m_Hex = new ColorHexEdit;
+
+    m_Display = new ColorDisplay;
+
+    QHBoxLayout* top_layout = new QHBoxLayout;
+    top_layout->addWidget(m_Display);
+    top_layout->addWidget(m_Hex);
+    top_layout->addStretch(100);
+
+    m_Wheel = new HueSaturationWheel;
+    QSizePolicy size_policy;
+    size_policy.setVerticalPolicy(QSizePolicy::Expanding);
+    size_policy.setHorizontalPolicy(QSizePolicy::Expanding);
+    m_Wheel->setSizePolicy(size_policy);
+
+    m_ValueSlider = new ColorSliderEdit(Qt::white, Qt::black);
+    m_ValueSlider->setOrientation(Qt::Vertical);
+
+    QPalette p = palette();
+    p.setBrush(QPalette::Text, Qt::white);
+    m_RedSlider = new ColorSliderEdit(Qt::black, Qt::red);
+    m_GreenSlider = new ColorSliderEdit(Qt::black, Qt::green);
+    m_BlueSlider = new ColorSliderEdit(Qt::black, Qt::blue);
+    m_AlphaSlider = new ColorSliderEdit(QColor(255, 255, 255, 0), Qt::white);
+
+    QHBoxLayout* mid_layout = new QHBoxLayout;
+    mid_layout->addWidget(m_Wheel);
+    mid_layout->addWidget(m_ValueSlider);
+    mid_layout->setContentsMargins(5, 0, 5, 0);
+
+    QVBoxLayout* bottom_layout = new QVBoxLayout;
+    bottom_layout->setSpacing(0);
+
+    QHBoxLayout* slayout = new QHBoxLayout;
+    slayout->addWidget(new QLabel("R"));
+    slayout->addWidget(m_RedSlider);
+    bottom_layout->addLayout(slayout);
+
+    slayout = new QHBoxLayout;
+    slayout->addWidget(new QLabel("G"));
+    slayout->addWidget(m_GreenSlider);
+    bottom_layout->addLayout(slayout);
+
+    slayout = new QHBoxLayout;
+    slayout->addWidget(new QLabel("B"));
+    slayout->addWidget(m_BlueSlider);
+    bottom_layout->addLayout(slayout);
+
+    slayout = new QHBoxLayout;
+    m_AlphaLabel = new QLabel("A");
+    slayout->addWidget(m_AlphaLabel);
+    slayout->addWidget(m_AlphaSlider);
+    bottom_layout->addLayout(slayout);
+
+    layout->addLayout(top_layout);
+    layout->addLayout(mid_layout);
+    layout->addLayout(bottom_layout);
+
+    layout->setContentsMargins(2, 2, 2, 2);
+    m_Frame->setLayout(layout);
+
+    connect(m_Display, &ColorDisplay::clicked, this, &Popup::hide);
+
+    auto connectfunc = [this](ColorWidgetBase* w)
+    {
+        connect(w, &ColorWidgetBase::colorChanged, this, &Popup::updateColor);
+        connect(w, &ColorWidgetBase::colorChanged, this, &Popup::colorChanged);
+        connect(w, &ColorWidgetBase::colorChanging, this, &Popup::updateColor);
+        connect(w, &ColorWidgetBase::colorChanging, this, &Popup::colorChanging);
+    };
+
+    connectfunc(m_Wheel);
+    connectfunc(m_Hex);
+    connectfunc(m_Display);
+
+    connect(m_ValueSlider, &SliderEdit::valueChanging, [this](qreal val) { onSliderValueChanging(val, ColorChannel::HsvValue); });
+    connect(m_ValueSlider, &SliderEdit::valueChanged, [this](qreal val) { onSliderValueChanged(val, ColorChannel::HsvValue); });
+
+    connect(m_RedSlider, &SliderEdit::valueChanging, [this](qreal val) { onSliderValueChanging(val, ColorChannel::Red); });
+    connect(m_RedSlider, &SliderEdit::valueChanged, [this](qreal val) { onSliderValueChanged(val, ColorChannel::Red); });
+
+    connect(m_GreenSlider, &SliderEdit::valueChanging, [this](qreal val) { onSliderValueChanging(val, ColorChannel::Green); });
+    connect(m_GreenSlider, &SliderEdit::valueChanged, [this](qreal val) { onSliderValueChanged(val, ColorChannel::Green); });
+
+    connect(m_BlueSlider, &SliderEdit::valueChanging, [this](qreal val) { onSliderValueChanging(val, ColorChannel::Blue); });
+    connect(m_BlueSlider, &SliderEdit::valueChanged, [this](qreal val) { onSliderValueChanged(val, ColorChannel::Blue); });
+
+    connect(m_AlphaSlider, &SliderEdit::valueChanging, [this](qreal val) { onSliderValueChanging(val, ColorChannel::Alpha); });
+    connect(m_AlphaSlider, &SliderEdit::valueChanged, [this](qreal val) { onSliderValueChanged(val, ColorChannel::Alpha); });
+
+    // sync color of all child widgets
+    m_Wheel->setColor(m_Color);
+
+    QWidget::setTabOrder(m_Hex, m_RedSlider);
+    QWidget::setTabOrder(m_RedSlider, m_GreenSlider);
+    QWidget::setTabOrder(m_GreenSlider, m_BlueSlider);
+    QWidget::setTabOrder(m_BlueSlider, m_AlphaSlider);
+    QWidget::setTabOrder(m_AlphaSlider, m_Hex);
+}
+
+static void valueToColor(QColor& color, ColorPicker::EditType t, ColorChannel channel, qreal val)
+{
+    switch(channel)
+    {
+        case ColorChannel::Red:
+            t == ColorPicker::Float ? color.setRedF(val) : color.setRed(qRound(val));
+            break;
+        case ColorChannel::Green:
+            t == ColorPicker::Float ? color.setGreenF(val) : color.setGreen(qRound(val));
+            break;
+        case ColorChannel::Blue:
+            t == ColorPicker::Float ? color.setBlueF(val) : color.setBlue(qRound(val));
+            break;
+        case ColorChannel::Alpha:
+            t == ColorPicker::Float ? color.setAlphaF(val) : color.setAlpha(qRound(val));
+            break;
+        case ColorChannel::HsvValue:
+            t == ColorPicker::Float ? color.setHsvF(color.hsvHueF(), color.hsvSaturationF(), val, color.alphaF()) : color.setHsv(color.hsvHue(), color.hsvSaturation(), qRound(val), color.alpha());
+            break;
+    }
+}
+
+void Popup::onSliderValueChanging(qreal val, ColorChannel channel)
+{
+    valueToColor(m_Color, m_EditType, channel, val);
+
+    updateColor(m_Color);
+    emit colorChanging(m_Color);
+}
+
+void Popup::onSliderValueChanged(qreal val, ColorChannel channel)
+{
+    valueToColor(m_Color, m_EditType, channel, val);
+
+    updateColor(m_Color);
+    emit colorChanged(m_Color);
+}
+
+void Popup::updateColor(const QColor& color)
+{
+    m_Wheel->updateColor(color);
+    m_Hex->updateColor(color);
+    m_Display->updateColor(color);
+
+    if(m_EditType == ColorPicker::Float)
+    {
+        m_RedSlider->updateValue(color.redF());
+        m_GreenSlider->updateValue(color.greenF());
+        m_BlueSlider->updateValue(color.blueF());
+        m_AlphaSlider->updateValue(color.alphaF());
+        m_ValueSlider->updateValue(color.valueF());
+    }
+    else
+    {
+        m_RedSlider->updateValue(color.red());
+        m_GreenSlider->updateValue(color.green());
+        m_BlueSlider->updateValue(color.blue());
+        m_AlphaSlider->updateValue(color.alpha());
+        m_ValueSlider->updateValue(color.value());
+    }
+
+    ColorWidgetBase::updateColor(color);
+}
+
+void Popup::showEvent(QShowEvent* event)
+{
+    QPoint p(pos());
+    int fw = m_Frame->lineWidth();
+    QMargins margins = m_Frame->layout()->contentsMargins();
+    p.setX(p.x() - margins.left() - fw);
+    p.setY(p.y() - margins.top() -fw);
+    QRect r = qApp->desktop()->screenGeometry(this);
+
+    if (p.x() + width() > r.x() + r.width())
+    {
+        p.setX(r.x() + r.width() - width());
+    }
+    if (p.y() + height() > r.y() + r.height())
+    {
+        p.setY(r.y() + r.height() - height());
+    }
+
+    move(p);
+
+    ColorWidgetBase::showEvent(event);
+    activateWindow();
+}
+
+void Popup::changeEvent(QEvent* event)
+{
+    if(event->type() == QEvent::ActivationChange && !isActiveWindow())
+    {
+        hide();
+    }
+    ColorWidgetBase::changeEvent(event);
+}
+
+bool Popup::displayAlpha()
+{
+    return m_Hex->displayAlpha();
+}
+
+void Popup::setDisplayAlpha(bool visible)
+{
+    m_AlphaLabel->setVisible(visible);
+    m_AlphaSlider->setVisible(visible);
+    m_Hex->setDisplayAlpha(visible);
+}
+
+ColorPicker::EditType Popup::editType()
+{
+    return m_EditType;
+}
+
+void Popup::setEditType(ColorPicker::EditType edit_type)
+{
+    m_EditType = edit_type;
+
+    auto update_slider = [&](SliderEdit* w)
+    {
+        switch(edit_type)
+        {
+            case ColorPicker::EditType::Int:
+                w->setRange(0, 255);
+                w->setPrecision(0);
+                break;
+            case ColorPicker::EditType::Float:
+                w->setRange(0.0f, 1.0f);
+                w->setPrecision(3);
+                break;
+            default:
+                Q_ASSERT("Unhandled edit type!");
+                break;
+        }
+    };
+
+    update_slider(m_RedSlider);
+    update_slider(m_GreenSlider);
+    update_slider(m_BlueSlider);
+    update_slider(m_AlphaSlider);
+    update_slider(m_ValueSlider);
+}
 
 class ColorPickerPrivate
 {
@@ -258,8 +439,8 @@ private:
 
     ColorHexEdit* m_Hex;
     ColorDisplay* m_Display;
-    PopupInternal* m_Popup;
-    HorizontalColorComponentSlider::EditType m_EditType;
+    Popup* m_Popup;
+    ColorPicker::EditType m_EditType;
     bool m_DisplayAlpha : 1;
 };
 
@@ -268,9 +449,10 @@ ColorPickerPrivate::ColorPickerPrivate(ColorPicker* colorpicker)
     , m_Hex(nullptr)
     , m_Display(nullptr)
     , m_Popup(nullptr)
-    , m_EditType(HorizontalColorComponentSlider::Float)
+    , m_EditType(ColorPicker::Float)
     , m_DisplayAlpha(true)
 {}
+
 //! @endcond
 
 ColorPicker::ColorPicker(QWidget *parent)
@@ -309,7 +491,7 @@ ColorPicker::ColorPicker(QWidget *parent)
         Q_D(ColorPicker);
         if(!d->m_Popup)
         {
-            d->m_Popup = new PopupInternal;
+            d->m_Popup = new Popup;
             d->m_Popup->setMinimumSize(185, 290);
             d->m_Popup->setMaximumSize(185, 290);
             d->m_Popup->setDisplayAlpha(d->m_DisplayAlpha);
@@ -346,20 +528,11 @@ ColorPicker::~ColorPicker()
 void ColorPicker::updateColor(const QColor& color)
 {
     Q_D(ColorPicker);
-    auto forward = [&](ColorWidgetBase* w)
-    {
-        if (w != sender())
-        {
-            w->updateColor(color);
-        }
-    };
 
-    forward(d->m_Hex);
-    forward(d->m_Display);
+    d->m_Hex->updateColor(color);
+    d->m_Display->updateColor(color);
     if(d->m_Popup)
-    {
-        forward(d->m_Popup);
-    }
+        d->m_Popup->updateColor(color);
 
     ColorWidgetBase::updateColor(color);
 }
@@ -382,7 +555,7 @@ bool ColorPicker::displayAlpha()
     return d->m_DisplayAlpha;
 }
 
-void ColorPicker::setEditType(HorizontalColorComponentSlider::EditType type)
+void ColorPicker::setEditType(ColorPicker::EditType type)
 {
     Q_D(ColorPicker);
     d->m_EditType = type;
@@ -392,7 +565,7 @@ void ColorPicker::setEditType(HorizontalColorComponentSlider::EditType type)
     }
 }
 
-HorizontalColorComponentSlider::EditType ColorPicker::editType()
+ColorPicker::EditType ColorPicker::editType()
 {
     Q_D(ColorPicker);
     return d->m_EditType;

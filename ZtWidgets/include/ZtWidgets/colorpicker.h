@@ -25,7 +25,6 @@
 
 #include "ztwidgets_global.h"
 #include "colorwidgetbase.h"
-#include "horizontalcolorcomponentslider.h"
 
 class ColorPickerPrivate;
 
@@ -50,9 +49,20 @@ class ZTWIDGETS_EXPORT ColorPicker : public ColorWidgetBase
     /**
      * @brief Select the type used by the UI when directly editing values
      */
-    Q_PROPERTY(HorizontalColorComponentSlider::EditType editType READ editType WRITE setEditType)
+    Q_PROPERTY(EditType editType READ editType WRITE setEditType)
 
 public:
+
+    /**
+     * @brief Supported edit types. These are used for display and UI.
+     */
+    enum EditType
+    {
+        Int        = 0,
+        Float      = 1,
+    };
+
+    Q_ENUM(EditType)
 
     /**
      * @brief Construct an instance of ColorPicker
@@ -74,7 +84,7 @@ public:
      * @brief Get the type used when directly editing values
      * @return The type used when directly editing values
      */
-    HorizontalColorComponentSlider::EditType editType();
+    EditType editType();
 
 public slots:
     /**
@@ -87,7 +97,7 @@ public slots:
      * @brief Set the type used when directly editing values
      * @param type The type used by the widget
      */
-    void setEditType(HorizontalColorComponentSlider::EditType type);
+    void setEditType(EditType type);
 
 private:
     ColorPickerPrivate* const d_ptr;
