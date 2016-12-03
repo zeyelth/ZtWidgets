@@ -163,6 +163,15 @@ public:
     void setMaximum(qreal maximum);
 
     /**
+     * @brief Convenience function to set minimum and maximum values at the same time
+     * @param minimum The new minimum
+     * @param maximum The new maximum
+     *
+     * @note Calling this is equivalent to setMinimum(minimum); setMaximum(maximum);
+     */
+    void setRange(qreal minimum, qreal maximum);
+
+    /**
      * @brief Get the edit status of the widget
      * @return true if the slider widget can be edited with a keyboard, false otherwise
      */

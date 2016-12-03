@@ -280,6 +280,18 @@ void SliderEdit::setMaximum(qreal maximum)
     update();
 }
 
+qreal SliderEdit::maximum() const
+{
+    Q_D(const SliderEdit);
+    return d->m_Max;
+}
+
+void SliderEdit::setRange(qreal minimum, qreal maximum)
+{
+    setMinimum(minimum);
+    setMaximum(maximum);
+}
+
 bool SliderEdit::editable() const
 {
     Q_D(const SliderEdit);
@@ -290,12 +302,6 @@ void SliderEdit::setEditable(bool editable)
 {
     Q_D(SliderEdit);
     d->m_Editable = editable;
-}
-
-qreal SliderEdit::maximum() const
-{
-    Q_D(const SliderEdit);
-    return d->m_Max;
 }
 
 void SliderEdit::setSingleStep(qreal step)
