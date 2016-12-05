@@ -79,14 +79,6 @@ protected:
      */
     ColorWidgetBase(QWidget* parent = Q_NULLPTR);
 
-    /**
-     * @brief Draw a checkerboard pattern
-     * @param painter Painter to use
-     * @param rect Bounding rect
-     * @param size Size of each square
-     */
-    static void drawCheckerboard(QPainter& painter, const QRect& rect, quint32 size);
-
     /// Color represented by this widget
     QColor m_Color;
 };
