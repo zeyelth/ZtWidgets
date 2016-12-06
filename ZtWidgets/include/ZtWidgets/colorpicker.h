@@ -86,7 +86,6 @@ public:
      */
     EditType editType();
 
-public slots:
     /**
      * @brief Show or hide the alpha channel
      * @param visible true if alpha channel should be visible

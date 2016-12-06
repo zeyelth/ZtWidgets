@@ -33,6 +33,7 @@
 class ColorDisplay : public ColorWidgetBase
 {
     Q_OBJECT
+
 public:
     /**
      * @brief Construct an instance of ColorDisplay
@@ -40,6 +41,13 @@ public:
      */
     ColorDisplay(QWidget* parent = Q_NULLPTR);
 
+signals:
+    /**
+     * Emitted when the widget is clicked
+     */
+    void clicked();
+
+protected:
     /**
      * @brief Reimplemented from QWidget::mouseReleaseEvent()
      */
@@ -49,11 +57,6 @@ public:
      * @brief Reimplemented from QWidget::paintEvent()
      */
     void paintEvent(QPaintEvent*) override;
-signals:
-    /**
-     * Emitted when the widget is clicked
-     */
-    void clicked();
 };
 
 #endif // COLORDISPLAY_H

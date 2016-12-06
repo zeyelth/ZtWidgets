@@ -51,6 +51,7 @@ public:
      */
     void updateColor(const QColor&) override;
 
+protected:
     /**
      * @brief Reimplemented from QWidget::updateColor()
      */
