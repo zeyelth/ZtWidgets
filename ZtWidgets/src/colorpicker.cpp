@@ -144,13 +144,15 @@ public:
     explicit Popup(QWidget* parent = Q_NULLPTR);
 
     void updateColor(const QColor& color) override;
-    void showEvent(QShowEvent* event) override;
-    void changeEvent(QEvent* event) override;
     bool displayAlpha();
     void setDisplayAlpha(bool visible);
 
     ColorPicker::EditType editType();
     void setEditType(ColorPicker::EditType edit_type);
+
+protected:
+    void showEvent(QShowEvent* event) override;
+    void changeEvent(QEvent* event) override;
 
 private slots:
     void onSliderValueChanging(qreal val, ColorChannel channel);
