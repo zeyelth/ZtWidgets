@@ -38,6 +38,6 @@ HEADERS += include/ZtWidgets/colorpicker.h \
     include/ZtWidgets/colorwidgetbase.h \
     src/colorhexedit_p.h \
     src/colordisplay_p.h \
-    include/ZtWidgets/huesaturationwheel.h \
+    src/huesaturationwheel_p.h \
     include/ZtWidgets/ztwidgets_global.h \
     include/ZtWidgets/slideredit.h

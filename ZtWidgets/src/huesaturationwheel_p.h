@@ -23,14 +23,14 @@
 #ifndef HUESATURATIONWHEEL_H
 #define HUESATURATIONWHEEL_H
 
-#include "colorwidgetbase.h"
+#include <QWidget>
 
 class HueSaturationWheelPrivate;
 
 /**
  * @brief A color wheel for controlling hue and saturation
  */
-class HueSaturationWheel : public ColorWidgetBase
+class HueSaturationWheel : public QWidget
 {
     Q_OBJECT
 
@@ -47,9 +47,22 @@ public:
     virtual ~HueSaturationWheel();
 
     /**
-     * @brief Reimplemented from ColorWidgetBase::updateColor()
+     * @brief Update color
+     * @param color The new color
+     *
+     * @note Does not emit a signal
+     *
+     * Update the color this widget represents.
      */
-    void updateColor(const QColor&) override;
+    void updateColor(const QColor& color);
+
+    /**
+     * @brief Set color
+     * @param color The new color
+     *
+     * Set the color this widget represents. Will emit a colorChanged signal if the color changes.
+     */
+    void setColor(const QColor& color);
 
 protected:
     /**
@@ -76,6 +89,21 @@ protected:
      * @brief Reimplemented from QWidget::paintEvent()
      */
     void paintEvent(QPaintEvent*) override;
+
+signals:
+    /**
+     * @param color The new color
+     *
+     * Emitted when the color has changed.
+     */
+    void colorChanged(const QColor& color);
+
+    /**
+     * @param color The new color
+     *
+     * Emitted while the color is being changed.
+     */
+    void colorChanging(const QColor& color);
 
 private:
     HueSaturationWheelPrivate* const d_ptr;

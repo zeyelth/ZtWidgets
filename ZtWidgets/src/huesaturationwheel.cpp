@@ -20,7 +20,7 @@
  * 3. This notice may not be removed or altered from any source
  */
 
-#include <ZtWidgets/huesaturationwheel.h>
+#include "huesaturationwheel_p.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
@@ -61,12 +61,14 @@ private:
     void updateMarkerPos();
     void rebuildColorWheel();
 
+    QColor m_Color;
     QImage m_wheelImg;
     QPointF m_markerPos;
 };
 
 HueSaturationWheelPrivate::HueSaturationWheelPrivate(HueSaturationWheel* hs_wheel)
     : q_ptr(hs_wheel)
+    , m_Color(Qt::white)
 {}
 
 void HueSaturationWheelPrivate::updateMarkerPos()
@@ -74,8 +76,8 @@ void HueSaturationWheelPrivate::updateMarkerPos()
     Q_Q(HueSaturationWheel);
     QRect square = fittedSquare(q->rect());
     qreal radius = square.width() * 0.5;
-    qreal h = q->m_Color.hsvHueF();
-    qreal s = q->m_Color.hsvSaturationF();
+    qreal h = m_Color.hsvHueF();
+    qreal s = m_Color.hsvSaturationF();
 
     qreal distance = s * radius;
 
@@ -112,7 +114,7 @@ void HueSaturationWheelPrivate::rebuildColorWheel()
     QConicalGradient hue(r.center(), -90.0);
     QColor color;
     qreal step = 0.0;
-    qreal val = q->m_Color.valueF();
+    qreal val = m_Color.valueF();
 
     while (step < 1.0)
     {
@@ -146,20 +148,19 @@ void HueSaturationWheelPrivate::updateColor(const QPointF &pos)
     line.setAngle(line.angle() + 90.0);
     qreal h = (360.0 - line.angle()) / 360.0;
     qreal s = distance / radius;
-    qreal v = q->m_Color.valueF();
-    qreal a = q->m_Color.alphaF();
-    q->m_Color.setHsvF(h, s, v, a);
+    qreal v = m_Color.valueF();
+    qreal a = m_Color.alphaF();
+    m_Color.setHsvF(h, s, v, a);
 }
 //! @endcond
 
 HueSaturationWheel::HueSaturationWheel(QWidget* parent)
-    : ColorWidgetBase(parent)
+    : QWidget(parent)
     , d_ptr(new HueSaturationWheelPrivate(this))
 {
     Q_D(HueSaturationWheel);
     setFocusPolicy(Qt::ClickFocus);
 
-    m_Color = Qt::white;
     d->m_markerPos = QPointF(0, 0);
     setMinimumSize(10, 10);
 }
@@ -172,20 +173,24 @@ HueSaturationWheel::~HueSaturationWheel()
 void HueSaturationWheel::updateColor(const QColor& color)
 {
     Q_D(HueSaturationWheel);
-    if (color.rgb() == m_Color.rgb())
+    if (color.rgb() == d->m_Color.rgb())
     {
         // alpha may have changed
-        ColorWidgetBase::updateColor(color);
+        if (d->m_Color != color)
+        {
+            d->m_Color = color;
+            update();
+        }
         return;
     }
 
-    int old_value = m_Color.value();
+    int old_value = d->m_Color.value();
 
     QRect square = fittedSquare(rect());
     qreal radius = square.width() * 0.5;
     qreal h = color.hsvHueF();
     qreal s = color.hsvSaturationF();
-    m_Color.setRgba(color.rgba());
+    d->m_Color.setRgba(color.rgba());
 
     qreal distance = s * radius;
     QPoint center = square.center();
@@ -200,7 +205,21 @@ void HueSaturationWheel::updateColor(const QColor& color)
         d->rebuildColorWheel();
     }
 
-    ColorWidgetBase::updateColor(color);
+    if (d->m_Color != color)
+    {
+        d->m_Color = color;
+        update();
+    }
+}
+
+void HueSaturationWheel::setColor(const QColor& color)
+{
+    Q_D(HueSaturationWheel);
+    if (d->m_Color != color)
+    {
+        updateColor(color);
+        emit colorChanged(d->m_Color);
+    }
 }
 
 void HueSaturationWheel::resizeEvent(QResizeEvent* event)
@@ -208,7 +227,7 @@ void HueSaturationWheel::resizeEvent(QResizeEvent* event)
     Q_D(HueSaturationWheel);
     d->rebuildColorWheel();
     d->updateMarkerPos();
-    ColorWidgetBase::resizeEvent(event);
+    QWidget::resizeEvent(event);
 }
 
 void HueSaturationWheel::mousePressEvent(QMouseEvent* event)
@@ -216,7 +235,7 @@ void HueSaturationWheel::mousePressEvent(QMouseEvent* event)
     Q_D(HueSaturationWheel);
     d->updateColor(event->pos());
     d->updateMarkerPos();
-    emit colorChanging(m_Color);
+    emit colorChanging(d->m_Color);
 }
 
 void HueSaturationWheel::mouseMoveEvent(QMouseEvent* event)
@@ -230,7 +249,7 @@ void HueSaturationWheel::mouseReleaseEvent(QMouseEvent* event)
     d->updateColor(event->pos());
     d->updateMarkerPos();
     update();
-    emit colorChanged(m_Color);
+    emit colorChanged(d->m_Color);
 }
 
 void HueSaturationWheel::paintEvent(QPaintEvent*)
@@ -245,7 +264,7 @@ void HueSaturationWheel::paintEvent(QPaintEvent*)
     painter.drawImage(square, d->m_wheelImg);
 
     QPen pen;
-    QColor marker_color = m_Color.valueF() > 0.5 ? Qt::black : Qt::white;
+    QColor marker_color = d->m_Color.valueF() > 0.5 ? Qt::black : Qt::white;
     pen.setColor(marker_color);
 
     painter.setPen(pen);

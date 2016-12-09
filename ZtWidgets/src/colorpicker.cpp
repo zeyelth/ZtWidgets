@@ -24,7 +24,7 @@
 #include <ZtWidgets/slideredit.h>
 #include "colorhexedit_p.h"
 #include "colordisplay_p.h"
-#include <ZtWidgets/huesaturationwheel.h>
+#include "huesaturationwheel_p.h"
 
 #include <QtGui/QResizeEvent>
 #include <QtGui/QPainter>
@@ -247,23 +247,17 @@ Popup::Popup(QWidget* parent)
     layout->setContentsMargins(2, 2, 2, 2);
     m_Frame->setLayout(layout);
 
-    connect(m_Display, &ColorDisplay::clicked, this, &Popup::hide);
-
-    auto connectfunc = [this](ColorWidgetBase* w)
-    {
-        connect(w, &ColorWidgetBase::colorChanged, this, &Popup::updateColor);
-        connect(w, &ColorWidgetBase::colorChanged, this, &Popup::colorChanged);
-        connect(w, &ColorWidgetBase::colorChanging, this, &Popup::updateColor);
-        connect(w, &ColorWidgetBase::colorChanging, this, &Popup::colorChanging);
-    };
-
-    connectfunc(m_Wheel);
+    connect(m_Wheel, &HueSaturationWheel::colorChanged, this, &Popup::updateColor);
+    connect(m_Wheel, &HueSaturationWheel::colorChanged, this, &Popup::colorChanged);
+    connect(m_Wheel, &HueSaturationWheel::colorChanging, this, &Popup::updateColor);
+    connect(m_Wheel, &HueSaturationWheel::colorChanging, this, &Popup::colorChanging);
 
     connect(m_Hex, &ColorHexEdit::colorChanged, this, &Popup::updateColor);
     connect(m_Hex, &ColorHexEdit::colorChanged, this, &Popup::colorChanged);
     connect(m_Hex, &ColorHexEdit::colorChanging, this, &Popup::updateColor);
     connect(m_Hex, &ColorHexEdit::colorChanging, this, &Popup::colorChanging);
 
+    connect(m_Display, &ColorDisplay::clicked, this, &Popup::hide);
     connect(m_Display, &ColorDisplay::colorChanged, this, &Popup::updateColor);
     connect(m_Display, &ColorDisplay::colorChanged, this, &Popup::colorChanged);
     connect(m_Display, &ColorDisplay::colorChanging, this, &Popup::updateColor);
