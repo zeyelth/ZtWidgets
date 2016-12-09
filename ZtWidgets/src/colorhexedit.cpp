@@ -20,7 +20,7 @@
  * 3. This notice may not be removed or altered from any source
  */
 
-#include <ZtWidgets/colorhexedit.h>
+#include "colorhexedit_p.h"
 
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
@@ -67,6 +67,7 @@ private:
 
     ColorHexEdit* const q_ptr;
 
+    QColor m_Color;
     QLineEdit* m_LineEdit;
     bool m_DisplayAlpha : 1;
     bool m_Modified : 1;
@@ -74,6 +75,7 @@ private:
 
 ColorHexEditPrivate::ColorHexEditPrivate(ColorHexEdit* hex_edit)
     : q_ptr(hex_edit)
+    , m_Color(Qt::white)
     , m_LineEdit(nullptr)
     , m_DisplayAlpha(true)
     , m_Modified(false)
@@ -122,14 +124,14 @@ void ColorHexEditPrivate::refresh()
     m_LineEdit->setAlignment(Qt::AlignCenter);
 
     m_LineEdit->setFixedWidth(editWidth());
-    m_LineEdit->setText(colorToString(q->m_Color, q->displayAlpha()));
+    m_LineEdit->setText(colorToString(m_Color, q->displayAlpha()));
 }
 
 //! @endcond
 
 
 ColorHexEdit::ColorHexEdit(QWidget *parent)
-    : ColorWidgetBase(parent)
+    : QWidget(parent)
     , d_ptr(new ColorHexEditPrivate(this))
 {
     Q_D(ColorHexEdit);
@@ -149,7 +151,7 @@ ColorHexEdit::ColorHexEdit(QWidget *parent)
         if (d->m_Modified)
         {
             d->m_Modified = false;
-            emit colorChanged(m_Color);
+            emit colorChanged(d->m_Color);
         }
     };
 
@@ -163,14 +165,14 @@ ColorHexEdit::ColorHexEdit(QWidget *parent)
             d->m_LineEdit->setCursorPosition(pos);
         }
 
-        if (d->m_LineEdit->text() == colorToString(m_Color, displayAlpha()))
+        if (d->m_LineEdit->text() == colorToString(d->m_Color, displayAlpha()))
         {
             return;
         }
 
         d->m_Modified = true;
-        m_Color.setNamedColor("#"+text);
-        emit colorChanging(m_Color);
+        d->m_Color.setNamedColor("#"+text);
+        emit colorChanging(d->m_Color);
     };
 
 
@@ -191,14 +193,19 @@ void ColorHexEdit::showEvent(QShowEvent* event)
     Q_D(ColorHexEdit);
     // refresh the UI here as fonts, styles, and other things affecting this widget may have changed
     d->refresh();
-    ColorWidgetBase::showEvent(event);
+    QWidget::showEvent(event);
 }
 
 void ColorHexEdit::updateColor(const QColor& color)
 {
     Q_D(ColorHexEdit);
     d->m_LineEdit->setText(colorToString(color, displayAlpha()));
-    ColorWidgetBase::updateColor(color);
+
+    if(d->m_Color != color)
+    {
+        d->m_Color = color;
+        update();
+    }
 }
 
 void ColorHexEdit::setDisplayAlpha(bool visible)

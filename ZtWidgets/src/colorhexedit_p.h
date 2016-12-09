@@ -23,7 +23,7 @@
 #ifndef COLORHEXEDIT_H
 #define COLORHEXEDIT_H
 
-#include "colorwidgetbase.h"
+#include <QWidget>
 
 class ColorHexEditPrivate;
 
@@ -33,7 +33,7 @@ class ColorHexEditPrivate;
  * A line edit widget, configured to manipulate color values on the form of \#AARRGGBB
  * where AA, RR, GG and BB represents the alpha, red, green, and blue channels respectively.
  */
-class ColorHexEdit : public ColorWidgetBase
+class ColorHexEdit : public QWidget
 {
     Q_OBJECT
 
@@ -55,12 +55,22 @@ public:
     virtual ~ColorHexEdit();
 
     /**
-     * @brief Update the text string
+     * @brief Update color
      * @param color The new color
      *
-     * Update the text string representing the color of this widget.
+     * @note Does not emit a signal
+     *
+     * Update the color this widget represents.
      */
-    void updateColor(const QColor& color) override;
+    void updateColor(const QColor& color);
+
+    /**
+     * @brief Set color
+     * @param color The new color
+     *
+     * Set the color this widget represents. Will emit a colorChanged signal if the color changes.
+     */
+    void setColor(const QColor& color);
 
     /**
      * @brief Get the display status of the alpha channel
@@ -79,6 +89,21 @@ protected:
      * @brief Overridden from QWidget
      */
     void showEvent(QShowEvent* event) override;
+
+signals:
+    /**
+     * @param color The new color
+     *
+     * Emitted when the color has changed.
+     */
+    void colorChanged(const QColor& color);
+
+    /**
+     * @param color The new color
+     *
+     * Emitted while the color is being changed.
+     */
+    void colorChanging(const QColor& color);
 
 private:
     ColorHexEditPrivate* const d_ptr;
