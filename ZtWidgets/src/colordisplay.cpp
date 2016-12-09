@@ -20,7 +20,7 @@
  * 3. This notice may not be removed or altered from any source
  */
 
-#include <ZtWidgets/colordisplay.h>
+#include "colordisplay_p.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
@@ -58,13 +58,50 @@ static void drawCheckerboard(QPainter& painter, const QRect& rect, quint32 size)
     painter.restore();
 }
 
+//! @cond Doxygen_Suppress
+class ColorDisplayPrivate
+{
+    Q_DISABLE_COPY(ColorDisplayPrivate)
+    Q_DECLARE_PUBLIC(ColorDisplay)
+
+private:
+    explicit ColorDisplayPrivate(ColorDisplay*);
+
+    ColorDisplay* const q_ptr;
+
+    QColor m_Color;
+};
+
+ColorDisplayPrivate::ColorDisplayPrivate(ColorDisplay* display)
+    : q_ptr(display)
+    , m_Color(Qt::white)
+{}
+//! @endcond
+
 ColorDisplay::ColorDisplay(QWidget* parent)
-    : ColorWidgetBase(parent)
+    : QWidget(parent)
+    , d_ptr(new ColorDisplayPrivate(this))
 {
     setMinimumSize(15, 15);
     QSizePolicy size_policy;
     size_policy.setHorizontalPolicy(QSizePolicy::Minimum);
     setSizePolicy(size_policy);
+}
+
+
+ColorDisplay::~ColorDisplay()
+{
+    delete d_ptr;
+}
+
+void ColorDisplay::updateColor(const QColor& color)
+{
+    Q_D(ColorDisplay);
+    if(d->m_Color != color)
+    {
+        d->m_Color = color;
+        update();
+    }
 }
 
 void ColorDisplay::mouseReleaseEvent(QMouseEvent*)
@@ -74,12 +111,13 @@ void ColorDisplay::mouseReleaseEvent(QMouseEvent*)
 
 void ColorDisplay::paintEvent(QPaintEvent*)
 {
+    Q_D(ColorDisplay);
     QPainter painter(this);
     painter.save();
 
     painter.setClipRect(rect());
     drawCheckerboard(painter, rect(), 5);
-    painter.fillRect(rect(), m_Color);
+    painter.fillRect(rect(), d->m_Color);
 
     painter.restore();
 }

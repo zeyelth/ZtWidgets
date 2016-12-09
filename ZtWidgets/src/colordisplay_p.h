@@ -23,29 +23,60 @@
 #ifndef COLORDISPLAY_H
 #define COLORDISPLAY_H
 
-#include "colorwidgetbase.h"
+#include <QWidget>
+
+class ColorDisplayPrivate;
 
 /**
  * @brief A simple color display widget
  *
  * A simple color display widget, including alpha values
  */
-class ColorDisplay : public ColorWidgetBase
+class ColorDisplay : public QWidget
 {
     Q_OBJECT
+
+    Q_DISABLE_COPY(ColorDisplay)
+    Q_DECLARE_PRIVATE(ColorDisplay)
 
 public:
     /**
      * @brief Construct an instance of ColorDisplay
      * @param parent Parent widget
      */
-    ColorDisplay(QWidget* parent = Q_NULLPTR);
+    explicit ColorDisplay(QWidget* parent = Q_NULLPTR);
+
+    virtual ~ColorDisplay();
+
+    /**
+     * @brief Update color
+     * @param color The new color
+     *
+     * @note Does not emit a signal
+     *
+     * Update the color this widget represents.
+     */
+    void updateColor(const QColor& color);
 
 signals:
     /**
      * Emitted when the widget is clicked
      */
     void clicked();
+
+    /**
+     * @param color The new color
+     *
+     * Emitted when the color has changed.
+     */
+    void colorChanged(const QColor& color);
+
+    /**
+     * @param color The new color
+     *
+     * Emitted while the color is being changed.
+     */
+    void colorChanging(const QColor& color);
 
 protected:
     /**
@@ -57,6 +88,9 @@ protected:
      * @brief Reimplemented from QWidget::paintEvent()
      */
     void paintEvent(QPaintEvent*) override;
+
+private:
+    ColorDisplayPrivate* const d_ptr;
 };
 
 #endif // COLORDISPLAY_H

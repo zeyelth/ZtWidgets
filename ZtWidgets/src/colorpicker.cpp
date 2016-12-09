@@ -23,7 +23,7 @@
 #include <ZtWidgets/colorpicker.h>
 #include <ZtWidgets/slideredit.h>
 #include <ZtWidgets/colorhexedit.h>
-#include <ZtWidgets/colordisplay.h>
+#include "colordisplay_p.h"
 #include <ZtWidgets/huesaturationwheel.h>
 
 #include <QtGui/QResizeEvent>
@@ -259,7 +259,11 @@ Popup::Popup(QWidget* parent)
 
     connectfunc(m_Wheel);
     connectfunc(m_Hex);
-    connectfunc(m_Display);
+
+    connect(m_Display, &ColorDisplay::colorChanged, this, &Popup::updateColor);
+    connect(m_Display, &ColorDisplay::colorChanged, this, &Popup::colorChanged);
+    connect(m_Display, &ColorDisplay::colorChanging, this, &Popup::updateColor);
+    connect(m_Display, &ColorDisplay::colorChanging, this, &Popup::colorChanging);
 
     connect(m_ValueSlider, &SliderEdit::valueChanging, [this](qreal val) { onSliderValueChanging(val, ColorChannel::HsvValue); });
     connect(m_ValueSlider, &SliderEdit::valueChanged, [this](qreal val) { onSliderValueChanged(val, ColorChannel::HsvValue); });
@@ -508,9 +512,12 @@ ColorPicker::ColorPicker(QWidget *parent)
     };
 
     connect(d->m_Display, &ColorDisplay::clicked, this, on_display_clicked);
+    connect(d->m_Display, &ColorDisplay::colorChanged, this, &ColorPicker::updateColor);
+    connect(d->m_Display, &ColorDisplay::colorChanged, this, &ColorPicker::colorChanged);
+    connect(d->m_Display, &ColorDisplay::colorChanging, this, &ColorPicker::updateColor);
+    connect(d->m_Display, &ColorDisplay::colorChanging, this, &ColorPicker::colorChanging);
 
     connectfunc(d->m_Hex);
-    connectfunc(d->m_Display);
 
     // set default color and sync child widgets
     setColor(QColor(255, 255, 255, 255));
