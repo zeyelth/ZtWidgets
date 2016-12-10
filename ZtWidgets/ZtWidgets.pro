@@ -28,16 +28,16 @@ message($$TARGET will be installed in $$target.path)
 INSTALLS += target
 
 SOURCES += src/colorpicker.cpp \
-    src/colorwidgetbase.cpp \
+    src/colorpickerpopup.cpp \
     src/colorhexedit.cpp \
     src/colordisplay.cpp \
     src/huesaturationwheel.cpp \
     src/slideredit.cpp
 
 HEADERS += include/ZtWidgets/colorpicker.h \
-    include/ZtWidgets/colorwidgetbase.h \
+    include/ZtWidgets/ztwidgets_global.h \
+    include/ZtWidgets/slideredit.h \
+    src/colorpickerpopup_p.h \
     src/colorhexedit_p.h \
     src/colordisplay_p.h \
-    src/huesaturationwheel_p.h \
-    include/ZtWidgets/ztwidgets_global.h \
-    include/ZtWidgets/slideredit.h
+    src/huesaturationwheel_p.h

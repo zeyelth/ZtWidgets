@@ -24,7 +24,8 @@
 #define COLORPICKER_H
 
 #include "ztwidgets_global.h"
-#include "colorwidgetbase.h"
+
+#include <QWidget>
 
 class ColorPickerPrivate;
 
@@ -34,7 +35,7 @@ class ColorPickerPrivate;
  * A compact color picker widget with a hue and saturation wheel.
  * Additional sliders for value, red, green, blue and alpha channels.
  */
-class ZTWIDGETS_EXPORT ColorPicker : public ColorWidgetBase
+class ZTWIDGETS_EXPORT ColorPicker : public QWidget
 {
     Q_OBJECT
 
@@ -72,7 +73,23 @@ public:
 
     virtual ~ColorPicker();
 
-    void updateColor(const QColor& color) override;
+     /**
+     * @brief Update color
+     * @param color The new color
+     *
+     * @note Does not emit a signal
+     *
+     * Update the color this widget represents.
+     */
+    void updateColor(const QColor& color);
+
+    /**
+     * @brief Set color
+     * @param color The new color
+     *
+     * Set the color this widget represents. Will emit a colorChanged signal if the color changes.
+     */
+    void setColor(const QColor& color);
 
     /**
      * @brief Get the display status of the alpha channel
@@ -97,6 +114,21 @@ public:
      * @param type The type used by the widget
      */
     void setEditType(EditType type);
+
+signals:
+    /**
+     * @param color The new color
+     *
+     * Emitted when the color has changed.
+     */
+    void colorChanged(const QColor& color);
+
+    /**
+     * @param color The new color
+     *
+     * Emitted while the color is being changed.
+     */
+    void colorChanging(const QColor& color);
 
 private:
     ColorPickerPrivate* const d_ptr;
