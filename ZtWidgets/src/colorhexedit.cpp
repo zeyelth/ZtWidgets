@@ -199,10 +199,10 @@ void ColorHexEdit::showEvent(QShowEvent* event)
 void ColorHexEdit::updateColor(const QColor& color)
 {
     Q_D(ColorHexEdit);
-    d->m_LineEdit->setText(colorToString(color, displayAlpha()));
 
     if(d->m_Color != color)
     {
+        d->m_LineEdit->setText(colorToString(color, displayAlpha()));
         d->m_Color = color;
         update();
     }
