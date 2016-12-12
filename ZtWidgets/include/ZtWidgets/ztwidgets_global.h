@@ -25,10 +25,14 @@
 
 #include <QtCore/QtGlobal>
 
-#if defined ZTWIDGETS_LIB
-#define ZTWIDGETS_EXPORT Q_DECL_EXPORT
+#ifndef QT_STATIC
+    #if defined ZTWIDGETS_LIB
+        #define ZTWIDGETS_EXPORT Q_DECL_EXPORT
+    #else
+        #define ZTWIDGETS_EXPORT Q_DECL_IMPORT
+    #endif
 #else
-#define ZTWIDGETS_EXPORT Q_DECL_IMPORT
+    #define ZTWIDGETS_EXPORT
 #endif
 
 #endif // ZTWIDGETS_GLOBAL_H
