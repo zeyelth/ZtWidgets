@@ -32,7 +32,8 @@ SOURCES += src/colorpicker.cpp \
     src/colorhexedit.cpp \
     src/colordisplay.cpp \
     src/huesaturationwheel.cpp \
-    src/slideredit.cpp
+    src/slideredit.cpp \
+    src/color_utils.cpp
 
 HEADERS += include/ZtWidgets/colorpicker.h \
     include/ZtWidgets/ztwidgets_global.h \
@@ -40,4 +41,5 @@ HEADERS += include/ZtWidgets/colorpicker.h \
     src/colorpickerpopup_p.h \
     src/colorhexedit_p.h \
     src/colordisplay_p.h \
-    src/huesaturationwheel_p.h
+    src/huesaturationwheel_p.h \
+    src/color_utils_p.h

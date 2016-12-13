@@ -26,6 +26,8 @@
 #include "colordisplay_p.h"
 #include "huesaturationwheel_p.h"
 
+#include "color_utils_p.h"
+
 #include <ZtWidgets/colorpicker.h>
 #include <ZtWidgets/slideredit.h>
 
@@ -52,38 +54,6 @@ static bool isBright(const QColor& c)
     return qSqrt(qPow(c.redF(), 2) * 0.299f +
                  qPow(c.greenF(), 2) * 0.587f +
                  qPow(c.blueF(), 2) * 0.114f ) > 0.6f;
-}
-
-static void drawCheckerboard(QPainter& painter, const QRect& rect, quint32 size)
-{
-    QColor color1(153, 153, 152);
-    QColor color2(102, 102, 102);
-
-    painter.save();
-    painter.fillRect(rect, color1);
-    QRect square(0, 0, size, size);
-    quint32 step_x(size * 2);
-    quint32 step_y(size);
-    bool odd = true;
-    while(square.top() < rect.bottom())
-    {
-        while(square.left() < rect.right())
-        {
-            painter.fillRect(square, color2);
-            square.moveLeft(square.left() + step_x);
-        }
-
-        square.moveLeft(0);
-        if(odd)
-        {
-            square.moveLeft(square.left() + step_x * 0.5);
-        }
-
-        square.moveTop(square.top() + step_y);
-        odd = !odd;
-    }
-
-    painter.restore();
 }
 
 static void valueToColor(QColor& color, ColorPicker::EditType t, ColorChannel channel, qreal val)

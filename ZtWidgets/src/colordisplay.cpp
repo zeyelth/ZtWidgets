@@ -22,41 +22,11 @@
 
 #include "colordisplay_p.h"
 
+#include "color_utils_p.h"
+
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
 #include <QtWidgets/QSizePolicy>
-
-static void drawCheckerboard(QPainter& painter, const QRect& rect, quint32 size)
-{
-    QColor color1(153, 153, 152);
-    QColor color2(102, 102, 102);
-
-    painter.save();
-    painter.fillRect(rect, color1);
-    QRect square(0, 0, size, size);
-    quint32 step_x(size * 2);
-    quint32 step_y(size);
-    bool odd = true;
-    while(square.top() < rect.bottom())
-    {
-        while(square.left() < rect.right())
-        {
-            painter.fillRect(square, color2);
-            square.moveLeft(square.left() + step_x);
-        }
-
-        square.moveLeft(0);
-        if(odd)
-        {
-            square.moveLeft(square.left() + step_x * 0.5);
-        }
-
-        square.moveTop(square.top() + step_y);
-        odd = !odd;
-    }
-
-    painter.restore();
-}
 
 //! @cond Doxygen_Suppress
 class ColorDisplayPrivate
