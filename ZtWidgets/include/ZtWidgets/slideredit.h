@@ -126,7 +126,7 @@ public:
      * @param parent Parent widget
      * @param f Widget window flags
      */
-    SliderEdit(QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
+    explicit SliderEdit(QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
 
     virtual ~SliderEdit();
 
