@@ -319,20 +319,23 @@ ColorPickerPopup::ColorPickerPopup(QWidget *parent)
     mid_layout->addWidget(d->m_ValueSlider);
     mid_layout->setContentsMargins(5, 0, 5, 0);
 
-    QPushButton* rgb_button = new QPushButton("RGB");
+    QPushButton* rgb_button = new QPushButton("&RGB");
     rgb_button->setMaximumHeight(20);
     rgb_button->setCheckable(true);
     rgb_button->setFlat(true);
+    rgb_button->setShortcut(QKeySequence(Qt::AltModifier + Qt::Key_1));
 
-    QPushButton* hsl_button = new QPushButton("HSL");
+    QPushButton* hsl_button = new QPushButton("HS&L");
     hsl_button->setMaximumHeight(20);
     hsl_button->setCheckable(true);
     hsl_button->setFlat(true);
+    hsl_button->setShortcut(QKeySequence(Qt::AltModifier + Qt::Key_2));
 
-    QPushButton* hsv_button = new QPushButton("HSV");
+    QPushButton* hsv_button = new QPushButton("HS&V");
     hsv_button->setMaximumHeight(20);
     hsv_button->setCheckable(true);
     hsv_button->setFlat(true);
+    hsv_button->setShortcut(QKeySequence(Qt::AltModifier + Qt::Key_3));
 
     d->m_ButtonGroup = new QButtonGroup;
     d->m_ButtonGroup->addButton(rgb_button, 0);
