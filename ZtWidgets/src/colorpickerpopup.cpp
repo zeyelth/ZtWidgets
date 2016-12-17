@@ -244,6 +244,7 @@ ColorPickerPopup::ColorPickerPopup(QWidget *parent)
     top_layout->addStretch(100);
 
     d->m_Wheel = new HueSaturationWheel;
+    d->m_Wheel->setToolTip(tr("Hue"));
     QSizePolicy size_policy;
     size_policy.setVerticalPolicy(QSizePolicy::Expanding);
     size_policy.setHorizontalPolicy(QSizePolicy::Expanding);
@@ -280,25 +281,38 @@ ColorPickerPopup::ColorPickerPopup(QWidget *parent)
     blue_gradient[1] = Qt::blue;
 
     d->m_ValueSlider = new ColorSliderEdit(bw_gradient);
+    d->m_ValueSlider->setToolTip(tr("Value"));
     d->m_ValueSlider->setOrientation(Qt::Vertical);
 
     QPalette p = palette();
     p.setBrush(QPalette::Text, Qt::white);
 
     d->m_RedSlider = new ColorSliderEdit(red_gradient);
+    d->m_RedSlider->setToolTip(tr("Red"));
     d->m_GreenSlider = new ColorSliderEdit(green_gradient);
+    d->m_GreenSlider->setToolTip(tr("Green"));
     d->m_BlueSlider = new ColorSliderEdit(blue_gradient);
+    d->m_BlueSlider->setToolTip(tr("Blue"));
     d->m_RgbAlphaSlider = new ColorSliderEdit(alpha_gradient);
+    d->m_RgbAlphaSlider->setToolTip(tr("Alpha"));
 
     d->m_HslHueSlider = new ColorSliderEdit(hue_gradient);
+    d->m_HslHueSlider->setToolTip(tr("Hue"));
     d->m_HslSaturationSlider = new ColorSliderEdit(bw_gradient);
+    d->m_HslSaturationSlider->setToolTip(tr("Saturation"));
     d->m_LightnessSlider = new ColorSliderEdit(bw_gradient);
+    d->m_LightnessSlider->setToolTip(tr("Lightness"));
     d->m_HslAlphaSlider = new ColorSliderEdit(alpha_gradient);
+    d->m_HslAlphaSlider->setToolTip(tr("Alpha"));
 
     d->m_HsvHueSlider = new ColorSliderEdit(hue_gradient);
+    d->m_HsvHueSlider->setToolTip(tr("Hue"));
     d->m_HsvSaturationSlider = new ColorSliderEdit(bw_gradient);
+    d->m_HsvSaturationSlider->setToolTip(tr("Saturation"));
     d->m_HsvValueSlider = new ColorSliderEdit(bw_gradient);
+    d->m_HsvValueSlider->setToolTip(tr("Value"));
     d->m_HsvAlphaSlider = new ColorSliderEdit(alpha_gradient);
+    d->m_HsvAlphaSlider->setToolTip(tr("Alpha"));
 
     QHBoxLayout* mid_layout = new QHBoxLayout;
     mid_layout->addWidget(d->m_Wheel);
