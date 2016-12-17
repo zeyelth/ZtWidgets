@@ -244,7 +244,7 @@ ColorPickerPopup::ColorPickerPopup(QWidget *parent)
     top_layout->addStretch(100);
 
     d->m_Wheel = new HueSaturationWheel;
-    d->m_Wheel->setToolTip(tr("Hue"));
+    d->m_Wheel->setToolTip(tr("Hue/Saturation"));
     QSizePolicy size_policy;
     size_policy.setVerticalPolicy(QSizePolicy::Expanding);
     size_policy.setHorizontalPolicy(QSizePolicy::Expanding);
