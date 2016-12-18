@@ -205,11 +205,7 @@ void HueSaturationWheel::updateColor(const QColor& color)
         d->rebuildColorWheel();
     }
 
-    if (d->m_Color != color)
-    {
-        d->m_Color = color;
-        update();
-    }
+    update();
 }
 
 void HueSaturationWheel::setColor(const QColor& color)
