@@ -58,7 +58,7 @@ public:
      */
     void updateColor(const QColor& color);
 
-signals:
+Q_SIGNALS:
     /**
      * Emitted when the widget is clicked
      */

@@ -87,7 +87,7 @@ public:
     */
     void updateColor(const QColor& color);
 
-signals:
+Q_SIGNALS:
     /**
      * @brief Emitted when the color has changed
      * @param color new color

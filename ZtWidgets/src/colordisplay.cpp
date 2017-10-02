@@ -76,7 +76,7 @@ void ColorDisplay::updateColor(const QColor& color)
 
 void ColorDisplay::mouseReleaseEvent(QMouseEvent*)
 {
-    emit clicked();
+    Q_EMIT clicked();
 }
 
 void ColorDisplay::paintEvent(QPaintEvent*)

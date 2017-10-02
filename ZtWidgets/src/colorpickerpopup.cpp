@@ -470,7 +470,7 @@ ColorPickerPopup::ColorPickerPopup(QWidget *parent)
         valueToColor(d->m_Color, d->m_EditType, channel, val);
 
         updateColor(d->m_Color);
-        emit colorChanging(d->m_Color);
+        Q_EMIT colorChanging(d->m_Color);
     };
 
     auto svchanged = [this](qreal val, ColorChannel channel)
@@ -479,7 +479,7 @@ ColorPickerPopup::ColorPickerPopup(QWidget *parent)
         valueToColor(d->m_Color, d->m_EditType, channel, val);
 
         updateColor(d->m_Color);
-        emit colorChanged(d->m_Color);
+        Q_EMIT colorChanged(d->m_Color);
     };
 
     connect(d->m_ValueSlider, &SliderEdit::valueChanging, [this, svchanging](qreal val) { svchanging(val, ColorChannel::Value); });
@@ -603,7 +603,7 @@ void ColorPickerPopup::setColor(const QColor& color)
     if (d->m_Color != color)
     {
         updateColor(color);
-        emit colorChanged(d->m_Color);
+        Q_EMIT colorChanged(d->m_Color);
     }
 }
 

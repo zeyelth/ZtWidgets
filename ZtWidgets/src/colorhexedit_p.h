@@ -90,7 +90,7 @@ protected:
      */
     void showEvent(QShowEvent* event) override;
 
-signals:
+Q_SIGNALS:
     /**
      * @param color The new color
      *

@@ -90,7 +90,7 @@ protected:
      */
     void paintEvent(QPaintEvent*) override;
 
-signals:
+Q_SIGNALS:
     /**
      * @param color The new color
      *

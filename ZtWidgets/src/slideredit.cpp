@@ -145,7 +145,7 @@ void SliderEditPrivate::endEdit()
 
         if (changed)
         {
-            emit q->valueChanged(m_Value);
+            Q_EMIT q->valueChanged(m_Value);
         }
     }
 
@@ -235,7 +235,7 @@ void SliderEdit::setValue(qreal value)
     qreal val = qBound(d->m_Min, value, d->m_Max);
     d->m_Value = val;
 
-    emit valueChanged(d->m_Value);
+    Q_EMIT valueChanged(d->m_Value);
 
     update();
 }
@@ -437,7 +437,7 @@ void SliderEdit::mouseMoveEvent(QMouseEvent* event)
     else
     {
         d->m_Value = d->valueFromMousePos(event->pos());
-        emit valueChanging(d->m_Value);
+        Q_EMIT valueChanging(d->m_Value);
     }
     update();
 }

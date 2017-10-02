@@ -156,7 +156,7 @@ void ColorPicker::setColor(const QColor& color)
     if (d->m_Color != color)
     {
         updateColor(color);
-        emit colorChanged(d->m_Color);
+        Q_EMIT colorChanged(d->m_Color);
     }
 }
 

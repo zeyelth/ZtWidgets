@@ -115,7 +115,7 @@ public:
      */
     void setEditType(EditType type);
 
-signals:
+Q_SIGNALS:
     /**
      * @param color The new color
      *

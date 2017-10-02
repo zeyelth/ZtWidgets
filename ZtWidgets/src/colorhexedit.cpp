@@ -151,7 +151,7 @@ ColorHexEdit::ColorHexEdit(QWidget *parent)
         if (d->m_Modified)
         {
             d->m_Modified = false;
-            emit colorChanged(d->m_Color);
+            Q_EMIT colorChanged(d->m_Color);
         }
     };
 
@@ -172,7 +172,7 @@ ColorHexEdit::ColorHexEdit(QWidget *parent)
 
         d->m_Modified = true;
         d->m_Color.setNamedColor("#"+text);
-        emit colorChanging(d->m_Color);
+        Q_EMIT colorChanging(d->m_Color);
     };
 
 

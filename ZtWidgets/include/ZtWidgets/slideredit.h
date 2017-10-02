@@ -294,7 +294,7 @@ public:
      */
     Qt::Orientation orientation() const;
 
-signals:
+Q_SIGNALS:
     /**
      * @param value The new value
      *

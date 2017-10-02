@@ -214,7 +214,7 @@ void HueSaturationWheel::setColor(const QColor& color)
     if (d->m_Color != color)
     {
         updateColor(color);
-        emit colorChanged(d->m_Color);
+        Q_EMIT colorChanged(d->m_Color);
     }
 }
 
@@ -231,7 +231,7 @@ void HueSaturationWheel::mousePressEvent(QMouseEvent* event)
     Q_D(HueSaturationWheel);
     d->updateColor(event->pos());
     d->updateMarkerPos();
-    emit colorChanging(d->m_Color);
+    Q_EMIT colorChanging(d->m_Color);
 }
 
 void HueSaturationWheel::mouseMoveEvent(QMouseEvent* event)
@@ -245,7 +245,7 @@ void HueSaturationWheel::mouseReleaseEvent(QMouseEvent* event)
     d->updateColor(event->pos());
     d->updateMarkerPos();
     update();
-    emit colorChanged(d->m_Color);
+    Q_EMIT colorChanged(d->m_Color);
 }
 
 void HueSaturationWheel::paintEvent(QPaintEvent*)
