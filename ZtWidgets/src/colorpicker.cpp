@@ -85,9 +85,8 @@ ColorPicker::ColorPicker(QWidget *parent)
     font.setStyleStrategy(QFont::ForceOutline);
     setFont(font);
 
-    auto on_display_clicked = [this]()
+    auto on_display_clicked = [this, d]()
     {
-        Q_D(ColorPicker);
         if(!d->m_Popup)
         {
             d->m_Popup = new ColorPickerPopup;

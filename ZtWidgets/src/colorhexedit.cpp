@@ -145,9 +145,8 @@ ColorHexEdit::ColorHexEdit(QWidget *parent)
 
     d->m_LineEdit = new QLineEdit;
 
-    auto on_editing_finished = [this]()
+    auto on_editing_finished = [this, d]()
     {
-        Q_D(ColorHexEdit);
         if (d->m_Modified)
         {
             d->m_Modified = false;
@@ -155,9 +154,8 @@ ColorHexEdit::ColorHexEdit(QWidget *parent)
         }
     };
 
-    auto on_text_edited = [this](const QString& text)
+    auto on_text_edited = [this, d](const QString& text)
     {
-        Q_D(ColorHexEdit);
         if (text.size() < d->m_LineEdit->maxLength())
         {
             int pos = d->m_LineEdit->cursorPosition();

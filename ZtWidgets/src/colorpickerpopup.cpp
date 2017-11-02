@@ -464,18 +464,16 @@ ColorPickerPopup::ColorPickerPopup(QWidget *parent)
     connect(d->m_Display, &ColorDisplay::colorChanging, this, &ColorPickerPopup::updateColor);
     connect(d->m_Display, &ColorDisplay::colorChanging, this, &ColorPickerPopup::colorChanging);
 
-    auto svchanging = [this](qreal val, ColorChannel channel)
+    auto svchanging = [this, d](qreal val, ColorChannel channel)
     {
-        Q_D(ColorPickerPopup);
         valueToColor(d->m_Color, d->m_EditType, channel, val);
 
         updateColor(d->m_Color);
         Q_EMIT colorChanging(d->m_Color);
     };
 
-    auto svchanged = [this](qreal val, ColorChannel channel)
+    auto svchanged = [this, d](qreal val, ColorChannel channel)
     {
-        Q_D(ColorPickerPopup);
         valueToColor(d->m_Color, d->m_EditType, channel, val);
 
         updateColor(d->m_Color);
