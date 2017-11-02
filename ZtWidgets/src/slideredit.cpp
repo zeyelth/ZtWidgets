@@ -517,13 +517,16 @@ void SliderEdit::focusOutEvent(QFocusEvent* event)
 {
     Q_D(SliderEdit);
     int reason = event->reason();
-    if(reason == Qt::TabFocusReason || reason == Qt::BacktabFocusReason)
+    switch(reason)
     {
+    case Qt::MouseFocusReason:
+    case Qt::TabFocusReason:
+    case Qt::BacktabFocusReason:
         d->endEdit();
-    }
-    else
-    {
+        break;
+    default:
         d->cancelEdit();
+        break;
     }
 }
 
