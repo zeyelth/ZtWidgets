@@ -22,6 +22,7 @@
 
 #include <ZtWidgets/slideredit.h>
 
+#include <QtMath>
 #include <QKeyEvent>
 #include <QPainter>
 #include <QTime>
@@ -74,6 +75,7 @@ private:
     bool m_Editable : 1;
     bool m_AnimEditCursor : 1;
     bool m_AnimEditCursorVisible : 1;
+    bool m_SnappingEnabled : 1;
 };
 
 SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
@@ -91,6 +93,7 @@ SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
     , m_Editable(true)
     , m_AnimEditCursor(true)
     , m_AnimEditCursorVisible(true)
+    , m_SnappingEnabled(false)
 {
     QObject::connect(&m_AnimEditCursorActivationTimer, &QTimer::timeout, [this]()
     {
@@ -223,8 +226,15 @@ QSize SliderEdit::sizeHint() const
 void SliderEdit::updateValue(qreal value)
 {
     Q_D(SliderEdit);
-    qreal val = qBound(d->m_Min, value, d->m_Max);
-    d->m_Value = val;
+
+    if(d->m_SnappingEnabled)
+    {
+        qreal p = qPow(10, d->m_Precision);
+        value = qRound64(value * p) / p;
+    }
+
+    value = qBound(d->m_Min, value, d->m_Max);
+    d->m_Value = value;
 
     update();
 }
@@ -232,9 +242,7 @@ void SliderEdit::updateValue(qreal value)
 void SliderEdit::setValue(qreal value)
 {
     Q_D(SliderEdit);
-    qreal val = qBound(d->m_Min, value, d->m_Max);
-    d->m_Value = val;
-
+    updateValue(value);
     Q_EMIT valueChanged(d->m_Value);
 
     update();
@@ -335,6 +343,24 @@ void SliderEdit::setPrecision(quint32 precision)
     Q_D(SliderEdit);
     d->m_Precision = precision;
     update();
+}
+
+void SliderEdit::setSnapToPrecision(bool snap)
+{
+    Q_D(SliderEdit);
+    bool changed = d->m_SnappingEnabled != snap;
+    d->m_SnappingEnabled = snap;
+    if(changed)
+    {
+        setValue(d->m_Value);
+    }
+    update();
+}
+
+bool SliderEdit::isSnappingToPrecision() const
+{
+    Q_D(const SliderEdit);
+    return d->m_SnappingEnabled;
 }
 
 quint32 SliderEdit::precision() const

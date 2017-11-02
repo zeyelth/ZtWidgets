@@ -92,6 +92,15 @@ class ZTWIDGETS_EXPORT SliderEdit : public QWidget
     Q_PROPERTY(quint32 precision READ precision WRITE setPrecision)
 
     /**
+     * @brief This property controls snapping behavior. If active, values will snap to the specified precision
+     *
+     * @note Changing this may alter the current value
+     *
+     * See also precision()
+     */
+    Q_PROPERTY(bool snapToPrecision READ isSnappingToPrecision WRITE setSnapToPrecision)
+
+    /**
      * @brief This property holds the alignment of any displayed text in the widget
      */
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
@@ -204,6 +213,17 @@ public:
      * @param step The new step
      */
     void setPageStep(qreal step);
+
+    /**
+     * @brief Get the precision snapping status of the widget
+     */
+    bool isSnappingToPrecision() const;
+
+    /**
+     * @brief Enable or disable precision snapping. If set, values will snap to the precision of the widget, as decided by precision().
+     * @param enable true if snapping should be enabled
+     */
+    void setSnapToPrecision(bool enable);
 
     /**
      * @brief Get the value of the slider
