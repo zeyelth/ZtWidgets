@@ -36,6 +36,12 @@ static QString toString(qreal val, quint16 precision)
     return QString("%1").arg(val, 0, 'f', precision, '0');
 }
 
+static qreal snapToPrecision(qreal value, quint32 precision)
+{
+    const qreal p = qPow(10, precision);
+    return qRound64(value * p) / p;
+}
+
 //! @cond Doxygen_Suppress
 class SliderEditPrivate
 {
@@ -72,10 +78,10 @@ private:
     Qt::Alignment m_Alignment;
     Qt::Orientation m_Orientation;
     SliderEdit::SliderComponents m_SliderComponents;
+    SliderEdit::SliderBehavior m_SliderBehavior;
     bool m_Editable : 1;
     bool m_AnimEditCursor : 1;
     bool m_AnimEditCursorVisible : 1;
-    bool m_SnappingEnabled : 1;
 };
 
 SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
@@ -90,10 +96,10 @@ SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
     , m_Alignment(Qt::AlignCenter)
     , m_Orientation(Qt::Horizontal)
     , m_SliderComponents(SliderEdit::SliderComponent::Text | SliderEdit::SliderComponent::Gauge)
+    , m_SliderBehavior(0)
     , m_Editable(true)
     , m_AnimEditCursor(true)
     , m_AnimEditCursorVisible(true)
-    , m_SnappingEnabled(false)
 {
     QObject::connect(&m_AnimEditCursorActivationTimer, &QTimer::timeout, [this]()
     {
@@ -141,7 +147,12 @@ void SliderEditPrivate::endEdit()
             return;
         }
 
-        val = qBound(m_Min, val, m_Max);
+        if(m_SliderBehavior & SliderEdit::SliderBehaviorFlag::SnapToPrecision)
+            val = snapToPrecision(val, m_Precision);
+        if(!(m_SliderBehavior & SliderEdit::SliderBehaviorFlag::AllowValueUnderflow))
+            val = qMax(m_Min, val);
+        if(!(m_SliderBehavior & SliderEdit::SliderBehaviorFlag::AllowValueOverflow))
+            val = qMin(m_Max, val);
 
         bool changed = m_Value != val;
         m_Value = val;
@@ -227,10 +238,9 @@ void SliderEdit::updateValue(qreal value)
 {
     Q_D(SliderEdit);
 
-    if(d->m_SnappingEnabled)
+    if(d->m_SliderBehavior & SliderEdit::SliderBehaviorFlag::SnapToPrecision)
     {
-        qreal p = qPow(10, d->m_Precision);
-        value = qRound64(value * p) / p;
+        value = snapToPrecision(value, d->m_Precision);
     }
 
     value = qBound(d->m_Min, value, d->m_Max);
@@ -345,24 +355,6 @@ void SliderEdit::setPrecision(quint32 precision)
     update();
 }
 
-void SliderEdit::setSnapToPrecision(bool snap)
-{
-    Q_D(SliderEdit);
-    bool changed = d->m_SnappingEnabled != snap;
-    d->m_SnappingEnabled = snap;
-    if(changed)
-    {
-        setValue(d->m_Value);
-    }
-    update();
-}
-
-bool SliderEdit::isSnappingToPrecision() const
-{
-    Q_D(const SliderEdit);
-    return d->m_SnappingEnabled;
-}
-
 quint32 SliderEdit::precision() const
 {
     Q_D(const SliderEdit);
@@ -380,6 +372,27 @@ SliderEdit::SliderComponents SliderEdit::sliderComponents() const
 {
     Q_D(const SliderEdit);
     return d->m_SliderComponents;
+}
+
+void SliderEdit::setSliderBehavior(SliderBehavior behavior)
+{
+    Q_D(SliderEdit);
+    bool changed = d->m_SliderBehavior != behavior;
+    d->m_SliderBehavior = behavior;
+    if(changed && ((d->m_SliderBehavior & (SliderEdit::SliderBehaviorFlag::AllowValueUnderflow |
+                                           SliderEdit::SliderBehaviorFlag::AllowValueOverflow |
+                                           SliderEdit::SliderBehaviorFlag::SnapToPrecision ))))
+    {
+        setValue(d->m_Value);
+    }
+
+    update();
+}
+
+SliderEdit::SliderBehavior SliderEdit::sliderBehavior() const
+{
+    Q_D(const SliderEdit);
+    return d->m_SliderBehavior;
 }
 
 void SliderEdit::setAlignment(Qt::Alignment alignment)
@@ -538,7 +551,8 @@ void SliderEdit::keyPressEvent(QKeyEvent* event)
 
     bool is_input_key = ((key >= Qt::Key_0 && key <= Qt::Key_9) ||
                           key == Qt::Key_Comma || key == Qt::Key_Period ||
-                          key == Qt::Key_Backspace || key == Qt::Key_Delete);
+                          key == Qt::Key_Backspace || key == Qt::Key_Delete ||
+                          key == Qt::Key_Minus);
 
     // directly enter edit mode if an input key is pressed
     if(!d->isEditing() && is_input_key)

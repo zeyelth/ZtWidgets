@@ -92,15 +92,6 @@ class ZTWIDGETS_EXPORT SliderEdit : public QWidget
     Q_PROPERTY(quint32 precision READ precision WRITE setPrecision)
 
     /**
-     * @brief This property controls snapping behavior. If active, values will snap to the specified precision
-     *
-     * @note Changing this may alter the current value
-     *
-     * See also precision()
-     */
-    Q_PROPERTY(bool snapToPrecision READ isSnappingToPrecision WRITE setSnapToPrecision)
-
-    /**
      * @brief This property holds the alignment of any displayed text in the widget
      */
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
@@ -114,6 +105,15 @@ class ZTWIDGETS_EXPORT SliderEdit : public QWidget
      * @brief This property holds the active slider components used by the widget
      */
     Q_PROPERTY(SliderComponents sliderComponents READ sliderComponents WRITE setSliderComponents)
+
+    /**
+     * @brief This property controls slider behavior
+     *
+     * @note Changing this may alter the current value
+     *
+     * See also precision()
+     */
+    Q_PROPERTY(SliderBehavior sliderBehavior READ sliderBehavior WRITE setSliderBehavior)
 
 public:
 
@@ -129,6 +129,19 @@ public:
 
     Q_DECLARE_FLAGS(SliderComponents, SliderComponent)
     Q_FLAG(SliderComponents)
+
+    /**
+      * @brief Behaviors
+      */
+    enum SliderBehaviorFlag
+    {
+        SnapToPrecision      = 1 << 0, ///< Snap actual value to displayed precision
+        AllowValueUnderflow  = 1 << 1, ///< Allow values smaller than minimum() to be manually set
+        AllowValueOverflow   = 1 << 2, ///< Allow values larger than maximum() to be manually set
+    };
+
+    Q_DECLARE_FLAGS(SliderBehavior, SliderBehaviorFlag)
+    Q_FLAG(SliderBehavior)
 
     /**
      * @brief Construct an instance of SliderEdit
@@ -215,17 +228,6 @@ public:
     void setPageStep(qreal step);
 
     /**
-     * @brief Get the precision snapping status of the widget
-     */
-    bool isSnappingToPrecision() const;
-
-    /**
-     * @brief Enable or disable precision snapping. If set, values will snap to the precision of the widget, as decided by precision().
-     * @param enable true if snapping should be enabled
-     */
-    void setSnapToPrecision(bool enable);
-
-    /**
      * @brief Get the value of the slider
      */
     qreal value() const;
@@ -280,7 +282,7 @@ public:
 
     /**
      * @brief This property holds the active slider components used by the widget
-     * @param components this slider widget should use
+     * @param components components this slider widget should use
      */
     void setSliderComponents(SliderComponents components);
 
@@ -289,6 +291,18 @@ public:
      * @return Active slider components
      */
     SliderComponents sliderComponents() const;
+
+    /**
+     * @brief This property holds the current behavior of the slider
+     * @param behavior The desired behavior of the slider
+     */
+    void setSliderBehavior(SliderBehavior behavior);
+
+    /**
+     * @brief Current slider behavior
+     * @return Current slider behavior
+     */
+    SliderBehavior sliderBehavior() const;
 
     /**
      * @brief Set the alignment of any text displayed in the widget
@@ -375,5 +389,6 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(SliderEdit::SliderComponents)
+Q_DECLARE_OPERATORS_FOR_FLAGS(SliderEdit::SliderBehavior)
 
 #endif // SLIDEREDIT_H
