@@ -115,6 +115,11 @@ class ZTWIDGETS_EXPORT SliderEdit : public QWidget
      */
     Q_PROPERTY(SliderBehavior sliderBehavior READ sliderBehavior WRITE setSliderBehavior)
 
+    /**
+     * @brief This property changes how values are mapped on the slider
+     */
+    Q_PROPERTY(ValueMapping valueMapping READ valueMapping WRITE setValueMapping)
+
 public:
 
     /**
@@ -122,16 +127,16 @@ public:
      */
     enum SliderComponent
     {
-        Text   = 1 << 0,
-        Marker = 1 << 1,
-        Gauge  = 1 << 2,
+        Text   = 1 << 0, ///< Display text on the slider
+        Marker = 1 << 1, ///< Display a marker at the current value
+        Gauge  = 1 << 2, ///< Display a gauge (filled background) up to the current value
     };
 
     Q_DECLARE_FLAGS(SliderComponents, SliderComponent)
     Q_FLAG(SliderComponents)
 
     /**
-      * @brief Behaviors
+      * @brief Slider Behaviors
       */
     enum SliderBehaviorFlag
     {
@@ -142,6 +147,17 @@ public:
 
     Q_DECLARE_FLAGS(SliderBehavior, SliderBehaviorFlag)
     Q_FLAG(SliderBehavior)
+
+    /**
+     * @brief Determines how values are mapped on the slider
+     */
+    enum ValueMapping
+    {
+        LinearScale      = 0, ///< Linear scaling. One-to-one correlation between values and position on the slider
+        LogarithmicScale = 1, ///< Logarithmic scaling. The value increases exponentially along the slider
+    };
+
+    Q_ENUM(ValueMapping)
 
     /**
      * @brief Construct an instance of SliderEdit
@@ -303,6 +319,18 @@ public:
      * @return Current slider behavior
      */
     SliderBehavior sliderBehavior() const;
+
+    /**
+     * @brief This property changes how values are mapped on the slider
+     * @param mapping Change how values are mapped on the slider
+     */
+    void setValueMapping(ValueMapping mapping);
+
+    /**
+     * @brief Current value mapping
+     * @return Current value mapping
+     */
+    ValueMapping valueMapping() const;
 
     /**
      * @brief Set the alignment of any text displayed in the widget

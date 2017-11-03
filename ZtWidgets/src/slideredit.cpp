@@ -42,6 +42,54 @@ static qreal snapToPrecision(qreal value, quint32 precision)
     return qRound64(value * p) / p;
 }
 
+static qreal mapToPosition(SliderEdit::ValueMapping map_type, qreal val, qreal min_val, qreal max_val, qreal min_pos, qreal max_pos)
+{
+    qreal pos = 0;
+    switch (map_type)
+    {
+    case SliderEdit::ValueMapping::LinearScale:
+    {
+        const qreal scale = (val - min_val) / (max_val - min_val);
+        pos = min_pos + scale * (max_pos - min_pos);
+    }
+        break;
+    case SliderEdit::ValueMapping::LogarithmicScale:
+    {
+        const qreal offset = min_val < 1 ? 1 - min_val : 0;
+        const qreal log_min = qLn(min_val + offset);
+        const qreal log_max = qLn(max_val + offset);
+        const qreal scale = (log_max - log_min) / (max_pos - min_pos);
+        pos = (qLn(val + offset) - log_min) / scale + min_pos;
+    }
+        break;
+    }
+
+    return pos;
+}
+
+static qreal mapFromPosition(SliderEdit::ValueMapping map_type, qreal pos, qreal min_val, qreal max_val, qreal min_pos, qreal max_pos)
+{
+    qreal val = 0;
+
+    switch (map_type)
+    {
+    case SliderEdit::ValueMapping::LinearScale:
+        val = pos / (max_pos - min_pos) * (max_val - min_val) + min_val;
+        break;
+    case SliderEdit::ValueMapping::LogarithmicScale:
+    {
+        const qreal offset = min_val < 1 ? 1 - min_val : 0;
+        const qreal log_min = qLn(min_val + offset);
+        const qreal log_max = qLn(max_val + offset);
+        const qreal scale = (log_max - log_min) / (max_pos - min_pos);
+        val = qExp(log_min + scale * (pos - min_pos)) - offset;
+    }
+        break;
+    }
+
+    return val;
+}
+
 //! @cond Doxygen_Suppress
 class SliderEditPrivate
 {
@@ -79,6 +127,7 @@ private:
     Qt::Orientation m_Orientation;
     SliderEdit::SliderComponents m_SliderComponents;
     SliderEdit::SliderBehavior m_SliderBehavior;
+    SliderEdit::ValueMapping m_ValueMapping;
     bool m_Editable : 1;
     bool m_AnimEditCursor : 1;
     bool m_AnimEditCursorVisible : 1;
@@ -98,6 +147,7 @@ SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
     , m_Orientation(Qt::Horizontal)
     , m_SliderComponents(SliderEdit::SliderComponent::Text | SliderEdit::SliderComponent::Gauge)
     , m_SliderBehavior(0)
+    , m_ValueMapping(SliderEdit::ValueMapping::LinearScale)
     , m_Editable(true)
     , m_AnimEditCursor(true)
     , m_AnimEditCursorVisible(true)
@@ -197,14 +247,26 @@ qreal SliderEditPrivate::valueFromMousePos(const QPointF& pos) const
 {
     Q_Q(const SliderEdit);
     const QRectF& r = q->rect();
-    qreal value;
+
+    qreal min_pos = 0;
+    qreal max_pos = 0;
+    qreal p = 0;
 
     if(m_Orientation == Qt::Horizontal)
-        value = qBound(r.x(), pos.x(), r.x() + r.width()) / r.width();
+    {
+        min_pos = r.x();
+        max_pos = r.x() + r.width();
+        p = pos.x();
+    }
     else
-        value = qBound(r.y(), r.height() - pos.y(), r.y() + r.height()) / r.height();
+    {
+        min_pos = r.y();
+        max_pos = r.y() + r.height();
+        p = r.height() - pos.y();
+    }
+    p = qBound(min_pos, p, max_pos);
 
-    return value * (m_Max - m_Min) + m_Min;
+    return mapFromPosition(m_ValueMapping, p, m_Min, m_Max, min_pos, max_pos);
 }
 //! @endcond
 
@@ -380,9 +442,9 @@ void SliderEdit::setSliderBehavior(SliderBehavior behavior)
     Q_D(SliderEdit);
     bool changed = d->m_SliderBehavior != behavior;
     d->m_SliderBehavior = behavior;
-    if(changed && ((d->m_SliderBehavior & (SliderEdit::SliderBehaviorFlag::AllowValueUnderflow |
-                                           SliderEdit::SliderBehaviorFlag::AllowValueOverflow |
-                                           SliderEdit::SliderBehaviorFlag::SnapToPrecision ))))
+    if(changed && ((d->m_SliderBehavior & (SliderBehaviorFlag::AllowValueUnderflow |
+                                           SliderBehaviorFlag::AllowValueOverflow |
+                                           SliderBehaviorFlag::SnapToPrecision ))))
     {
         setValue(d->m_Value);
     }
@@ -394,6 +456,20 @@ SliderEdit::SliderBehavior SliderEdit::sliderBehavior() const
 {
     Q_D(const SliderEdit);
     return d->m_SliderBehavior;
+}
+
+void SliderEdit::setValueMapping(ValueMapping mapping)
+{
+    Q_D(SliderEdit);;
+    d->m_ValueMapping = mapping;
+
+    update();
+}
+
+SliderEdit::ValueMapping SliderEdit::valueMapping() const
+{
+    Q_D(const SliderEdit);
+    return d->m_ValueMapping;
 }
 
 void SliderEdit::setAlignment(Qt::Alignment alignment)
@@ -735,17 +811,18 @@ void SliderEdit::paintEvent(QPaintEvent*)
     }
     else
     {
-        qreal rel_pos = (d->m_Value - d->m_Min) / (d->m_Max - d->m_Min);
         int rect_pos;
         QRect filled_rect;
+        // use a clamped value in case SliderBehaviorFlag::AllowValueUnderflow or SliderBehaviorFlag::AllowValueOverflow is set
+        const qreal clamped_val = qBound(d->m_Min, d->m_Value, d->m_Max);
         if(d->m_Orientation == Qt::Horizontal)
         {
-            rect_pos = rel_pos * r.width();
+            rect_pos = mapToPosition(d->m_ValueMapping, clamped_val, d->m_Min, d->m_Max, 0, r.width());
             filled_rect = QRect(r.x(), r.y(), rect_pos, r.height());
         }
         else
         {
-            rect_pos = rel_pos * r.height();
+            rect_pos = mapToPosition(d->m_ValueMapping, clamped_val, d->m_Min, d->m_Max, 0, r.height());
             filled_rect = QRect(r.x(), r.y() + r.height() - rect_pos, r.width(), rect_pos);
         }
 

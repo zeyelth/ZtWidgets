@@ -41,6 +41,40 @@
      </widget>
     </item>
     <item>
+     <widget class="SliderEdit" name="sliderEdit_2">
+      <property name="toolTip">
+       <string/>
+      </property>
+      <property name="whatsThis">
+       <string/>
+      </property>
+      <property name="minimum">
+       <double>0.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>5000.000000000000000</double>
+      </property>
+      <property name="value">
+       <double>50.000000000000000</double>
+      </property>
+      <property name="label">
+       <string>Size</string>
+      </property>
+      <property name="unit">
+       <string>m</string>
+      </property>
+      <property name="sliderComponents">
+       <set>SliderEdit::Gauge|SliderEdit::Marker|SliderEdit::Text</set>
+      </property>
+      <property name="sliderBehavior">
+       <set>SliderEdit::AllowValueOverflow|SliderEdit::AllowValueUnderflow</set>
+      </property>
+      <property name="valueMapping">
+       <enum>SliderEdit::LogarithmicScale</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QLabel" name="label">
       <property name="font">
        <font>
@@ -144,7 +178,7 @@
      <x>0</x>
      <y>0</y>
      <width>473</width>
-     <height>36</height>
+     <height>30</height>
     </rect>
    </property>
   </widget>
