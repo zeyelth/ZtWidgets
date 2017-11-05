@@ -34,4 +34,4 @@ SOURCES += main.cpp \
 
 HEADERS += mainwindow.h
 
-FORMS += mainwindow.ui
+FORMS += forms/mainwindow.ui
