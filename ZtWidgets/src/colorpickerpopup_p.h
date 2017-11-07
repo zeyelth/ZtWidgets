@@ -44,7 +44,7 @@ public:
      * @brief Constructor
      * @param parent parent widget
      */
-    explicit ColorPickerPopup(QWidget* parent = Q_NULLPTR);
+    explicit ColorPickerPopup(QWidget* parent = nullptr);
     virtual ~ColorPickerPopup();
 
     /**

@@ -44,7 +44,7 @@ public:
      * @brief Construct an instance of ColorDisplay
      * @param parent Parent widget
      */
-    explicit ColorDisplay(QWidget* parent = Q_NULLPTR);
+    explicit ColorDisplay(QWidget* parent = nullptr);
 
     virtual ~ColorDisplay();
 

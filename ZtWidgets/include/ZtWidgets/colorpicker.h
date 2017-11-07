@@ -69,7 +69,7 @@ public:
      * @brief Construct an instance of ColorPicker
      * @param parent Parent widget
      */
-    explicit ColorPicker(QWidget* parent = Q_NULLPTR);
+    explicit ColorPicker(QWidget* parent = nullptr);
 
     virtual ~ColorPicker();
 

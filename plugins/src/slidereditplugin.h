@@ -31,7 +31,7 @@ class SliderEditPlugin : public QObject, public QDesignerCustomWidgetInterface
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 public:
-    explicit SliderEditPlugin(QObject *parent = Q_NULLPTR);
+    explicit SliderEditPlugin(QObject *parent = nullptr);
 
     bool isContainer() const Q_DECL_OVERRIDE;
     bool isInitialized() const Q_DECL_OVERRIDE;

@@ -31,7 +31,7 @@ class ColorPickerPlugin : public QObject, public QDesignerCustomWidgetInterface
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 public:
-    explicit ColorPickerPlugin(QObject *parent = Q_NULLPTR);
+    explicit ColorPickerPlugin(QObject *parent = nullptr);
 
     bool isContainer() const Q_DECL_OVERRIDE;
     bool isInitialized() const Q_DECL_OVERRIDE;

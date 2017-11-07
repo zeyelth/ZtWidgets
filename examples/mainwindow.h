@@ -41,7 +41,7 @@ public:
      * @brief Construct a main window
      * @param parent Parent widget
      */
-    explicit MainWindow(QWidget* parent = Q_NULLPTR);
+    explicit MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
 private:

@@ -42,7 +42,7 @@ public:
      * @brief Construct an instance of HueSaturationWheel
      * @param parent Parent widget
      */
-    explicit HueSaturationWheel(QWidget* parent = Q_NULLPTR);
+    explicit HueSaturationWheel(QWidget* parent = nullptr);
 
     virtual ~HueSaturationWheel();
 

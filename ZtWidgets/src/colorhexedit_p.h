@@ -50,7 +50,7 @@ public:
      * @brief Construct an instance of ColorHexEdit
      * @param parent Parent widget
      */
-    explicit ColorHexEdit(QWidget* parent = Q_NULLPTR);
+    explicit ColorHexEdit(QWidget* parent = nullptr);
 
     virtual ~ColorHexEdit();
 

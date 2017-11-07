@@ -37,7 +37,7 @@ class ZtWidgetsPluginCollection : public QObject, public QDesignerCustomWidgetCo
     Q_INTERFACES(QDesignerCustomWidgetCollectionInterface)
 
 public:
-    ZtWidgetsPluginCollection(QObject* parent = Q_NULLPTR);
+    ZtWidgetsPluginCollection(QObject* parent = nullptr);
 
     QList<QDesignerCustomWidgetInterface*> customWidgets() const Q_DECL_OVERRIDE;
 
