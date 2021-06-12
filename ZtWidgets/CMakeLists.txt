@@ -6,9 +6,9 @@ set(ZtWidgets_SOURCES
     src/colorpickerpopup.cpp
     src/colorhexedit.cpp
     src/colordisplay.cpp
+    src/color_utils.cpp
     src/huesaturationwheel.cpp
     src/slideredit.cpp
-    src/color_utils.cpp
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -20,8 +20,8 @@ set(ZtWidgets_HEADERS
     src/colordisplay_p.h
     src/colorhexedit_p.h
     src/colorpickerpopup_p.h
-    src/huesaturationwheel_p.h
     src/color_utils_p.h
+    src/huesaturationwheel_p.h
 )
 
 qt5_wrap_cpp(ZtWidgets_HEADER_MOC

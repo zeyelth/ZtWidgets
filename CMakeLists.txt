@@ -9,11 +9,10 @@ set(ZTWIDGETS_SOVERSION "${ZTWIDGETS_VERSION}")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
-set(MIN_QT_VERSION 5.7.0)
-set(MIN_PYQT_VERSION 5.7.0)
-set(MIN_SIP_VERSION 4.18.0)
-# Python 2.7 should work too, though it's going to be EOLed in 2020
-set(MIN_PYTHON_VERSION 3.0)
+set(MIN_QT_VERSION 5.15.0)
+set(MIN_PYQT_VERSION 5.15.0)
+set(MIN_SIP_VERSION 4.19.0)
+set(MIN_PYTHON_VERSION 3.8)
 
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Werror")
 

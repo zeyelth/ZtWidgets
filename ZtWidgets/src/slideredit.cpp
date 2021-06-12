@@ -146,7 +146,7 @@ SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
     , m_Alignment(Qt::AlignCenter)
     , m_Orientation(Qt::Horizontal)
     , m_SliderComponents(SliderEdit::SliderComponent::Text | SliderEdit::SliderComponent::Gauge)
-    , m_SliderBehavior(0)
+    , m_SliderBehavior()
     , m_ValueMapping(SliderEdit::ValueMapping::LinearScale)
     , m_Editable(true)
     , m_AnimEditCursor(true)
@@ -291,7 +291,7 @@ QSize SliderEdit::sizeHint() const
     QString t_min = toString(d->m_Min, d->m_Precision);
     QString t_max = toString(d->m_Max, d->m_Precision);
 
-    int w = qMax(fm.width(t_min), fm.width(t_max)) + S_DRAW_PADDING * 2;
+    int w = qMax(fm.horizontalAdvance(t_min), fm.horizontalAdvance(t_max)) + S_DRAW_PADDING * 2;
     int h = fm.height() + S_DRAW_PADDING * 2;
 
     return d->m_Orientation == Qt::Horizontal ? QSize(w, h) : QSize(h, w);
@@ -460,7 +460,7 @@ SliderEdit::SliderBehavior SliderEdit::sliderBehavior() const
 
 void SliderEdit::setValueMapping(ValueMapping mapping)
 {
-    Q_D(SliderEdit);;
+    Q_D(SliderEdit);
     d->m_ValueMapping = mapping;
 
     update();
@@ -769,8 +769,8 @@ void SliderEdit::paintEvent(QPaintEvent*)
         const int cursor_width = 1;
         const QRect text_rect = r.adjusted(text_offset, 0, 0, 0);
 
-        const int text_cur_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(d->m_EditText.mid(0, d->m_EditTextCurPos));
-        const int text_sel_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.width(d->m_EditText.mid(0, d->m_EditTextCurPos + d->m_EditTextSelOffset));
+        const int text_cur_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.horizontalAdvance(d->m_EditText.mid(0, d->m_EditTextCurPos));
+        const int text_sel_pos = S_DRAW_PADDING + text_offset - cursor_width + fm.horizontalAdvance(d->m_EditText.mid(0, d->m_EditTextCurPos + d->m_EditTextSelOffset));
 
         if(d->m_EditTextSelOffset != 0)
         {

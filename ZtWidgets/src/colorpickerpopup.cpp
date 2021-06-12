@@ -446,7 +446,7 @@ ColorPickerPopup::ColorPickerPopup(QWidget *parent)
     layout->setContentsMargins(2, 2, 2, 2);
     d->m_Frame->setLayout(layout);
 
-    connect(d->m_ButtonGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), d->m_SliderStack, &QStackedWidget::setCurrentIndex);
+    connect(d->m_ButtonGroup, &QButtonGroup::idClicked, d->m_SliderStack, &QStackedWidget::setCurrentIndex);
 
     connect(d->m_Wheel, &HueSaturationWheel::colorChanged, this, &ColorPickerPopup::updateColor);
     connect(d->m_Wheel, &HueSaturationWheel::colorChanged, this, &ColorPickerPopup::colorChanged);
@@ -480,44 +480,44 @@ ColorPickerPopup::ColorPickerPopup(QWidget *parent)
         Q_EMIT colorChanged(d->m_Color);
     };
 
-    connect(d->m_ValueSlider, &SliderEdit::valueChanging, [this, svchanging](qreal val) { svchanging(val, ColorChannel::Value); });
-    connect(d->m_ValueSlider, &SliderEdit::valueChanged, [this, svchanged](qreal val) { svchanged(val, ColorChannel::Value); });
+    connect(d->m_ValueSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::Value); });
+    connect(d->m_ValueSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Value); });
 
-    connect(d->m_RedSlider, &SliderEdit::valueChanging, [this, svchanging](qreal val) { svchanging(val, ColorChannel::Red); });
-    connect(d->m_RedSlider, &SliderEdit::valueChanged, [this, svchanged](qreal val) { svchanged(val, ColorChannel::Red); });
+    connect(d->m_RedSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::Red); });
+    connect(d->m_RedSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Red); });
 
-    connect(d->m_GreenSlider, &SliderEdit::valueChanging, [this, svchanging](qreal val) { svchanging(val, ColorChannel::Green); });
-    connect(d->m_GreenSlider, &SliderEdit::valueChanged, [this, svchanged](qreal val) { svchanged(val, ColorChannel::Green); });
+    connect(d->m_GreenSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::Green); });
+    connect(d->m_GreenSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Green); });
 
-    connect(d->m_BlueSlider, &SliderEdit::valueChanging, [this, svchanging](qreal val) { svchanging(val, ColorChannel::Blue); });
-    connect(d->m_BlueSlider, &SliderEdit::valueChanged, [this, svchanged](qreal val) { svchanged(val, ColorChannel::Blue); });
+    connect(d->m_BlueSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::Blue); });
+    connect(d->m_BlueSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Blue); });
 
-    connect(d->m_RgbAlphaSlider, &SliderEdit::valueChanging, [this, svchanging](qreal val) { svchanging(val, ColorChannel::Alpha); });
-    connect(d->m_RgbAlphaSlider, &SliderEdit::valueChanged, [this, svchanged](qreal val) { svchanged(val, ColorChannel::Alpha); });
+    connect(d->m_RgbAlphaSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::Alpha); });
+    connect(d->m_RgbAlphaSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Alpha); });
 
-    connect(d->m_HslHueSlider, &SliderEdit::valueChanging, [this, svchanging](qreal val) { svchanging(val, ColorChannel::HslHue); });
-    connect(d->m_HslHueSlider, &SliderEdit::valueChanged, [this, svchanged](qreal val) { svchanged(val, ColorChannel::HslHue); });
+    connect(d->m_HslHueSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::HslHue); });
+    connect(d->m_HslHueSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::HslHue); });
 
-    connect(d->m_HslSaturationSlider, &SliderEdit::valueChanging, [this, svchanging](qreal val) { svchanging(val, ColorChannel::HslSaturation); });
-    connect(d->m_HslSaturationSlider, &SliderEdit::valueChanged, [this, svchanged](qreal val) { svchanged(val, ColorChannel::HslSaturation); });
+    connect(d->m_HslSaturationSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::HslSaturation); });
+    connect(d->m_HslSaturationSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::HslSaturation); });
 
-    connect(d->m_LightnessSlider, &SliderEdit::valueChanging, [this, svchanging](qreal val) { svchanging(val, ColorChannel::Lightness); });
-    connect(d->m_LightnessSlider, &SliderEdit::valueChanged, [this, svchanged](qreal val) { svchanged(val, ColorChannel::Lightness); });
+    connect(d->m_LightnessSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::Lightness); });
+    connect(d->m_LightnessSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Lightness); });
 
-    connect(d->m_HslAlphaSlider, &SliderEdit::valueChanging, [this, svchanging](qreal val) { svchanging(val, ColorChannel::Alpha); });
-    connect(d->m_HslAlphaSlider, &SliderEdit::valueChanged, [this, svchanged](qreal val) { svchanged(val, ColorChannel::Alpha); });
+    connect(d->m_HslAlphaSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::Alpha); });
+    connect(d->m_HslAlphaSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Alpha); });
 
-    connect(d->m_HsvHueSlider, &SliderEdit::valueChanging, [this, svchanging](qreal val) { svchanging(val, ColorChannel::HsvHue); });
-    connect(d->m_HsvHueSlider, &SliderEdit::valueChanged, [this, svchanged](qreal val) { svchanged(val, ColorChannel::HsvHue); });
+    connect(d->m_HsvHueSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::HsvHue); });
+    connect(d->m_HsvHueSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::HsvHue); });
 
-    connect(d->m_HsvSaturationSlider, &SliderEdit::valueChanging, [this, svchanging](qreal val) { svchanging(val, ColorChannel::HsvSaturation); });
-    connect(d->m_HsvSaturationSlider, &SliderEdit::valueChanged, [this, svchanged](qreal val) { svchanged(val, ColorChannel::HsvSaturation); });
+    connect(d->m_HsvSaturationSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::HsvSaturation); });
+    connect(d->m_HsvSaturationSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::HsvSaturation); });
 
-    connect(d->m_HsvValueSlider, &SliderEdit::valueChanging, [this, svchanging](qreal val) { svchanging(val, ColorChannel::Value); });
-    connect(d->m_HsvValueSlider, &SliderEdit::valueChanged, [this, svchanged](qreal val) { svchanged(val, ColorChannel::Value); });
+    connect(d->m_HsvValueSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::Value); });
+    connect(d->m_HsvValueSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Value); });
 
-    connect(d->m_HsvAlphaSlider, &SliderEdit::valueChanging, [this, svchanging](qreal val) { svchanging(val, ColorChannel::Alpha); });
-    connect(d->m_HsvAlphaSlider, &SliderEdit::valueChanged, [this, svchanged](qreal val) { svchanged(val, ColorChannel::Alpha); });
+    connect(d->m_HsvAlphaSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::Alpha); });
+    connect(d->m_HsvAlphaSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Alpha); });
 
     // sync color of all child widgets
     d->m_Wheel->setColor(d->m_Color);

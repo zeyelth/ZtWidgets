@@ -11,8 +11,7 @@ file(GLOB_RECURSE FLIST "./*.sip")
 add_custom_target(sip_extrafiles SOURCES ${FLIST})
 
 set(SIP_INCLUDES
-    ${SIP_DEFAULT_SIP_DIR}
-    ${SIP_DEFAULT_SIP_DIR}/PyQt5
+    ${PYQT5_SIP_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 

@@ -22,6 +22,7 @@
 
 #include "huesaturationwheel_p.h"
 
+#include <QtGui/QPainterPath>
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
 

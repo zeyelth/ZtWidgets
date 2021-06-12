@@ -1,8 +1,8 @@
 # Find PyQt5
 # ~~~~~~~~~~
-# Copyright (c) 2014, Simon Edwards <simon@simonzone.com>
-# Redistribution and use is allowed according to the terms of the BSD license.
-# For details see the accompanying COPYING-CMAKE-SCRIPTS file.
+# SPDX-FileCopyrightText: 2014 Simon Edwards <simon@simonzone.com>
+#
+# SPDX-License-Identifier: BSD-3-Clause
 #
 # PyQt5 website: http://www.riverbankcomputing.co.uk/pyqt/index.php
 #
@@ -29,7 +29,19 @@ ELSE(EXISTS PYQT5_VERSION)
 
   FIND_FILE(_find_pyqt5_py FindPyQt5.py PATHS ${CMAKE_MODULE_PATH})
 
-  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${CMAKE_PREFIX_PATH}/share/krita/pykrita" ${PYTHON_EXECUTABLE} ${_find_pyqt5_py} OUTPUT_VARIABLE pyqt5_config)
+
+  if (WIN32)
+    # python modules need Qt and C++ libraries be added via explicit
+    # calls to os.add_dll_directory(), so we should provide it with
+    # correct paths
+    get_target_property(LIBQT5CORE_PATH Qt5::Core IMPORTED_LOCATION_RELEASE)
+    get_filename_component(LIBQT5CORE_PATH ${LIBQT5CORE_PATH} PATH)
+    get_filename_component(MINGW_PATH ${CMAKE_CXX_COMPILER} PATH)
+
+    EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E env "PYTHONDLLPATH=${LIBQT5CORE_PATH};${MINGW_PATH}" ${PYTHON_EXECUTABLE} ${_find_pyqt5_py} OUTPUT_VARIABLE pyqt5_config)
+  else (WIN32)
+    EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} ${_find_pyqt5_py} OUTPUT_VARIABLE pyqt5_config)
+  endif (WIN32)
 
   IF(pyqt5_config)
     STRING(REGEX REPLACE "^pyqt_version:([^\n]+).*$" "\\1" PYQT5_VERSION ${pyqt5_config})
@@ -37,6 +49,9 @@ ELSE(EXISTS PYQT5_VERSION)
     STRING(REGEX REPLACE ".*\npyqt_version_tag:([^\n]+).*$" "\\1" PYQT5_VERSION_TAG ${pyqt5_config})
     STRING(REGEX REPLACE ".*\npyqt_sip_dir:([^\n]+).*$" "\\1" PYQT5_SIP_DIR ${pyqt5_config})
     STRING(REGEX REPLACE ".*\npyqt_sip_flags:([^\n]+).*$" "\\1" PYQT5_SIP_FLAGS ${pyqt5_config})
+    IF(${pyqt5_config} MATCHES pyqt_sip_name)
+      STRING(REGEX REPLACE ".*\npyqt_sip_name:([^\n]+).*$" "\\1" PYQT5_SIP_NAME ${pyqt5_config})
+    ENDIF(${pyqt5_config} MATCHES pyqt_sip_name)
 
     SET(PYQT5_FOUND TRUE)
   ENDIF(pyqt5_config)
