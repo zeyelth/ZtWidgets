@@ -22,18 +22,17 @@
 
 #include "colorhexedit_p.h"
 
+#include <QtCore/QSize>
+#include <QtCore/QString>
+#include <QtCore/Qt>
+#include <QtGui/QColor>
+#include <QtGui/QFont>
+#include <QtGui/QFontMetrics>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QStyle>
 #include <QtWidgets/QStyleOptionFrame>
-#include <QtGui/QColor>
-#include <QtGui/QFont>
-#include <QtGui/QFontMetrics>
-#include <QtCore/Qt>
-#include <QtCore/QSize>
-#include <QtCore/QString>
-
 
 static QString colorToString(const QColor& color, bool include_alpha)
 {
@@ -41,16 +40,18 @@ static QString colorToString(const QColor& color, bool include_alpha)
     if (include_alpha)
     {
         return QString("%1%2%3%4")
-                .arg(color.alpha(), 2, 16, fill)
-                .arg(color.red(), 2, 16, fill)
-                .arg(color.green(), 2, 16, fill)
-                .arg(color.blue(), 2, 16, fill).toUpper();
+            .arg(color.alpha(), 2, 16, fill)
+            .arg(color.red(), 2, 16, fill)
+            .arg(color.green(), 2, 16, fill)
+            .arg(color.blue(), 2, 16, fill)
+            .toUpper();
     }
 
     return QString("%1%2%3")
-            .arg(color.red(), 2, 16, fill)
-            .arg(color.green(), 2, 16, fill)
-            .arg(color.blue(), 2, 16, fill).toUpper();
+        .arg(color.red(), 2, 16, fill)
+        .arg(color.green(), 2, 16, fill)
+        .arg(color.blue(), 2, 16, fill)
+        .toUpper();
 }
 
 //! @cond Doxygen_Suppress
@@ -59,7 +60,7 @@ class ColorHexEditPrivate
     Q_DISABLE_COPY(ColorHexEditPrivate)
     Q_DECLARE_PUBLIC(ColorHexEdit)
 
-private:
+  private:
     explicit ColorHexEditPrivate(ColorHexEdit* hex_edit);
 
     int editWidth() const;
@@ -91,7 +92,7 @@ int ColorHexEditPrivate::editWidth() const
     width += style->pixelMetric(QStyle::PM_DefaultFrameWidth, &option, m_LineEdit) * 2;
     // input mask makes the cursor about 5 pixels wide when no character is selected
     // this is not reflected by QStyle::PM_TextCursorWidth. Qt Bug?
-    //width += style->pixelMetric(QStyle::PM_TextCursorWidth, &option, m_LineEdit) * 2;
+    // width += style->pixelMetric(QStyle::PM_TextCursorWidth, &option, m_LineEdit) * 2;
     // increase width by one character to compensate for now
     width += fm.averageCharWidth();
     int height = fm.height();
@@ -111,7 +112,8 @@ void ColorHexEditPrivate::refresh()
         m_LineEdit->setMaxLength(8);
         m_LineEdit->setInputMask(">HHHHHHHH");
         m_LineEdit->setPlaceholderText("AARRGGBB");
-        m_LineEdit->setToolTip(q->tr("A hexadecimal value on the form AARRGGBB:\n\nAA = alpha\nRR = red\nGG = green\nBB = blue"));
+        m_LineEdit->setToolTip(
+            q->tr("A hexadecimal value on the form AARRGGBB:\n\nAA = alpha\nRR = red\nGG = green\nBB = blue"));
     }
     else
     {
@@ -129,8 +131,7 @@ void ColorHexEditPrivate::refresh()
 
 //! @endcond
 
-
-ColorHexEdit::ColorHexEdit(QWidget *parent)
+ColorHexEdit::ColorHexEdit(QWidget* parent)
     : QWidget(parent)
     , d_ptr(new ColorHexEditPrivate(this))
 {
@@ -169,10 +170,9 @@ ColorHexEdit::ColorHexEdit(QWidget *parent)
         }
 
         d->m_Modified = true;
-        d->m_Color.setNamedColor("#"+text);
+        d->m_Color.setNamedColor("#" + text);
         Q_EMIT colorChanging(d->m_Color);
     };
-
 
     connect(d->m_LineEdit, &QLineEdit::textEdited, this, on_text_edited);
     connect(d->m_LineEdit, &QLineEdit::editingFinished, this, on_editing_finished);
@@ -198,7 +198,7 @@ void ColorHexEdit::updateColor(const QColor& color)
 {
     Q_D(ColorHexEdit);
 
-    if(d->m_Color != color)
+    if (d->m_Color != color)
     {
         d->m_LineEdit->setText(colorToString(color, displayAlpha()));
         d->m_Color = color;
@@ -215,6 +215,6 @@ void ColorHexEdit::setDisplayAlpha(bool visible)
 
 bool ColorHexEdit::displayAlpha()
 {
-   Q_D(ColorHexEdit);
-   return d->m_DisplayAlpha;
+    Q_D(ColorHexEdit);
+    return d->m_DisplayAlpha;
 }

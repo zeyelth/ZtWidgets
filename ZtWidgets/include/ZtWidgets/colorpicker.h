@@ -52,15 +52,14 @@ class ZTWIDGETS_EXPORT ColorPicker : public QWidget
      */
     Q_PROPERTY(EditType editType READ editType WRITE setEditType)
 
-public:
-
+  public:
     /**
      * @brief Supported edit types. These are used for display and UI.
      */
     enum EditType
     {
-        Int        = 0,
-        Float      = 1,
+        Int   = 0,
+        Float = 1,
     };
 
     Q_ENUM(EditType)
@@ -73,7 +72,7 @@ public:
 
     virtual ~ColorPicker();
 
-     /**
+    /**
      * @brief Update color
      * @param color The new color
      *
@@ -115,7 +114,7 @@ public:
      */
     void setEditType(EditType type);
 
-Q_SIGNALS:
+  Q_SIGNALS:
     /**
      * @param color The new color
      *
@@ -130,7 +129,7 @@ Q_SIGNALS:
      */
     void colorChanging(const QColor& color);
 
-private:
+  private:
     ColorPickerPrivate* const d_ptr;
 };
 

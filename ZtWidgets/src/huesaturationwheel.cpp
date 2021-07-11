@@ -22,9 +22,9 @@
 
 #include "huesaturationwheel_p.h"
 
-#include <QtGui/QPainterPath>
-#include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
+#include <QtGui/QPainter>
+#include <QtGui/QPainterPath>
 
 static QRect fittedSquare(const QRect& rect)
 {
@@ -53,7 +53,7 @@ class HueSaturationWheelPrivate
     Q_DISABLE_COPY(HueSaturationWheelPrivate)
     Q_DECLARE_PUBLIC(HueSaturationWheel)
 
-private:
+  private:
     explicit HueSaturationWheelPrivate(HueSaturationWheel*);
 
     HueSaturationWheel* const q_ptr;
@@ -77,8 +77,8 @@ void HueSaturationWheelPrivate::updateMarkerPos()
     Q_Q(HueSaturationWheel);
     QRect square = fittedSquare(q->rect());
     qreal radius = square.width() * 0.5;
-    qreal h = m_Color.hsvHueF();
-    qreal s = m_Color.hsvSaturationF();
+    qreal h      = m_Color.hsvHueF();
+    qreal s      = m_Color.hsvSaturationF();
 
     qreal distance = s * radius;
 
@@ -92,7 +92,7 @@ void HueSaturationWheelPrivate::rebuildColorWheel()
 {
     Q_Q(HueSaturationWheel);
     QRect square = fittedSquare(q->rect());
-    m_wheelImg = QImage(square.size(), QImage::Format_ARGB32_Premultiplied);
+    m_wheelImg   = QImage(square.size(), QImage::Format_ARGB32_Premultiplied);
     m_wheelImg.fill(0);
 
     QRect r = m_wheelImg.rect();
@@ -115,7 +115,7 @@ void HueSaturationWheelPrivate::rebuildColorWheel()
     QConicalGradient hue(r.center(), -90.0);
     QColor color;
     qreal step = 0.0;
-    qreal val = m_Color.valueF();
+    qreal val  = m_Color.valueF();
 
     while (step < 1.0)
     {
@@ -138,7 +138,7 @@ void HueSaturationWheelPrivate::rebuildColorWheel()
     q->update();
 }
 
-void HueSaturationWheelPrivate::updateColor(const QPointF &pos)
+void HueSaturationWheelPrivate::updateColor(const QPointF& pos)
 {
     Q_Q(HueSaturationWheel);
     QRect square = fittedSquare(q->rect());
@@ -189,12 +189,12 @@ void HueSaturationWheel::updateColor(const QColor& color)
 
     QRect square = fittedSquare(rect());
     qreal radius = square.width() * 0.5;
-    qreal h = color.hsvHueF();
-    qreal s = color.hsvSaturationF();
+    qreal h      = color.hsvHueF();
+    qreal s      = color.hsvSaturationF();
     d->m_Color.setRgba(color.rgba());
 
     qreal distance = s * radius;
-    QPoint center = square.center();
+    QPoint center  = square.center();
 
     QLineF line(center.x(), center.y(), center.x(), center.y() + distance);
     line.setAngle(360.0 - h * 360.0 - 90.0);

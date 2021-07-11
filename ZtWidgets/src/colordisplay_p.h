@@ -39,7 +39,7 @@ class ColorDisplay : public QWidget
     Q_DISABLE_COPY(ColorDisplay)
     Q_DECLARE_PRIVATE(ColorDisplay)
 
-public:
+  public:
     /**
      * @brief Construct an instance of ColorDisplay
      * @param parent Parent widget
@@ -58,7 +58,7 @@ public:
      */
     void updateColor(const QColor& color);
 
-Q_SIGNALS:
+  Q_SIGNALS:
     /**
      * Emitted when the widget is clicked
      */
@@ -78,7 +78,7 @@ Q_SIGNALS:
      */
     void colorChanging(const QColor& color);
 
-protected:
+  protected:
     /**
      * @brief Reimplemented from QWidget::mouseReleaseEvent()
      */
@@ -89,7 +89,7 @@ protected:
      */
     void paintEvent(QPaintEvent*) override;
 
-private:
+  private:
     ColorDisplayPrivate* const d_ptr;
 };
 

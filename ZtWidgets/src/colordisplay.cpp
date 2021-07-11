@@ -24,8 +24,8 @@
 
 #include "color_utils_p.h"
 
-#include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
+#include <QtGui/QPainter>
 #include <QtWidgets/QSizePolicy>
 
 //! @cond Doxygen_Suppress
@@ -34,7 +34,7 @@ class ColorDisplayPrivate
     Q_DISABLE_COPY(ColorDisplayPrivate)
     Q_DECLARE_PUBLIC(ColorDisplay)
 
-private:
+  private:
     explicit ColorDisplayPrivate(ColorDisplay*);
 
     ColorDisplay* const q_ptr;
@@ -58,7 +58,6 @@ ColorDisplay::ColorDisplay(QWidget* parent)
     setSizePolicy(size_policy);
 }
 
-
 ColorDisplay::~ColorDisplay()
 {
     delete d_ptr;
@@ -67,7 +66,7 @@ ColorDisplay::~ColorDisplay()
 void ColorDisplay::updateColor(const QColor& color)
 {
     Q_D(ColorDisplay);
-    if(d->m_Color != color)
+    if (d->m_Color != color)
     {
         d->m_Color = color;
         update();

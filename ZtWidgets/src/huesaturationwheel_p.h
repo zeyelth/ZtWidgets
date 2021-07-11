@@ -37,7 +37,7 @@ class HueSaturationWheel : public QWidget
     Q_DISABLE_COPY(HueSaturationWheel)
     Q_DECLARE_PRIVATE(HueSaturationWheel)
 
-public:
+  public:
     /**
      * @brief Construct an instance of HueSaturationWheel
      * @param parent Parent widget
@@ -64,7 +64,7 @@ public:
      */
     void setColor(const QColor& color);
 
-protected:
+  protected:
     /**
      * @brief Reimplemented from QWidget::updateColor()
      */
@@ -90,7 +90,7 @@ protected:
      */
     void paintEvent(QPaintEvent*) override;
 
-Q_SIGNALS:
+  Q_SIGNALS:
     /**
      * @param color The new color
      *
@@ -105,7 +105,7 @@ Q_SIGNALS:
      */
     void colorChanging(const QColor& color);
 
-private:
+  private:
     HueSaturationWheelPrivate* const d_ptr;
 };
 

@@ -20,15 +20,15 @@
  * 3. This notice may not be removed or altered from any source
  */
 
+#include "colordisplay_p.h"
+#include "colorhexedit_p.h"
+#include "colorpickerpopup_p.h"
+#include "huesaturationwheel_p.h"
 #include <ZtWidgets/colorpicker.h>
 #include <ZtWidgets/slideredit.h>
-#include "colorhexedit_p.h"
-#include "colordisplay_p.h"
-#include "huesaturationwheel_p.h"
-#include "colorpickerpopup_p.h"
 
-#include <QHBoxLayout>
 #include <QFontDatabase>
+#include <QHBoxLayout>
 
 //! @cond Doxygen_Suppress
 
@@ -37,7 +37,7 @@ class ColorPickerPrivate
     Q_DISABLE_COPY(ColorPickerPrivate)
     Q_DECLARE_PUBLIC(ColorPicker)
 
-private:
+  private:
     explicit ColorPickerPrivate(ColorPicker*);
 
     ColorPicker* const q_ptr;
@@ -62,13 +62,13 @@ ColorPickerPrivate::ColorPickerPrivate(ColorPicker* colorpicker)
 
 //! @endcond
 
-ColorPicker::ColorPicker(QWidget *parent)
+ColorPicker::ColorPicker(QWidget* parent)
     : QWidget(parent)
     , d_ptr(new ColorPickerPrivate(this))
 {
     Q_D(ColorPicker);
     QHBoxLayout* layout = new QHBoxLayout;
-    d->m_Hex = new ColorHexEdit;
+    d->m_Hex            = new ColorHexEdit;
     layout->setContentsMargins(0, 0, 0, 0);
 
     d->m_Display = new ColorDisplay;
@@ -87,7 +87,7 @@ ColorPicker::ColorPicker(QWidget *parent)
 
     auto on_display_clicked = [this, d]()
     {
-        if(!d->m_Popup)
+        if (!d->m_Popup)
         {
             d->m_Popup = new ColorPickerPopup;
             d->m_Popup->setMinimumSize(185, 290);
@@ -125,7 +125,7 @@ ColorPicker::ColorPicker(QWidget *parent)
 ColorPicker::~ColorPicker()
 {
     Q_D(ColorPicker);
-    if(d->m_Popup)
+    if (d->m_Popup)
     {
         delete d->m_Popup;
     }
@@ -139,7 +139,7 @@ void ColorPicker::updateColor(const QColor& color)
 
     d->m_Hex->updateColor(color);
     d->m_Display->updateColor(color);
-    if(d->m_Popup)
+    if (d->m_Popup)
         d->m_Popup->updateColor(color);
 
     if (d->m_Color != color)
@@ -163,7 +163,7 @@ void ColorPicker::setDisplayAlpha(bool visible)
 {
     Q_D(ColorPicker);
     d->m_DisplayAlpha = visible;
-    if(d->m_Popup)
+    if (d->m_Popup)
     {
         d->m_Popup->setDisplayAlpha(visible);
     }
@@ -181,7 +181,7 @@ void ColorPicker::setEditType(ColorPicker::EditType type)
 {
     Q_D(ColorPicker);
     d->m_EditType = type;
-    if(d->m_Popup)
+    if (d->m_Popup)
     {
         d->m_Popup->setEditType(type);
     }

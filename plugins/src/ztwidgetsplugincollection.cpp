@@ -22,7 +22,7 @@
 
 #include "ztwidgetsplugincollection.h"
 
-ZtWidgetsPluginCollection::ZtWidgetsPluginCollection(QObject *parent)
+ZtWidgetsPluginCollection::ZtWidgetsPluginCollection(QObject* parent)
     : QObject(parent)
 {
     m_Widgets.append(new ColorPickerPlugin(this));

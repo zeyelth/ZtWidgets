@@ -23,11 +23,10 @@
 #include "slidereditplugin.h"
 #include <ZtWidgets/slideredit.h>
 
-SliderEditPlugin::SliderEditPlugin(QObject *parent)
-    : QObject(parent),
-      m_Initialized(false)
-{
-}
+SliderEditPlugin::SliderEditPlugin(QObject* parent)
+    : QObject(parent)
+    , m_Initialized(false)
+{}
 
 void SliderEditPlugin::initialize(QDesignerFormEditorInterface*)
 {

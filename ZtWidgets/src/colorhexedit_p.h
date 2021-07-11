@@ -45,7 +45,7 @@ class ColorHexEdit : public QWidget
      */
     Q_PROPERTY(bool displayAlpha READ displayAlpha WRITE setDisplayAlpha)
 
-public:
+  public:
     /**
      * @brief Construct an instance of ColorHexEdit
      * @param parent Parent widget
@@ -84,13 +84,13 @@ public:
      */
     void setDisplayAlpha(bool visible);
 
-protected:
+  protected:
     /**
      * @brief Overridden from QWidget
      */
     void showEvent(QShowEvent* event) override;
 
-Q_SIGNALS:
+  Q_SIGNALS:
     /**
      * @param color The new color
      *
@@ -105,7 +105,7 @@ Q_SIGNALS:
      */
     void colorChanging(const QColor& color);
 
-private:
+  private:
     ColorHexEditPrivate* const d_ptr;
 };
 

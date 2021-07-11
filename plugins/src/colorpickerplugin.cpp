@@ -23,12 +23,10 @@
 #include "colorpickerplugin.h"
 #include <ZtWidgets/colorpicker.h>
 
-
-ColorPickerPlugin::ColorPickerPlugin(QObject *parent)
-    : QObject(parent),
-      m_Initialized(false)
-{
-}
+ColorPickerPlugin::ColorPickerPlugin(QObject* parent)
+    : QObject(parent)
+    , m_Initialized(false)
+{}
 
 void ColorPickerPlugin::initialize(QDesignerFormEditorInterface*)
 {
@@ -70,7 +68,8 @@ QString ColorPickerPlugin::toolTip() const
 
 QString ColorPickerPlugin::whatsThis() const
 {
-    return tr("A compact color picker widget, providing a quick and easy way to modify a QColor value with minimal workflow disruption.");
+    return tr("A compact color picker widget, providing a quick and easy way to modify a QColor value with minimal "
+              "workflow disruption.");
 }
 
 bool ColorPickerPlugin::isContainer() const

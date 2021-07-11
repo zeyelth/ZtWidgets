@@ -25,8 +25,8 @@
 
 #include "ztwidgets_global.h"
 
-#include <QWidget>
 #include <QString>
+#include <QWidget>
 
 class SliderEditPrivate;
 
@@ -120,8 +120,7 @@ class ZTWIDGETS_EXPORT SliderEdit : public QWidget
      */
     Q_PROPERTY(ValueMapping valueMapping READ valueMapping WRITE setValueMapping)
 
-public:
-
+  public:
     /**
      * @brief Supported components
      */
@@ -136,13 +135,13 @@ public:
     Q_FLAG(SliderComponents)
 
     /**
-      * @brief Slider Behaviors
-      */
+     * @brief Slider Behaviors
+     */
     enum SliderBehaviorFlag
     {
-        SnapToPrecision      = 1 << 0, ///< Snap actual value to displayed precision
-        AllowValueUnderflow  = 1 << 1, ///< Allow values smaller than minimum() to be manually set
-        AllowValueOverflow   = 1 << 2, ///< Allow values larger than maximum() to be manually set
+        SnapToPrecision     = 1 << 0, ///< Snap actual value to displayed precision
+        AllowValueUnderflow = 1 << 1, ///< Allow values smaller than minimum() to be manually set
+        AllowValueOverflow  = 1 << 2, ///< Allow values larger than maximum() to be manually set
     };
 
     Q_DECLARE_FLAGS(SliderBehavior, SliderBehaviorFlag)
@@ -356,7 +355,7 @@ public:
      */
     Qt::Orientation orientation() const;
 
-Q_SIGNALS:
+  Q_SIGNALS:
     /**
      * @param value The new value
      *
@@ -371,7 +370,7 @@ Q_SIGNALS:
      */
     void valueChanging(const qreal& value);
 
-protected:
+  protected:
     /**
      * @brief Overridden from QWidget
      */
@@ -412,7 +411,7 @@ protected:
      */
     void focusOutEvent(QFocusEvent*) override;
 
-private:
+  private:
     SliderEditPrivate* const d_ptr;
 };
 

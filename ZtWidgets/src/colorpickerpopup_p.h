@@ -39,7 +39,7 @@ class ColorPickerPopup : public QWidget
     Q_DISABLE_COPY(ColorPickerPopup)
     Q_DECLARE_PRIVATE(ColorPickerPopup)
 
-public:
+  public:
     /**
      * @brief Constructor
      * @param parent parent widget
@@ -78,16 +78,16 @@ public:
     void setColor(const QColor& color);
 
     /**
-    * @brief Update color
-    * @param color The new color
-    *
-    * @note Does not emit a signal
-    *
-    * Update the color this widget represents.
-    */
+     * @brief Update color
+     * @param color The new color
+     *
+     * @note Does not emit a signal
+     *
+     * Update the color this widget represents.
+     */
     void updateColor(const QColor& color);
 
-Q_SIGNALS:
+  Q_SIGNALS:
     /**
      * @brief Emitted when the color has changed
      * @param color new color
@@ -99,7 +99,7 @@ Q_SIGNALS:
      */
     void colorChanging(const QColor& color);
 
-protected:
+  protected:
     /**
      * @brief Overridden from QWidget
      */
@@ -110,7 +110,7 @@ protected:
      */
     void changeEvent(QEvent* event) override;
 
-private:
+  private:
     ColorPickerPopupPrivate* const d_ptr;
 };
 
