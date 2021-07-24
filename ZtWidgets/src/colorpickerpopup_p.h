@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Victor Wåhlström
+ * Copyright (c) 2013-2021 Victor Wåhlström
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -37,7 +37,6 @@ class ColorPickerPopup : public QWidget
     Q_OBJECT
 
     Q_DISABLE_COPY(ColorPickerPopup)
-    Q_DECLARE_PRIVATE(ColorPickerPopup)
 
   public:
     /**
@@ -111,7 +110,7 @@ class ColorPickerPopup : public QWidget
     void changeEvent(QEvent* event) override;
 
   private:
-    ColorPickerPopupPrivate* const d_ptr;
+    ColorPickerPopupPrivate* const m_Impl;
 };
 
 #endif // COLORPICKERPOPUP_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Victor Wåhlström
+ * Copyright (c) 2013-2021 Victor Wåhlström
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -58,28 +58,28 @@ static QString colorToString(const QColor& color, bool include_alpha)
 class ColorHexEditPrivate
 {
     Q_DISABLE_COPY(ColorHexEditPrivate)
-    Q_DECLARE_PUBLIC(ColorHexEdit)
 
-  private:
+  public:
     explicit ColorHexEditPrivate(ColorHexEdit* hex_edit);
 
     int editWidth() const;
     void refresh();
 
-    ColorHexEdit* const q_ptr;
-
     QColor m_Color;
     QLineEdit* m_LineEdit;
     bool m_DisplayAlpha : 1;
     bool m_Modified : 1;
+
+  private:
+    ColorHexEdit* const m_ColorHexEdit;
 };
 
 ColorHexEditPrivate::ColorHexEditPrivate(ColorHexEdit* hex_edit)
-    : q_ptr(hex_edit)
-    , m_Color(Qt::white)
+    : m_Color(Qt::white)
     , m_LineEdit(nullptr)
     , m_DisplayAlpha(true)
     , m_Modified(false)
+    , m_ColorHexEdit(hex_edit)
 {}
 
 int ColorHexEditPrivate::editWidth() const
@@ -105,37 +105,34 @@ int ColorHexEditPrivate::editWidth() const
 
 void ColorHexEditPrivate::refresh()
 {
-    Q_Q(ColorHexEdit);
-
     if (m_DisplayAlpha)
     {
         m_LineEdit->setMaxLength(8);
         m_LineEdit->setInputMask(">HHHHHHHH");
         m_LineEdit->setPlaceholderText("AARRGGBB");
         m_LineEdit->setToolTip(
-            q->tr("A hexadecimal value on the form AARRGGBB:\n\nAA = alpha\nRR = red\nGG = green\nBB = blue"));
+            m_ColorHexEdit->tr("A hexadecimal value on the form AARRGGBB:\n\nAA = alpha\nRR = red\nGG = green\nBB = blue"));
     }
     else
     {
         m_LineEdit->setMaxLength(6);
         m_LineEdit->setInputMask(">HHHHHH");
         m_LineEdit->setPlaceholderText("RRGGBB");
-        m_LineEdit->setToolTip(q->tr("A hexadecimal value on the form RRGGBB:\n\nRR = red\nGG = green\nBB = blue"));
+        m_LineEdit->setToolTip(m_ColorHexEdit->tr("A hexadecimal value on the form RRGGBB:\n\nRR = red\nGG = green\nBB = blue"));
     }
 
     m_LineEdit->setAlignment(Qt::AlignCenter);
 
     m_LineEdit->setFixedWidth(editWidth());
-    m_LineEdit->setText(colorToString(m_Color, q->displayAlpha()));
+    m_LineEdit->setText(colorToString(m_Color, m_ColorHexEdit->displayAlpha()));
 }
 
 //! @endcond
 
 ColorHexEdit::ColorHexEdit(QWidget* parent)
     : QWidget(parent)
-    , d_ptr(new ColorHexEditPrivate(this))
+    , m_Impl(new ColorHexEditPrivate(this))
 {
-    Q_D(ColorHexEdit);
     QHBoxLayout* layout = new QHBoxLayout;
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -144,77 +141,72 @@ ColorHexEdit::ColorHexEdit(QWidget* parent)
     hash_label->setText("#");
     layout->addWidget(hash_label);
 
-    d->m_LineEdit = new QLineEdit;
+    m_Impl->m_LineEdit = new QLineEdit;
 
-    auto on_editing_finished = [this, d]()
+    auto on_editing_finished = [this]()
     {
-        if (d->m_Modified)
+        if (m_Impl->m_Modified)
         {
-            d->m_Modified = false;
-            Q_EMIT colorChanged(d->m_Color);
+            m_Impl->m_Modified = false;
+            Q_EMIT colorChanged(m_Impl->m_Color);
         }
     };
 
-    auto on_text_edited = [this, d](const QString& text)
+    auto on_text_edited = [this](const QString& text)
     {
-        if (text.size() < d->m_LineEdit->maxLength())
+        if (text.size() < m_Impl->m_LineEdit->maxLength())
         {
-            int pos = d->m_LineEdit->cursorPosition();
-            d->m_LineEdit->insert("0");
-            d->m_LineEdit->setCursorPosition(pos);
+            int pos = m_Impl->m_LineEdit->cursorPosition();
+            m_Impl->m_LineEdit->insert("0");
+            m_Impl->m_LineEdit->setCursorPosition(pos);
         }
 
-        if (d->m_LineEdit->text() == colorToString(d->m_Color, displayAlpha()))
+        if (m_Impl->m_LineEdit->text() == colorToString(m_Impl->m_Color, displayAlpha()))
         {
             return;
         }
 
-        d->m_Modified = true;
-        d->m_Color.setNamedColor("#" + text);
-        Q_EMIT colorChanging(d->m_Color);
+        m_Impl->m_Modified = true;
+        m_Impl->m_Color.setNamedColor("#" + text);
+        Q_EMIT colorChanging(m_Impl->m_Color);
     };
 
-    connect(d->m_LineEdit, &QLineEdit::textEdited, this, on_text_edited);
-    connect(d->m_LineEdit, &QLineEdit::editingFinished, this, on_editing_finished);
+    connect(m_Impl->m_LineEdit, &QLineEdit::textEdited, this, on_text_edited);
+    connect(m_Impl->m_LineEdit, &QLineEdit::editingFinished, this, on_editing_finished);
 
-    layout->addWidget(d->m_LineEdit);
+    layout->addWidget(m_Impl->m_LineEdit);
     setLayout(layout);
 }
 
 ColorHexEdit::~ColorHexEdit()
 {
-    delete d_ptr;
+    delete m_Impl;
 }
 
 void ColorHexEdit::showEvent(QShowEvent* event)
 {
-    Q_D(ColorHexEdit);
     // refresh the UI here as fonts, styles, and other things affecting this widget may have changed
-    d->refresh();
+    m_Impl->refresh();
     QWidget::showEvent(event);
 }
 
 void ColorHexEdit::updateColor(const QColor& color)
 {
-    Q_D(ColorHexEdit);
-
-    if (d->m_Color != color)
+    if (m_Impl->m_Color != color)
     {
-        d->m_LineEdit->setText(colorToString(color, displayAlpha()));
-        d->m_Color = color;
+        m_Impl->m_LineEdit->setText(colorToString(color, displayAlpha()));
+        m_Impl->m_Color = color;
         update();
     }
 }
 
 void ColorHexEdit::setDisplayAlpha(bool visible)
 {
-    Q_D(ColorHexEdit);
-    d->m_DisplayAlpha = visible;
-    d->refresh();
+    m_Impl->m_DisplayAlpha = visible;
+    m_Impl->refresh();
 }
 
 bool ColorHexEdit::displayAlpha()
 {
-    Q_D(ColorHexEdit);
-    return d->m_DisplayAlpha;
+    return m_Impl->m_DisplayAlpha;
 }

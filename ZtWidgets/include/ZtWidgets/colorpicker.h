@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Victor Wåhlström
+ * Copyright (c) 2013-2021 Victor Wåhlström
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -40,7 +40,6 @@ class ZTWIDGETS_EXPORT ColorPicker : public QWidget
     Q_OBJECT
 
     Q_DISABLE_COPY(ColorPicker)
-    Q_DECLARE_PRIVATE(ColorPicker)
 
     /**
      * @brief Show or hide the alpha channel
@@ -130,7 +129,7 @@ class ZTWIDGETS_EXPORT ColorPicker : public QWidget
     void colorChanging(const QColor& color);
 
   private:
-    ColorPickerPrivate* const d_ptr;
+    ColorPickerPrivate* const m_Impl;
 };
 
 #endif // COLORPICKER_H

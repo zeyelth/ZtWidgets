@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Victor Wåhlström
+ * Copyright (c) 2013-2021 Victor Wåhlström
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -38,7 +38,6 @@ class ColorHexEdit : public QWidget
     Q_OBJECT
 
     Q_DISABLE_COPY(ColorHexEdit)
-    Q_DECLARE_PRIVATE(ColorHexEdit)
 
     /**
      * @brief Show or hide the alpha channel
@@ -106,7 +105,7 @@ class ColorHexEdit : public QWidget
     void colorChanging(const QColor& color);
 
   private:
-    ColorHexEditPrivate* const d_ptr;
+    ColorHexEditPrivate* const m_Impl;
 };
 
 #endif // COLORHEXEDIT_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Victor Wåhlström
+ * Copyright (c) 2013-2021 Victor Wåhlström
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -37,7 +37,6 @@ class ColorDisplay : public QWidget
     Q_OBJECT
 
     Q_DISABLE_COPY(ColorDisplay)
-    Q_DECLARE_PRIVATE(ColorDisplay)
 
   public:
     /**
@@ -90,7 +89,7 @@ class ColorDisplay : public QWidget
     void paintEvent(QPaintEvent*) override;
 
   private:
-    ColorDisplayPrivate* const d_ptr;
+    ColorDisplayPrivate* const m_Impl;
 };
 
 #endif // COLORDISPLAY_H

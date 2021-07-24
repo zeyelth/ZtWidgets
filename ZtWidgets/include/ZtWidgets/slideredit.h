@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Victor Wåhlström
+ * Copyright (c) 2016-2021 Victor Wåhlström
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -38,7 +38,6 @@ class ZTWIDGETS_EXPORT SliderEdit : public QWidget
     Q_OBJECT
 
     Q_DISABLE_COPY(SliderEdit)
-    Q_DECLARE_PRIVATE(SliderEdit)
 
     /**
      * @brief This property holds the slider's minimum value
@@ -412,7 +411,7 @@ class ZTWIDGETS_EXPORT SliderEdit : public QWidget
     void focusOutEvent(QFocusEvent*) override;
 
   private:
-    SliderEditPrivate* const d_ptr;
+    SliderEditPrivate* const m_Impl;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(SliderEdit::SliderComponents)

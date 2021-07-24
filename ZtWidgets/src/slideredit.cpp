@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Victor Wåhlström
+ * Copyright (c) 2013-2021 Victor Wåhlström
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -104,9 +104,8 @@ static qreal mapFromPosition(SliderEdit::ValueMapping map_type,
 class SliderEditPrivate
 {
     Q_DISABLE_COPY(SliderEditPrivate)
-    Q_DECLARE_PUBLIC(SliderEdit)
 
-  private:
+  public:
     explicit SliderEditPrivate(SliderEdit*);
 
     void beginEdit();
@@ -115,8 +114,6 @@ class SliderEditPrivate
     bool isEditing() const;
     quint32 toEditCursorPos(int pos) const;
     qreal valueFromMousePos(const QPointF& pos) const;
-
-    SliderEdit* const q_ptr;
 
     QString m_Label;
     QString m_Unit;
@@ -141,11 +138,13 @@ class SliderEditPrivate
     bool m_Editable : 1;
     bool m_AnimEditCursor : 1;
     bool m_AnimEditCursorVisible : 1;
+
+  private:
+    SliderEdit* m_SliderEdit;
 };
 
 SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
-    : q_ptr(slider_edit)
-    , m_EditTextCurPos(0)
+    : m_EditTextCurPos(0)
     , m_EditTextSelOffset(0)
     , m_Value(0.0)
     , m_Min(0.0)
@@ -161,29 +160,27 @@ SliderEditPrivate::SliderEditPrivate(SliderEdit* slider_edit)
     , m_Editable(true)
     , m_AnimEditCursor(true)
     , m_AnimEditCursorVisible(true)
+    , m_SliderEdit(slider_edit)
 {
     QObject::connect(&m_AnimEditCursorActivationTimer,
                      &QTimer::timeout,
                      [this]()
                      {
-                         Q_Q(SliderEdit);
                          m_AnimEditCursor = true;
-                         q->update();
+                         m_SliderEdit->update();
                      });
 
     QObject::connect(&m_AnimEditCursorBlinkTimer,
                      &QTimer::timeout,
                      [this]()
                      {
-                         Q_Q(SliderEdit);
                          m_AnimEditCursorVisible = !m_AnimEditCursorVisible;
-                         q->update();
+                         m_SliderEdit->update();
                      });
 }
 
 void SliderEditPrivate::beginEdit()
 {
-    Q_Q(SliderEdit);
     // editing not supported (yet) when oriented vertically
     bool editable = m_Editable && !(m_Orientation == Qt::Vertical);
     if (!editable)
@@ -195,12 +192,11 @@ void SliderEditPrivate::beginEdit()
     m_EditTextSelOffset = -m_EditText.size();
     m_AnimEditCursorActivationTimer.start(1000);
     m_AnimEditCursorBlinkTimer.start(500);
-    q->setCursor(Qt::IBeamCursor);
+    m_SliderEdit->setCursor(Qt::IBeamCursor);
 }
 
 void SliderEditPrivate::endEdit()
 {
-    Q_Q(SliderEdit);
     if (m_Text != m_EditText)
     {
         bool valid;
@@ -224,7 +220,7 @@ void SliderEditPrivate::endEdit()
 
         if (changed)
         {
-            Q_EMIT q->valueChanged(m_Value);
+            Q_EMIT m_SliderEdit->valueChanged(m_Value);
         }
     }
 
@@ -233,14 +229,13 @@ void SliderEditPrivate::endEdit()
 
 void SliderEditPrivate::cancelEdit()
 {
-    Q_Q(SliderEdit);
     m_EditText          = QString();
     m_EditTextCurPos    = 0;
     m_EditTextSelOffset = 0;
     m_AnimEditCursorActivationTimer.stop();
     m_AnimEditCursorBlinkTimer.stop();
-    q->unsetCursor();
-    q->update();
+    m_SliderEdit->unsetCursor();
+    m_SliderEdit->update();
 }
 
 bool SliderEditPrivate::isEditing() const
@@ -250,8 +245,7 @@ bool SliderEditPrivate::isEditing() const
 
 quint32 SliderEditPrivate::toEditCursorPos(int pos) const
 {
-    Q_Q(const SliderEdit);
-    QFontMetrics fm(q->font());
+    QFontMetrics fm(m_SliderEdit->font());
     int cw         = fm.averageCharWidth();
     int cursor_pos = (pos + (int)(cw * 0.5f)) / cw;
     return static_cast<quint32>(qBound(0, cursor_pos, m_EditText.size()));
@@ -259,8 +253,7 @@ quint32 SliderEditPrivate::toEditCursorPos(int pos) const
 
 qreal SliderEditPrivate::valueFromMousePos(const QPointF& pos) const
 {
-    Q_Q(const SliderEdit);
-    const QRectF& r = q->rect();
+    const QRectF& r = m_SliderEdit->rect();
 
     qreal min_pos = 0;
     qreal max_pos = 0;
@@ -286,7 +279,7 @@ qreal SliderEditPrivate::valueFromMousePos(const QPointF& pos) const
 
 SliderEdit::SliderEdit(QWidget* parent, Qt::WindowFlags f)
     : QWidget(parent, f)
-    , d_ptr(new SliderEditPrivate(this))
+    , m_Impl(new SliderEditPrivate(this))
 {
     setFocusPolicy(Qt::StrongFocus);
     setOrientation(orientation());
@@ -294,91 +287,82 @@ SliderEdit::SliderEdit(QWidget* parent, Qt::WindowFlags f)
 
 SliderEdit::~SliderEdit()
 {
-    delete d_ptr;
+    delete m_Impl;
 }
 
 QSize SliderEdit::sizeHint() const
 {
-    Q_D(const SliderEdit);
     QFontMetrics fm(font());
 
-    QString t_min = toString(d->m_Min, d->m_Precision);
-    QString t_max = toString(d->m_Max, d->m_Precision);
+    QString t_min = toString(m_Impl->m_Min, m_Impl->m_Precision);
+    QString t_max = toString(m_Impl->m_Max, m_Impl->m_Precision);
 
     int w = qMax(fm.horizontalAdvance(t_min), fm.horizontalAdvance(t_max)) + S_DRAW_PADDING * 2;
     int h = fm.height() + S_DRAW_PADDING * 2;
 
-    return d->m_Orientation == Qt::Horizontal ? QSize(w, h) : QSize(h, w);
+    return m_Impl->m_Orientation == Qt::Horizontal ? QSize(w, h) : QSize(h, w);
 }
 
 void SliderEdit::updateValue(qreal value)
 {
-    Q_D(SliderEdit);
-
-    if (d->m_SliderBehavior & SliderEdit::SliderBehaviorFlag::SnapToPrecision)
+    if (m_Impl->m_SliderBehavior & SliderEdit::SliderBehaviorFlag::SnapToPrecision)
     {
-        value = snapToPrecision(value, d->m_Precision);
+        value = snapToPrecision(value, m_Impl->m_Precision);
     }
 
-    value      = qBound(d->m_Min, value, d->m_Max);
-    d->m_Value = value;
+    value           = qBound(m_Impl->m_Min, value, m_Impl->m_Max);
+    m_Impl->m_Value = value;
 
     update();
 }
 
 void SliderEdit::setValue(qreal value)
 {
-    Q_D(SliderEdit);
     updateValue(value);
-    Q_EMIT valueChanged(d->m_Value);
+    Q_EMIT valueChanged(m_Impl->m_Value);
 
     update();
 }
 
 qreal SliderEdit::value() const
 {
-    Q_D(const SliderEdit);
-    return d->m_Value;
+    return m_Impl->m_Value;
 }
 
 void SliderEdit::setMinimum(qreal minimum)
 {
-    Q_D(SliderEdit);
-    d->m_Min = minimum;
-    if (d->m_Min > d->m_Max)
+    m_Impl->m_Min = minimum;
+    if (m_Impl->m_Min > m_Impl->m_Max)
     {
-        d->m_Max = d->m_Min;
+        m_Impl->m_Max = m_Impl->m_Min;
     }
 
-    setValue(d->m_Value);
+    setValue(m_Impl->m_Value);
 
     update();
 }
 
 qreal SliderEdit::minimum() const
 {
-    Q_D(const SliderEdit);
-    return d->m_Min;
+    return m_Impl->m_Min;
 }
 
 void SliderEdit::setMaximum(qreal maximum)
 {
-    Q_D(SliderEdit);
-    d->m_Max = maximum;
-    if (d->m_Max < d->m_Min)
+    m_Impl->m_Max = maximum;
+    if (m_Impl->m_Max < m_Impl->m_Min)
     {
-        d->m_Min = d->m_Max;
+        m_Impl->m_Min = m_Impl->m_Max;
     }
 
-    setValue(d->m_Value);
+    setValue(m_Impl->m_Value);
 
     update();
 }
 
 qreal SliderEdit::maximum() const
 {
-    Q_D(const SliderEdit);
-    return d->m_Max;
+    return m_Impl->m_Max;
 }
 
 void SliderEdit::setRange(qreal minimum, qreal maximum)
@@ -389,78 +373,67 @@ void SliderEdit::setRange(qreal minimum, qreal maximum)
 
 bool SliderEdit::editable() const
 {
-    Q_D(const SliderEdit);
-    return d->m_Editable;
+    return m_Impl->m_Editable;
 }
 
 void SliderEdit::setEditable(bool editable)
 {
-    Q_D(SliderEdit);
-    d->m_Editable = editable;
+    m_Impl->m_Editable = editable;
 }
 
 void SliderEdit::setSingleStep(qreal step)
 {
-    Q_D(SliderEdit);
-    d->m_SingleStep = step;
+    m_Impl->m_SingleStep = step;
     update();
 }
 
 qreal SliderEdit::singleStep() const
 {
-    Q_D(const SliderEdit);
-    return d->m_SingleStep;
+    return m_Impl->m_SingleStep;
 }
 
 void SliderEdit::setPageStep(qreal step)
 {
-    Q_D(SliderEdit);
-    d->m_PageStep = step;
+    m_Impl->m_PageStep = step;
     update();
 }
 
 qreal SliderEdit::pageStep() const
 {
-    Q_D(const SliderEdit);
-    return d->m_PageStep;
+    return m_Impl->m_PageStep;
 }
 
 void SliderEdit::setPrecision(quint32 precision)
 {
-    Q_D(SliderEdit);
-    d->m_Precision = precision;
+    m_Impl->m_Precision = precision;
     update();
 }
 
 quint32 SliderEdit::precision() const
 {
-    Q_D(const SliderEdit);
-    return d->m_Precision;
+    return m_Impl->m_Precision;
 }
 
 void SliderEdit::setSliderComponents(SliderComponents components)
 {
-    Q_D(SliderEdit);
-    d->m_SliderComponents = components;
+    m_Impl->m_SliderComponents = components;
     update();
 }
 
 SliderEdit::SliderComponents SliderEdit::sliderComponents() const
 {
-    Q_D(const SliderEdit);
-    return d->m_SliderComponents;
+    return m_Impl->m_SliderComponents;
 }
 
 void SliderEdit::setSliderBehavior(SliderBehavior behavior)
 {
-    Q_D(SliderEdit);
-    bool changed        = d->m_SliderBehavior != behavior;
-    d->m_SliderBehavior = behavior;
+    bool changed             = m_Impl->m_SliderBehavior != behavior;
+    m_Impl->m_SliderBehavior = behavior;
     if (changed &&
-        ((d->m_SliderBehavior & (SliderBehaviorFlag::AllowValueUnderflow | SliderBehaviorFlag::AllowValueOverflow |
-                                 SliderBehaviorFlag::SnapToPrecision))))
+        ((m_Impl->m_SliderBehavior & (SliderBehaviorFlag::AllowValueUnderflow | SliderBehaviorFlag::AllowValueOverflow |
+                                      SliderBehaviorFlag::SnapToPrecision))))
     {
-        setValue(d->m_Value);
+        setValue(m_Impl->m_Value);
     }
 
     update();
@@ -468,42 +441,36 @@ void SliderEdit::setSliderBehavior(SliderBehavior behavior)
 
 SliderEdit::SliderBehavior SliderEdit::sliderBehavior() const
 {
-    Q_D(const SliderEdit);
-    return d->m_SliderBehavior;
+    return m_Impl->m_SliderBehavior;
 }
 
 void SliderEdit::setValueMapping(ValueMapping mapping)
 {
-    Q_D(SliderEdit);
-    d->m_ValueMapping = mapping;
+    m_Impl->m_ValueMapping = mapping;
 
     update();
 }
 
 SliderEdit::ValueMapping SliderEdit::valueMapping() const
 {
-    Q_D(const SliderEdit);
-    return d->m_ValueMapping;
+    return m_Impl->m_ValueMapping;
 }
 
 void SliderEdit::setAlignment(Qt::Alignment alignment)
 {
-    Q_D(SliderEdit);
-    d->m_Alignment = alignment;
+    m_Impl->m_Alignment = alignment;
     update();
 }
 
 Qt::Alignment SliderEdit::alignment() const
 {
-    Q_D(const SliderEdit);
-    return d->m_Alignment;
+    return m_Impl->m_Alignment;
 }
 
 void SliderEdit::setOrientation(Qt::Orientation orientation)
 {
-    Q_D(SliderEdit);
-    d->m_Orientation = orientation;
-    if (d->m_Orientation == Qt::Horizontal)
+    m_Impl->m_Orientation = orientation;
+    if (m_Impl->m_Orientation == Qt::Horizontal)
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     else
         setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
@@ -513,184 +480,171 @@ void SliderEdit::setOrientation(Qt::Orientation orientation)
 
 Qt::Orientation SliderEdit::orientation() const
 {
-    Q_D(const SliderEdit);
-    return d->m_Orientation;
+    return m_Impl->m_Orientation;
 }
 
 void SliderEdit::setUnit(const QString& unit)
 {
-    Q_D(SliderEdit);
-    d->m_Unit = unit;
+    m_Impl->m_Unit = unit;
     update();
 }
 
 const QString& SliderEdit::unit() const
 {
-    Q_D(const SliderEdit);
-    return d->m_Unit;
+    return m_Impl->m_Unit;
 }
 
 void SliderEdit::setLabel(const QString& label)
 {
-    Q_D(SliderEdit);
-    d->m_Label = label;
+    m_Impl->m_Label = label;
     update();
 }
 
 const QString& SliderEdit::label() const
 {
-    Q_D(const SliderEdit);
-    return d->m_Label;
+    return m_Impl->m_Label;
 }
 
 void SliderEdit::mousePressEvent(QMouseEvent* event)
 {
-    Q_D(SliderEdit);
-    d->m_MousePressPos = event->pos();
-    if (d->isEditing())
+    m_Impl->m_MousePressPos = event->pos();
+    if (m_Impl->isEditing())
     {
-        d->m_EditTextCurPos    = d->toEditCursorPos(event->pos().x());
-        d->m_EditTextSelOffset = 0;
+        m_Impl->m_EditTextCurPos    = m_Impl->toEditCursorPos(event->pos().x());
+        m_Impl->m_EditTextSelOffset = 0;
     }
 }
 
 void SliderEdit::mouseMoveEvent(QMouseEvent* event)
 {
-    Q_D(SliderEdit);
-    if (d->isEditing())
+    if (m_Impl->isEditing())
     {
-        d->m_AnimEditCursor = false;
-        d->m_AnimEditCursorActivationTimer.stop();
-        d->m_EditTextCurPos    = d->toEditCursorPos(event->pos().x());
-        d->m_EditTextSelOffset = d->toEditCursorPos(d->m_MousePressPos.x()) - d->m_EditTextCurPos;
+        m_Impl->m_AnimEditCursor = false;
+        m_Impl->m_AnimEditCursorActivationTimer.stop();
+        m_Impl->m_EditTextCurPos    = m_Impl->toEditCursorPos(event->pos().x());
+        m_Impl->m_EditTextSelOffset = m_Impl->toEditCursorPos(m_Impl->m_MousePressPos.x()) - m_Impl->m_EditTextCurPos;
     }
     else
     {
-        d->m_Value = d->valueFromMousePos(event->pos());
-        Q_EMIT valueChanging(d->m_Value);
+        m_Impl->m_Value = m_Impl->valueFromMousePos(event->pos());
+        Q_EMIT valueChanging(m_Impl->m_Value);
     }
     update();
 }
 
 void SliderEdit::mouseReleaseEvent(QMouseEvent* event)
 {
-    Q_D(SliderEdit);
-    if (!d->isEditing())
+    if (!m_Impl->isEditing())
     {
-        if (event->pos() == d->m_MousePressPos)
+        if (event->pos() == m_Impl->m_MousePressPos)
         {
-            d->cancelEdit();
-            d->beginEdit();
+            m_Impl->cancelEdit();
+            m_Impl->beginEdit();
         }
         else
         {
-            setValue(d->valueFromMousePos(event->pos()));
+            setValue(m_Impl->valueFromMousePos(event->pos()));
         }
     }
     else
     {
-        d->m_AnimEditCursorActivationTimer.start(500);
+        m_Impl->m_AnimEditCursorActivationTimer.start(500);
     }
     update();
 }
 
 void SliderEdit::mouseDoubleClickEvent(QMouseEvent*)
 {
-    Q_D(SliderEdit);
-    if (!d->isEditing())
+    if (!m_Impl->isEditing())
     {
-        d->beginEdit();
+        m_Impl->beginEdit();
     }
 
-    d->m_EditTextCurPos    = d->m_EditText.size();
-    d->m_EditTextSelOffset = -d->m_EditText.size();
+    m_Impl->m_EditTextCurPos    = m_Impl->m_EditText.size();
+    m_Impl->m_EditTextSelOffset = -m_Impl->m_EditText.size();
 }
 
 void SliderEdit::focusInEvent(QFocusEvent* event)
 {
-    Q_D(SliderEdit);
     int reason = event->reason();
     if (reason == Qt::TabFocusReason || reason == Qt::BacktabFocusReason)
     {
-        d->cancelEdit();
-        d->beginEdit();
+        m_Impl->cancelEdit();
+        m_Impl->beginEdit();
     }
 }
 
 void SliderEdit::focusOutEvent(QFocusEvent* event)
 {
-    Q_D(SliderEdit);
     int reason = event->reason();
     switch (reason)
     {
         case Qt::MouseFocusReason:
         case Qt::TabFocusReason:
         case Qt::BacktabFocusReason:
-            d->endEdit();
+            m_Impl->endEdit();
             break;
         default:
-            d->cancelEdit();
+            m_Impl->cancelEdit();
             break;
     }
 }
 
 void SliderEdit::keyPressEvent(QKeyEvent* event)
 {
-    Q_D(SliderEdit);
-
     int key = event->key();
 
     bool is_input_key = ((key >= Qt::Key_0 && key <= Qt::Key_9) || key == Qt::Key_Comma || key == Qt::Key_Period ||
                          key == Qt::Key_Backspace || key == Qt::Key_Delete || key == Qt::Key_Minus);
 
     // directly enter edit mode if an input key is pressed
-    if (!d->isEditing() && is_input_key)
+    if (!m_Impl->isEditing() && is_input_key)
     {
-        d->beginEdit();
+        m_Impl->beginEdit();
     }
 
-    if (d->isEditing())
+    if (m_Impl->isEditing())
     {
         if (key == Qt::Key_Escape)
         {
-            d->cancelEdit();
+            m_Impl->cancelEdit();
         }
         else if (key == Qt::Key_Enter || key == Qt::Key_Return)
         {
-            d->endEdit();
+            m_Impl->endEdit();
         }
         else if (key == Qt::Key_Left)
         {
             if (event->modifiers() & Qt::ShiftModifier)
             {
-                d->m_EditTextSelOffset += d->m_EditTextCurPos > 0 ? 1 : 0;
-                d->m_EditTextCurPos < 1 ? 0 : --d->m_EditTextCurPos;
+                m_Impl->m_EditTextSelOffset += m_Impl->m_EditTextCurPos > 0 ? 1 : 0;
+                m_Impl->m_EditTextCurPos < 1 ? 0 : --m_Impl->m_EditTextCurPos;
             }
             else
             {
-                d->m_EditTextSelOffset = 0;
-                d->m_EditTextCurPos < 1 ? 0 : --d->m_EditTextCurPos;
+                m_Impl->m_EditTextSelOffset = 0;
+                m_Impl->m_EditTextCurPos < 1 ? 0 : --m_Impl->m_EditTextCurPos;
             }
 
-            d->m_AnimEditCursor = false;
+            m_Impl->m_AnimEditCursor = false;
             update();
             return;
         }
         else if (key == Qt::Key_Right)
         {
-            quint32 eol = d->m_EditText.size();
+            quint32 eol = m_Impl->m_EditText.size();
             if (event->modifiers() & Qt::ShiftModifier)
             {
-                d->m_EditTextSelOffset -= d->m_EditTextCurPos < eol ? 1 : 0;
-                d->m_EditTextCurPos >= eol ? eol : ++d->m_EditTextCurPos;
+                m_Impl->m_EditTextSelOffset -= m_Impl->m_EditTextCurPos < eol ? 1 : 0;
+                m_Impl->m_EditTextCurPos >= eol ? eol : ++m_Impl->m_EditTextCurPos;
             }
             else
             {
-                d->m_EditTextSelOffset = 0;
-                d->m_EditTextCurPos >= eol ? eol : ++d->m_EditTextCurPos;
+                m_Impl->m_EditTextSelOffset = 0;
+                m_Impl->m_EditTextCurPos >= eol ? eol : ++m_Impl->m_EditTextCurPos;
             }
 
-            d->m_AnimEditCursor = false;
+            m_Impl->m_AnimEditCursor = false;
             update();
             return;
         }
@@ -700,57 +654,57 @@ void SliderEdit::keyPressEvent(QKeyEvent* event)
             return;
         }
 
-        if (d->m_EditTextSelOffset)
+        if (m_Impl->m_EditTextSelOffset)
         {
             // delete selection
-            int pos                = qMin(d->m_EditTextCurPos, d->m_EditTextCurPos + d->m_EditTextSelOffset);
-            int n                  = qAbs(d->m_EditTextSelOffset);
-            d->m_EditText          = d->m_EditText.replace(pos, n, "");
-            d->m_EditTextCurPos    = pos;
-            d->m_EditTextSelOffset = 0;
+            int pos            = qMin(m_Impl->m_EditTextCurPos, m_Impl->m_EditTextCurPos + m_Impl->m_EditTextSelOffset);
+            int n              = qAbs(m_Impl->m_EditTextSelOffset);
+            m_Impl->m_EditText = m_Impl->m_EditText.replace(pos, n, "");
+            m_Impl->m_EditTextCurPos    = pos;
+            m_Impl->m_EditTextSelOffset = 0;
 
             // insert value of key if a valid input key was pressed
             if (key != Qt::Key_Delete && key != Qt::Key_Backspace)
             {
-                d->m_EditText.insert(d->m_EditTextCurPos++, event->text()[0]);
+                m_Impl->m_EditText.insert(m_Impl->m_EditTextCurPos++, event->text()[0]);
             }
         }
         else if (key == Qt::Key_Delete)
         {
-            d->m_EditText = d->m_EditText.replace(d->m_EditTextCurPos, 1, "");
+            m_Impl->m_EditText = m_Impl->m_EditText.replace(m_Impl->m_EditTextCurPos, 1, "");
         }
         else if (key == Qt::Key_Backspace)
         {
-            if (d->m_EditTextCurPos > 0)
+            if (m_Impl->m_EditTextCurPos > 0)
             {
-                d->m_EditText = d->m_EditText.replace(--d->m_EditTextCurPos, 1, "");
+                m_Impl->m_EditText = m_Impl->m_EditText.replace(--m_Impl->m_EditTextCurPos, 1, "");
             }
         }
         else
         {
-            d->m_EditText.insert(d->m_EditTextCurPos++, event->text()[0]);
+            m_Impl->m_EditText.insert(m_Impl->m_EditTextCurPos++, event->text()[0]);
         }
     }
     else
     {
         if (key == Qt::Key_Left || key == Qt::Key_Down)
         {
-            setValue(d->m_Value - d->m_SingleStep);
+            setValue(m_Impl->m_Value - m_Impl->m_SingleStep);
         }
 
         if (key == Qt::Key_Right || key == Qt::Key_Up)
         {
-            setValue(d->m_Value + d->m_SingleStep);
+            setValue(m_Impl->m_Value + m_Impl->m_SingleStep);
         }
 
         if (key == Qt::Key_PageDown)
         {
-            setValue(d->m_Value - d->m_PageStep);
+            setValue(m_Impl->m_Value - m_Impl->m_PageStep);
         }
 
         if (key == Qt::Key_PageUp)
         {
-            setValue(d->m_Value + d->m_PageStep);
+            setValue(m_Impl->m_Value + m_Impl->m_PageStep);
         }
     }
     update();
@@ -758,8 +712,6 @@ void SliderEdit::keyPressEvent(QKeyEvent* event)
 
 void SliderEdit::paintEvent(QPaintEvent*)
 {
-    Q_D(SliderEdit);
-
     const QRect& r   = rect().adjusted(S_DRAW_PADDING, S_DRAW_PADDING, -S_DRAW_PADDING, -S_DRAW_PADDING);
     const QFont& fnt = font();
 
@@ -772,21 +724,21 @@ void SliderEdit::paintEvent(QPaintEvent*)
 
     painter.fillRect(r, palette().base());
 
-    if (d->isEditing())
+    if (m_Impl->isEditing())
     {
         QFontMetrics fm(fnt);
-        QRect font_rect        = fm.tightBoundingRect(d->m_EditText);
-        const int text_offset  = d->m_Alignment & Qt::AlignRight ? r.width() - font_rect.width() - 1 : 2;
+        QRect font_rect        = fm.tightBoundingRect(m_Impl->m_EditText);
+        const int text_offset  = m_Impl->m_Alignment & Qt::AlignRight ? r.width() - font_rect.width() - 1 : 2;
         const int cursor_width = 1;
         const QRect text_rect  = r.adjusted(text_offset, 0, 0, 0);
 
         const int text_cur_pos = S_DRAW_PADDING + text_offset - cursor_width +
-                                 fm.horizontalAdvance(d->m_EditText.mid(0, d->m_EditTextCurPos));
+                                 fm.horizontalAdvance(m_Impl->m_EditText.mid(0, m_Impl->m_EditTextCurPos));
         const int text_sel_pos =
             S_DRAW_PADDING + text_offset - cursor_width +
-            fm.horizontalAdvance(d->m_EditText.mid(0, d->m_EditTextCurPos + d->m_EditTextSelOffset));
+            fm.horizontalAdvance(m_Impl->m_EditText.mid(0, m_Impl->m_EditTextCurPos + m_Impl->m_EditTextSelOffset));
 
-        if (d->m_EditTextSelOffset != 0)
+        if (m_Impl->m_EditTextSelOffset != 0)
         {
             font_rect.moveLeft(qMin(text_cur_pos, text_sel_pos));
             font_rect.setRight(qMax(text_cur_pos, text_sel_pos));
@@ -797,21 +749,21 @@ void SliderEdit::paintEvent(QPaintEvent*)
             // paint text inside the highlighted area
             painter.setClipRect(font_rect);
             painter.setPen(palette().highlightedText().color());
-            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, d->m_EditText);
+            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, m_Impl->m_EditText);
 
             // paint text outside the highlighted area
             painter.setClipRegion(QRegion(rect()).subtracted(font_rect));
             painter.setPen(palette().text().color());
-            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, d->m_EditText);
+            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, m_Impl->m_EditText);
             painter.setClipRect(rect());
         }
         else
         {
             painter.setPen(palette().text().color());
-            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, d->m_EditText);
+            painter.drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, m_Impl->m_EditText);
         }
 
-        if (!d->m_AnimEditCursor || d->m_AnimEditCursorVisible)
+        if (!m_Impl->m_AnimEditCursor || m_Impl->m_AnimEditCursorVisible)
         {
             QLine cursor(qBound(0, text_cur_pos, r.width()), r.y(), text_cur_pos, r.y() + r.height());
 
@@ -829,43 +781,47 @@ void SliderEdit::paintEvent(QPaintEvent*)
         QRect filled_rect;
         // use a clamped value in case SliderBehaviorFlag::AllowValueUnderflow or SliderBehaviorFlag::AllowValueOverflow
         // is set
-        const qreal clamped_val = qBound(d->m_Min, d->m_Value, d->m_Max);
-        if (d->m_Orientation == Qt::Horizontal)
+        const qreal clamped_val = qBound(m_Impl->m_Min, m_Impl->m_Value, m_Impl->m_Max);
+        if (m_Impl->m_Orientation == Qt::Horizontal)
         {
-            rect_pos    = mapToPosition(d->m_ValueMapping, clamped_val, d->m_Min, d->m_Max, 0, r.width());
+            rect_pos = mapToPosition(m_Impl->m_ValueMapping, clamped_val, m_Impl->m_Min, m_Impl->m_Max, 0, r.width());
             filled_rect = QRect(r.x(), r.y(), rect_pos, r.height());
         }
         else
         {
-            rect_pos    = mapToPosition(d->m_ValueMapping, clamped_val, d->m_Min, d->m_Max, 0, r.height());
+            rect_pos = mapToPosition(m_Impl->m_ValueMapping, clamped_val, m_Impl->m_Min, m_Impl->m_Max, 0, r.height());
             filled_rect = QRect(r.x(), r.y() + r.height() - rect_pos, r.width(), rect_pos);
         }
 
-        if (d->m_SliderComponents & SliderComponent::Gauge)
+        if (m_Impl->m_SliderComponents & SliderComponent::Gauge)
             painter.fillRect(filled_rect, palette().highlight());
 
         auto draw_text = [&]()
         {
-            bool can_draw_text = (d->m_SliderComponents & SliderComponent::Text) && d->m_Orientation == Qt::Horizontal;
+            bool can_draw_text =
+                (m_Impl->m_SliderComponents & SliderComponent::Text) && m_Impl->m_Orientation == Qt::Horizontal;
             if (!can_draw_text)
                 return;
 
-            QString text = toString(d->m_Value, d->m_Precision) + (d->m_Unit.isEmpty() ? "" : " " + d->m_Unit);
-            if (d->m_Alignment & Qt::AlignJustify)
+            QString text =
+                toString(m_Impl->m_Value, m_Impl->m_Precision) + (m_Impl->m_Unit.isEmpty() ? "" : " " + m_Impl->m_Unit);
+            if (m_Impl->m_Alignment & Qt::AlignJustify)
             {
-                if (!d->m_Label.isEmpty())
-                    painter.drawText(r, Qt::AlignLeft, d->m_Label + ":");
+                if (!m_Impl->m_Label.isEmpty())
+                    painter.drawText(r, Qt::AlignLeft, m_Impl->m_Label + ":");
 
                 painter.drawText(r, Qt::AlignRight, text);
             }
             else
             {
                 painter.drawText(
-                    r, d->m_Alignment, QString("%1%2").arg(d->m_Label.isEmpty() ? "" : d->m_Label + ": ").arg(text));
+                    r,
+                    m_Impl->m_Alignment,
+                    QString("%1%2").arg(m_Impl->m_Label.isEmpty() ? "" : m_Impl->m_Label + ": ").arg(text));
             }
         };
 
-        if (d->m_SliderComponents & SliderComponent::Gauge)
+        if (m_Impl->m_SliderComponents & SliderComponent::Gauge)
         {
             painter.setClipRect(filled_rect);
             painter.setPen(palette().highlightedText().color());
@@ -879,12 +835,12 @@ void SliderEdit::paintEvent(QPaintEvent*)
         draw_text();
         painter.setClipRect(rect());
 
-        if (d->m_SliderComponents & SliderComponent::Marker)
+        if (m_Impl->m_SliderComponents & SliderComponent::Marker)
         {
             painter.setRenderHint(QPainter::Antialiasing, false);
             int marker_pos;
             QRect marker_rect;
-            if (d->m_Orientation == Qt::Horizontal)
+            if (m_Impl->m_Orientation == Qt::Horizontal)
             {
                 marker_pos  = qBound(0, r.x() + rect_pos, r.width());
                 marker_rect = QRect(marker_pos - 1, r.y(), 2, r.height() - 1);

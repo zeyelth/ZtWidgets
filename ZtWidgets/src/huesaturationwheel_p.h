@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Victor Wåhlström
+ * Copyright (c) 2013-2021 Victor Wåhlström
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -35,7 +35,6 @@ class HueSaturationWheel : public QWidget
     Q_OBJECT
 
     Q_DISABLE_COPY(HueSaturationWheel)
-    Q_DECLARE_PRIVATE(HueSaturationWheel)
 
   public:
     /**
@@ -106,7 +105,7 @@ class HueSaturationWheel : public QWidget
     void colorChanging(const QColor& color);
 
   private:
-    HueSaturationWheelPrivate* const d_ptr;
+    HueSaturationWheelPrivate* const m_Impl;
 };
 
 #endif // HUESATURATIONWHEEL_H

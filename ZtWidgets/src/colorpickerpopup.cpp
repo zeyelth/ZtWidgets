@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Victor Wåhlström
+ * Copyright (c) 2013-2021 Victor Wåhlström
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -161,12 +161,9 @@ class ColorSliderEdit : public SliderEdit
 class ColorPickerPopupPrivate
 {
     Q_DISABLE_COPY(ColorPickerPopupPrivate)
-    Q_DECLARE_PUBLIC(ColorPickerPopup)
 
-  private:
-    explicit ColorPickerPopupPrivate(ColorPickerPopup*);
-
-    ColorPickerPopup* const q_ptr;
+  public:
+    explicit ColorPickerPopupPrivate();
 
     QFrame* m_Frame;
     ColorHexEdit* m_Hex;
@@ -194,9 +191,8 @@ class ColorPickerPopupPrivate
     ColorPicker::EditType m_EditType;
 };
 
-ColorPickerPopupPrivate::ColorPickerPopupPrivate(ColorPickerPopup* popup)
-    : q_ptr(popup)
-    , m_Frame(nullptr)
+ColorPickerPopupPrivate::ColorPickerPopupPrivate()
+    : m_Frame(nullptr)
     , m_Hex(nullptr)
     , m_Display(nullptr)
     , m_Wheel(nullptr)
@@ -225,36 +221,35 @@ ColorPickerPopupPrivate::ColorPickerPopupPrivate(ColorPickerPopup* popup)
 
 ColorPickerPopup::ColorPickerPopup(QWidget* parent)
     : QWidget(parent)
-    , d_ptr(new ColorPickerPopupPrivate(this))
+    , m_Impl(new ColorPickerPopupPrivate())
 {
-    Q_D(ColorPickerPopup);
     setWindowFlags(Qt::Window | Qt::BypassWindowManagerHint | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
     setAttribute(Qt::WA_QuitOnClose, false);
 
     QVBoxLayout* main_layout = new QVBoxLayout;
-    d->m_Frame               = new QFrame;
-    d->m_Frame->setFrameStyle(QFrame::Panel);
-    d->m_Frame->setFrameShadow(QFrame::Raised);
+    m_Impl->m_Frame               = new QFrame;
+    m_Impl->m_Frame->setFrameStyle(QFrame::Panel);
+    m_Impl->m_Frame->setFrameShadow(QFrame::Raised);
     main_layout->setContentsMargins(0, 0, 0, 0);
-    main_layout->addWidget(d->m_Frame);
+    main_layout->addWidget(m_Impl->m_Frame);
     setLayout(main_layout);
 
     QVBoxLayout* layout = new QVBoxLayout;
-    d->m_Hex            = new ColorHexEdit;
+    m_Impl->m_Hex            = new ColorHexEdit;
 
-    d->m_Display = new ColorDisplay;
+    m_Impl->m_Display = new ColorDisplay;
 
     QHBoxLayout* top_layout = new QHBoxLayout;
-    top_layout->addWidget(d->m_Display);
-    top_layout->addWidget(d->m_Hex);
+    top_layout->addWidget(m_Impl->m_Display);
+    top_layout->addWidget(m_Impl->m_Hex);
     top_layout->addStretch(100);
 
-    d->m_Wheel = new HueSaturationWheel;
-    d->m_Wheel->setToolTip(tr("Hue/Saturation"));
+    m_Impl->m_Wheel = new HueSaturationWheel;
+    m_Impl->m_Wheel->setToolTip(tr("Hue/Saturation"));
     QSizePolicy size_policy;
     size_policy.setVerticalPolicy(QSizePolicy::Expanding);
     size_policy.setHorizontalPolicy(QSizePolicy::Expanding);
-    d->m_Wheel->setSizePolicy(size_policy);
+    m_Impl->m_Wheel->setSizePolicy(size_policy);
 
     QMap<qreal, QColor> bw_gradient;
     bw_gradient[0] = Qt::black;
@@ -286,43 +281,43 @@ ColorPickerPopup::ColorPickerPopup(QWidget* parent)
     blue_gradient[0] = Qt::black;
     blue_gradient[1] = Qt::blue;
 
-    d->m_ValueSlider = new ColorSliderEdit(bw_gradient);
-    d->m_ValueSlider->setToolTip(tr("Value"));
-    d->m_ValueSlider->setOrientation(Qt::Vertical);
+    m_Impl->m_ValueSlider = new ColorSliderEdit(bw_gradient);
+    m_Impl->m_ValueSlider->setToolTip(tr("Value"));
+    m_Impl->m_ValueSlider->setOrientation(Qt::Vertical);
 
     QPalette p = palette();
     p.setBrush(QPalette::Text, Qt::white);
 
-    d->m_RedSlider = new ColorSliderEdit(red_gradient);
-    d->m_RedSlider->setToolTip(tr("Red"));
-    d->m_GreenSlider = new ColorSliderEdit(green_gradient);
-    d->m_GreenSlider->setToolTip(tr("Green"));
-    d->m_BlueSlider = new ColorSliderEdit(blue_gradient);
-    d->m_BlueSlider->setToolTip(tr("Blue"));
-    d->m_RgbAlphaSlider = new ColorSliderEdit(alpha_gradient);
-    d->m_RgbAlphaSlider->setToolTip(tr("Alpha"));
+    m_Impl->m_RedSlider = new ColorSliderEdit(red_gradient);
+    m_Impl->m_RedSlider->setToolTip(tr("Red"));
+    m_Impl->m_GreenSlider = new ColorSliderEdit(green_gradient);
+    m_Impl->m_GreenSlider->setToolTip(tr("Green"));
+    m_Impl->m_BlueSlider = new ColorSliderEdit(blue_gradient);
+    m_Impl->m_BlueSlider->setToolTip(tr("Blue"));
+    m_Impl->m_RgbAlphaSlider = new ColorSliderEdit(alpha_gradient);
+    m_Impl->m_RgbAlphaSlider->setToolTip(tr("Alpha"));
 
-    d->m_HslHueSlider = new ColorSliderEdit(hue_gradient);
-    d->m_HslHueSlider->setToolTip(tr("Hue"));
-    d->m_HslSaturationSlider = new ColorSliderEdit(bw_gradient);
-    d->m_HslSaturationSlider->setToolTip(tr("Saturation"));
-    d->m_LightnessSlider = new ColorSliderEdit(bw_gradient);
-    d->m_LightnessSlider->setToolTip(tr("Lightness"));
-    d->m_HslAlphaSlider = new ColorSliderEdit(alpha_gradient);
-    d->m_HslAlphaSlider->setToolTip(tr("Alpha"));
+    m_Impl->m_HslHueSlider = new ColorSliderEdit(hue_gradient);
+    m_Impl->m_HslHueSlider->setToolTip(tr("Hue"));
+    m_Impl->m_HslSaturationSlider = new ColorSliderEdit(bw_gradient);
+    m_Impl->m_HslSaturationSlider->setToolTip(tr("Saturation"));
+    m_Impl->m_LightnessSlider = new ColorSliderEdit(bw_gradient);
+    m_Impl->m_LightnessSlider->setToolTip(tr("Lightness"));
+    m_Impl->m_HslAlphaSlider = new ColorSliderEdit(alpha_gradient);
+    m_Impl->m_HslAlphaSlider->setToolTip(tr("Alpha"));
 
-    d->m_HsvHueSlider = new ColorSliderEdit(hue_gradient);
-    d->m_HsvHueSlider->setToolTip(tr("Hue"));
-    d->m_HsvSaturationSlider = new ColorSliderEdit(bw_gradient);
-    d->m_HsvSaturationSlider->setToolTip(tr("Saturation"));
-    d->m_HsvValueSlider = new ColorSliderEdit(bw_gradient);
-    d->m_HsvValueSlider->setToolTip(tr("Value"));
-    d->m_HsvAlphaSlider = new ColorSliderEdit(alpha_gradient);
-    d->m_HsvAlphaSlider->setToolTip(tr("Alpha"));
+    m_Impl->m_HsvHueSlider = new ColorSliderEdit(hue_gradient);
+    m_Impl->m_HsvHueSlider->setToolTip(tr("Hue"));
+    m_Impl->m_HsvSaturationSlider = new ColorSliderEdit(bw_gradient);
+    m_Impl->m_HsvSaturationSlider->setToolTip(tr("Saturation"));
+    m_Impl->m_HsvValueSlider = new ColorSliderEdit(bw_gradient);
+    m_Impl->m_HsvValueSlider->setToolTip(tr("Value"));
+    m_Impl->m_HsvAlphaSlider = new ColorSliderEdit(alpha_gradient);
+    m_Impl->m_HsvAlphaSlider->setToolTip(tr("Alpha"));
 
     QHBoxLayout* mid_layout = new QHBoxLayout;
-    mid_layout->addWidget(d->m_Wheel);
-    mid_layout->addWidget(d->m_ValueSlider);
+    mid_layout->addWidget(m_Impl->m_Wheel);
+    mid_layout->addWidget(m_Impl->m_ValueSlider);
     mid_layout->setContentsMargins(5, 0, 5, 0);
 
     QPushButton* rgb_button = new QPushButton("&RGB");
@@ -343,10 +338,10 @@ ColorPickerPopup::ColorPickerPopup(QWidget* parent)
     hsv_button->setFlat(true);
     hsv_button->setShortcut(QKeySequence(Qt::AltModifier + Qt::Key_3));
 
-    d->m_ButtonGroup = new QButtonGroup;
-    d->m_ButtonGroup->addButton(rgb_button, 0);
-    d->m_ButtonGroup->addButton(hsl_button, 1);
-    d->m_ButtonGroup->addButton(hsv_button, 2);
+    m_Impl->m_ButtonGroup = new QButtonGroup;
+    m_Impl->m_ButtonGroup->addButton(rgb_button, 0);
+    m_Impl->m_ButtonGroup->addButton(hsl_button, 1);
+    m_Impl->m_ButtonGroup->addButton(hsv_button, 2);
 
     QHBoxLayout* stack_button_layout = new QHBoxLayout;
     stack_button_layout->setSpacing(0);
@@ -354,8 +349,8 @@ ColorPickerPopup::ColorPickerPopup(QWidget* parent)
     stack_button_layout->addWidget(hsl_button);
     stack_button_layout->addWidget(hsv_button);
 
-    d->m_SliderStack = new QStackedWidget;
-    d->m_SliderStack->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    m_Impl->m_SliderStack = new QStackedWidget;
+    m_Impl->m_SliderStack->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 
     QWidget* rgb_widget     = new QWidget;
     QVBoxLayout* rgb_layout = new QVBoxLayout;
@@ -365,23 +360,23 @@ ColorPickerPopup::ColorPickerPopup(QWidget* parent)
 
     QHBoxLayout* slayout = new QHBoxLayout;
     slayout->addWidget(new QLabel("R"));
-    slayout->addWidget(d->m_RedSlider);
+    slayout->addWidget(m_Impl->m_RedSlider);
     rgb_layout->addLayout(slayout);
 
     slayout = new QHBoxLayout;
     slayout->addWidget(new QLabel("G"));
-    slayout->addWidget(d->m_GreenSlider);
+    slayout->addWidget(m_Impl->m_GreenSlider);
     rgb_layout->addLayout(slayout);
 
     slayout = new QHBoxLayout;
     slayout->addWidget(new QLabel("B"));
-    slayout->addWidget(d->m_BlueSlider);
+    slayout->addWidget(m_Impl->m_BlueSlider);
     rgb_layout->addLayout(slayout);
 
     slayout            = new QHBoxLayout;
-    d->m_RgbAlphaLabel = new QLabel("A");
-    slayout->addWidget(d->m_RgbAlphaLabel);
-    slayout->addWidget(d->m_RgbAlphaSlider);
+    m_Impl->m_RgbAlphaLabel = new QLabel("A");
+    slayout->addWidget(m_Impl->m_RgbAlphaLabel);
+    slayout->addWidget(m_Impl->m_RgbAlphaSlider);
     rgb_layout->addLayout(slayout);
 
     QWidget* hsl_widget     = new QWidget;
@@ -392,23 +387,23 @@ ColorPickerPopup::ColorPickerPopup(QWidget* parent)
 
     slayout = new QHBoxLayout;
     slayout->addWidget(new QLabel("H"));
-    slayout->addWidget(d->m_HslHueSlider);
+    slayout->addWidget(m_Impl->m_HslHueSlider);
     hsl_layout->addLayout(slayout);
 
     slayout = new QHBoxLayout;
     slayout->addWidget(new QLabel("S"));
-    slayout->addWidget(d->m_HslSaturationSlider);
+    slayout->addWidget(m_Impl->m_HslSaturationSlider);
     hsl_layout->addLayout(slayout);
 
     slayout = new QHBoxLayout;
     slayout->addWidget(new QLabel("L"));
-    slayout->addWidget(d->m_LightnessSlider);
+    slayout->addWidget(m_Impl->m_LightnessSlider);
     hsl_layout->addLayout(slayout);
 
     slayout            = new QHBoxLayout;
-    d->m_HslAlphaLabel = new QLabel("A");
-    slayout->addWidget(d->m_HslAlphaLabel);
-    slayout->addWidget(d->m_HslAlphaSlider);
+    m_Impl->m_HslAlphaLabel = new QLabel("A");
+    slayout->addWidget(m_Impl->m_HslAlphaLabel);
+    slayout->addWidget(m_Impl->m_HslAlphaSlider);
     hsl_layout->addLayout(slayout);
 
     QWidget* hsv_widget     = new QWidget;
@@ -419,246 +414,243 @@ ColorPickerPopup::ColorPickerPopup(QWidget* parent)
 
     slayout = new QHBoxLayout;
     slayout->addWidget(new QLabel("H"));
-    slayout->addWidget(d->m_HsvHueSlider);
+    slayout->addWidget(m_Impl->m_HsvHueSlider);
     hsv_layout->addLayout(slayout);
 
     slayout = new QHBoxLayout;
     slayout->addWidget(new QLabel("S"));
-    slayout->addWidget(d->m_HsvSaturationSlider);
+    slayout->addWidget(m_Impl->m_HsvSaturationSlider);
     hsv_layout->addLayout(slayout);
 
     slayout = new QHBoxLayout;
     slayout->addWidget(new QLabel("V"));
-    slayout->addWidget(d->m_HsvValueSlider);
+    slayout->addWidget(m_Impl->m_HsvValueSlider);
     hsv_layout->addLayout(slayout);
 
     slayout            = new QHBoxLayout;
-    d->m_HsvAlphaLabel = new QLabel("A");
-    slayout->addWidget(d->m_HsvAlphaLabel);
-    slayout->addWidget(d->m_HsvAlphaSlider);
+    m_Impl->m_HsvAlphaLabel = new QLabel("A");
+    slayout->addWidget(m_Impl->m_HsvAlphaLabel);
+    slayout->addWidget(m_Impl->m_HsvAlphaSlider);
     hsv_layout->addLayout(slayout);
 
-    d->m_SliderStack->addWidget(rgb_widget);
-    d->m_SliderStack->addWidget(hsl_widget);
-    d->m_SliderStack->addWidget(hsv_widget);
-    d->m_SliderStack->setCurrentIndex(0);
+    m_Impl->m_SliderStack->addWidget(rgb_widget);
+    m_Impl->m_SliderStack->addWidget(hsl_widget);
+    m_Impl->m_SliderStack->addWidget(hsv_widget);
+    m_Impl->m_SliderStack->setCurrentIndex(0);
     rgb_button->setChecked(true);
 
     layout->addLayout(top_layout);
     layout->addLayout(mid_layout);
     layout->addLayout(stack_button_layout);
-    layout->addWidget(d->m_SliderStack);
+    layout->addWidget(m_Impl->m_SliderStack);
 
     layout->setContentsMargins(2, 2, 2, 2);
-    d->m_Frame->setLayout(layout);
+    m_Impl->m_Frame->setLayout(layout);
 
-    connect(d->m_ButtonGroup, &QButtonGroup::idClicked, d->m_SliderStack, &QStackedWidget::setCurrentIndex);
+    connect(m_Impl->m_ButtonGroup, &QButtonGroup::idClicked, m_Impl->m_SliderStack, &QStackedWidget::setCurrentIndex);
 
-    connect(d->m_Wheel, &HueSaturationWheel::colorChanged, this, &ColorPickerPopup::updateColor);
-    connect(d->m_Wheel, &HueSaturationWheel::colorChanged, this, &ColorPickerPopup::colorChanged);
-    connect(d->m_Wheel, &HueSaturationWheel::colorChanging, this, &ColorPickerPopup::updateColor);
-    connect(d->m_Wheel, &HueSaturationWheel::colorChanging, this, &ColorPickerPopup::colorChanging);
+    connect(m_Impl->m_Wheel, &HueSaturationWheel::colorChanged, this, &ColorPickerPopup::updateColor);
+    connect(m_Impl->m_Wheel, &HueSaturationWheel::colorChanged, this, &ColorPickerPopup::colorChanged);
+    connect(m_Impl->m_Wheel, &HueSaturationWheel::colorChanging, this, &ColorPickerPopup::updateColor);
+    connect(m_Impl->m_Wheel, &HueSaturationWheel::colorChanging, this, &ColorPickerPopup::colorChanging);
 
-    connect(d->m_Hex, &ColorHexEdit::colorChanged, this, &ColorPickerPopup::updateColor);
-    connect(d->m_Hex, &ColorHexEdit::colorChanged, this, &ColorPickerPopup::colorChanged);
-    connect(d->m_Hex, &ColorHexEdit::colorChanging, this, &ColorPickerPopup::updateColor);
-    connect(d->m_Hex, &ColorHexEdit::colorChanging, this, &ColorPickerPopup::colorChanging);
+    connect(m_Impl->m_Hex, &ColorHexEdit::colorChanged, this, &ColorPickerPopup::updateColor);
+    connect(m_Impl->m_Hex, &ColorHexEdit::colorChanged, this, &ColorPickerPopup::colorChanged);
+    connect(m_Impl->m_Hex, &ColorHexEdit::colorChanging, this, &ColorPickerPopup::updateColor);
+    connect(m_Impl->m_Hex, &ColorHexEdit::colorChanging, this, &ColorPickerPopup::colorChanging);
 
-    connect(d->m_Display, &ColorDisplay::clicked, this, &ColorPickerPopup::hide);
-    connect(d->m_Display, &ColorDisplay::colorChanged, this, &ColorPickerPopup::updateColor);
-    connect(d->m_Display, &ColorDisplay::colorChanged, this, &ColorPickerPopup::colorChanged);
-    connect(d->m_Display, &ColorDisplay::colorChanging, this, &ColorPickerPopup::updateColor);
-    connect(d->m_Display, &ColorDisplay::colorChanging, this, &ColorPickerPopup::colorChanging);
+    connect(m_Impl->m_Display, &ColorDisplay::clicked, this, &ColorPickerPopup::hide);
+    connect(m_Impl->m_Display, &ColorDisplay::colorChanged, this, &ColorPickerPopup::updateColor);
+    connect(m_Impl->m_Display, &ColorDisplay::colorChanged, this, &ColorPickerPopup::colorChanged);
+    connect(m_Impl->m_Display, &ColorDisplay::colorChanging, this, &ColorPickerPopup::updateColor);
+    connect(m_Impl->m_Display, &ColorDisplay::colorChanging, this, &ColorPickerPopup::colorChanging);
 
-    auto svchanging = [this, d](qreal val, ColorChannel channel)
+    auto svchanging = [this](qreal val, ColorChannel channel)
     {
-        valueToColor(d->m_Color, d->m_EditType, channel, val);
+        valueToColor(m_Impl->m_Color, m_Impl->m_EditType, channel, val);
 
-        updateColor(d->m_Color);
-        Q_EMIT colorChanging(d->m_Color);
+        updateColor(m_Impl->m_Color);
+        Q_EMIT colorChanging(m_Impl->m_Color);
     };
 
-    auto svchanged = [this, d](qreal val, ColorChannel channel)
+    auto svchanged = [this](qreal val, ColorChannel channel)
     {
-        valueToColor(d->m_Color, d->m_EditType, channel, val);
+        valueToColor(m_Impl->m_Color, m_Impl->m_EditType, channel, val);
 
-        updateColor(d->m_Color);
-        Q_EMIT colorChanged(d->m_Color);
+        updateColor(m_Impl->m_Color);
+        Q_EMIT colorChanged(m_Impl->m_Color);
     };
 
-    connect(d->m_ValueSlider,
+    connect(m_Impl->m_ValueSlider,
             &SliderEdit::valueChanging,
             [svchanging](qreal val) { svchanging(val, ColorChannel::Value); });
     connect(
-        d->m_ValueSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Value); });
+        m_Impl->m_ValueSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Value); });
 
     connect(
-        d->m_RedSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::Red); });
-    connect(d->m_RedSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Red); });
+        m_Impl->m_RedSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::Red); });
+    connect(m_Impl->m_RedSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Red); });
 
-    connect(d->m_GreenSlider,
+    connect(m_Impl->m_GreenSlider,
             &SliderEdit::valueChanging,
             [svchanging](qreal val) { svchanging(val, ColorChannel::Green); });
     connect(
-        d->m_GreenSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Green); });
+        m_Impl->m_GreenSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Green); });
 
     connect(
-        d->m_BlueSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::Blue); });
-    connect(d->m_BlueSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Blue); });
+        m_Impl->m_BlueSlider, &SliderEdit::valueChanging, [svchanging](qreal val) { svchanging(val, ColorChannel::Blue); });
+    connect(m_Impl->m_BlueSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::Blue); });
 
-    connect(d->m_RgbAlphaSlider,
+    connect(m_Impl->m_RgbAlphaSlider,
             &SliderEdit::valueChanging,
             [svchanging](qreal val) { svchanging(val, ColorChannel::Alpha); });
-    connect(d->m_RgbAlphaSlider,
+    connect(m_Impl->m_RgbAlphaSlider,
             &SliderEdit::valueChanged,
             [svchanged](qreal val) { svchanged(val, ColorChannel::Alpha); });
 
-    connect(d->m_HslHueSlider,
+    connect(m_Impl->m_HslHueSlider,
             &SliderEdit::valueChanging,
             [svchanging](qreal val) { svchanging(val, ColorChannel::HslHue); });
     connect(
-        d->m_HslHueSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::HslHue); });
+        m_Impl->m_HslHueSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::HslHue); });
 
-    connect(d->m_HslSaturationSlider,
+    connect(m_Impl->m_HslSaturationSlider,
             &SliderEdit::valueChanging,
             [svchanging](qreal val) { svchanging(val, ColorChannel::HslSaturation); });
-    connect(d->m_HslSaturationSlider,
+    connect(m_Impl->m_HslSaturationSlider,
             &SliderEdit::valueChanged,
             [svchanged](qreal val) { svchanged(val, ColorChannel::HslSaturation); });
 
-    connect(d->m_LightnessSlider,
+    connect(m_Impl->m_LightnessSlider,
             &SliderEdit::valueChanging,
             [svchanging](qreal val) { svchanging(val, ColorChannel::Lightness); });
-    connect(d->m_LightnessSlider,
+    connect(m_Impl->m_LightnessSlider,
             &SliderEdit::valueChanged,
             [svchanged](qreal val) { svchanged(val, ColorChannel::Lightness); });
 
-    connect(d->m_HslAlphaSlider,
+    connect(m_Impl->m_HslAlphaSlider,
             &SliderEdit::valueChanging,
             [svchanging](qreal val) { svchanging(val, ColorChannel::Alpha); });
-    connect(d->m_HslAlphaSlider,
+    connect(m_Impl->m_HslAlphaSlider,
             &SliderEdit::valueChanged,
             [svchanged](qreal val) { svchanged(val, ColorChannel::Alpha); });
 
-    connect(d->m_HsvHueSlider,
+    connect(m_Impl->m_HsvHueSlider,
             &SliderEdit::valueChanging,
             [svchanging](qreal val) { svchanging(val, ColorChannel::HsvHue); });
     connect(
-        d->m_HsvHueSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::HsvHue); });
+        m_Impl->m_HsvHueSlider, &SliderEdit::valueChanged, [svchanged](qreal val) { svchanged(val, ColorChannel::HsvHue); });
 
-    connect(d->m_HsvSaturationSlider,
+    connect(m_Impl->m_HsvSaturationSlider,
             &SliderEdit::valueChanging,
             [svchanging](qreal val) { svchanging(val, ColorChannel::HsvSaturation); });
-    connect(d->m_HsvSaturationSlider,
+    connect(m_Impl->m_HsvSaturationSlider,
             &SliderEdit::valueChanged,
             [svchanged](qreal val) { svchanged(val, ColorChannel::HsvSaturation); });
 
-    connect(d->m_HsvValueSlider,
+    connect(m_Impl->m_HsvValueSlider,
             &SliderEdit::valueChanging,
             [svchanging](qreal val) { svchanging(val, ColorChannel::Value); });
-    connect(d->m_HsvValueSlider,
+    connect(m_Impl->m_HsvValueSlider,
             &SliderEdit::valueChanged,
             [svchanged](qreal val) { svchanged(val, ColorChannel::Value); });
 
-    connect(d->m_HsvAlphaSlider,
+    connect(m_Impl->m_HsvAlphaSlider,
             &SliderEdit::valueChanging,
             [svchanging](qreal val) { svchanging(val, ColorChannel::Alpha); });
-    connect(d->m_HsvAlphaSlider,
+    connect(m_Impl->m_HsvAlphaSlider,
             &SliderEdit::valueChanged,
             [svchanged](qreal val) { svchanged(val, ColorChannel::Alpha); });
 
     // sync color of all child widgets
-    d->m_Wheel->setColor(d->m_Color);
+    m_Impl->m_Wheel->setColor(m_Impl->m_Color);
 
-    QWidget::setTabOrder(d->m_Hex, d->m_RedSlider);
-    QWidget::setTabOrder(d->m_RedSlider, d->m_GreenSlider);
-    QWidget::setTabOrder(d->m_GreenSlider, d->m_BlueSlider);
-    QWidget::setTabOrder(d->m_BlueSlider, d->m_RgbAlphaSlider);
-    QWidget::setTabOrder(d->m_RgbAlphaSlider, d->m_HslHueSlider);
-    QWidget::setTabOrder(d->m_HslHueSlider, d->m_HslSaturationSlider);
-    QWidget::setTabOrder(d->m_HslSaturationSlider, d->m_LightnessSlider);
-    QWidget::setTabOrder(d->m_LightnessSlider, d->m_HslAlphaSlider);
-    QWidget::setTabOrder(d->m_HslAlphaSlider, d->m_HsvHueSlider);
-    QWidget::setTabOrder(d->m_HsvHueSlider, d->m_HsvSaturationSlider);
-    QWidget::setTabOrder(d->m_HsvSaturationSlider, d->m_HsvValueSlider);
-    QWidget::setTabOrder(d->m_HsvValueSlider, d->m_HsvAlphaSlider);
-    QWidget::setTabOrder(d->m_HsvAlphaSlider, d->m_Hex);
+    QWidget::setTabOrder(m_Impl->m_Hex, m_Impl->m_RedSlider);
+    QWidget::setTabOrder(m_Impl->m_RedSlider, m_Impl->m_GreenSlider);
+    QWidget::setTabOrder(m_Impl->m_GreenSlider, m_Impl->m_BlueSlider);
+    QWidget::setTabOrder(m_Impl->m_BlueSlider, m_Impl->m_RgbAlphaSlider);
+    QWidget::setTabOrder(m_Impl->m_RgbAlphaSlider, m_Impl->m_HslHueSlider);
+    QWidget::setTabOrder(m_Impl->m_HslHueSlider, m_Impl->m_HslSaturationSlider);
+    QWidget::setTabOrder(m_Impl->m_HslSaturationSlider, m_Impl->m_LightnessSlider);
+    QWidget::setTabOrder(m_Impl->m_LightnessSlider, m_Impl->m_HslAlphaSlider);
+    QWidget::setTabOrder(m_Impl->m_HslAlphaSlider, m_Impl->m_HsvHueSlider);
+    QWidget::setTabOrder(m_Impl->m_HsvHueSlider, m_Impl->m_HsvSaturationSlider);
+    QWidget::setTabOrder(m_Impl->m_HsvSaturationSlider, m_Impl->m_HsvValueSlider);
+    QWidget::setTabOrder(m_Impl->m_HsvValueSlider, m_Impl->m_HsvAlphaSlider);
+    QWidget::setTabOrder(m_Impl->m_HsvAlphaSlider, m_Impl->m_Hex);
 }
 
 ColorPickerPopup::~ColorPickerPopup()
 {
-    delete d_ptr;
+    delete m_Impl;
 }
 
 void ColorPickerPopup::updateColor(const QColor& color)
 {
-    Q_D(ColorPickerPopup);
-    d->m_Wheel->updateColor(color);
-    d->m_Hex->updateColor(color);
-    d->m_Display->updateColor(color);
+    m_Impl->m_Wheel->updateColor(color);
+    m_Impl->m_Hex->updateColor(color);
+    m_Impl->m_Display->updateColor(color);
 
-    if (d->m_EditType == ColorPicker::Float)
+    if (m_Impl->m_EditType == ColorPicker::Float)
     {
-        d->m_ValueSlider->updateValue(color.valueF());
+        m_Impl->m_ValueSlider->updateValue(color.valueF());
 
-        d->m_RedSlider->updateValue(color.redF());
-        d->m_GreenSlider->updateValue(color.greenF());
-        d->m_BlueSlider->updateValue(color.blueF());
-        d->m_RgbAlphaSlider->updateValue(color.alphaF());
+        m_Impl->m_RedSlider->updateValue(color.redF());
+        m_Impl->m_GreenSlider->updateValue(color.greenF());
+        m_Impl->m_BlueSlider->updateValue(color.blueF());
+        m_Impl->m_RgbAlphaSlider->updateValue(color.alphaF());
 
-        d->m_HslHueSlider->updateValue(color.hslHueF());
-        d->m_HslSaturationSlider->updateValue(color.hslSaturationF());
-        d->m_LightnessSlider->updateValue(color.lightnessF());
-        d->m_HslAlphaSlider->updateValue(color.alphaF());
+        m_Impl->m_HslHueSlider->updateValue(color.hslHueF());
+        m_Impl->m_HslSaturationSlider->updateValue(color.hslSaturationF());
+        m_Impl->m_LightnessSlider->updateValue(color.lightnessF());
+        m_Impl->m_HslAlphaSlider->updateValue(color.alphaF());
 
-        d->m_HsvHueSlider->updateValue(color.hsvHueF());
-        d->m_HsvSaturationSlider->updateValue(color.hsvSaturationF());
-        d->m_HsvValueSlider->updateValue(color.valueF());
-        d->m_HsvAlphaSlider->updateValue(color.alphaF());
+        m_Impl->m_HsvHueSlider->updateValue(color.hsvHueF());
+        m_Impl->m_HsvSaturationSlider->updateValue(color.hsvSaturationF());
+        m_Impl->m_HsvValueSlider->updateValue(color.valueF());
+        m_Impl->m_HsvAlphaSlider->updateValue(color.alphaF());
     }
     else
     {
-        d->m_ValueSlider->updateValue(color.value());
+        m_Impl->m_ValueSlider->updateValue(color.value());
 
-        d->m_RedSlider->updateValue(color.red());
-        d->m_GreenSlider->updateValue(color.green());
-        d->m_BlueSlider->updateValue(color.blue());
-        d->m_RgbAlphaSlider->updateValue(color.alpha());
+        m_Impl->m_RedSlider->updateValue(color.red());
+        m_Impl->m_GreenSlider->updateValue(color.green());
+        m_Impl->m_BlueSlider->updateValue(color.blue());
+        m_Impl->m_RgbAlphaSlider->updateValue(color.alpha());
 
-        d->m_HslHueSlider->updateValue(color.hslHue());
-        d->m_HslSaturationSlider->updateValue(color.hslSaturation());
-        d->m_LightnessSlider->updateValue(color.lightness());
-        d->m_HslAlphaSlider->updateValue(color.alpha());
+        m_Impl->m_HslHueSlider->updateValue(color.hslHue());
+        m_Impl->m_HslSaturationSlider->updateValue(color.hslSaturation());
+        m_Impl->m_LightnessSlider->updateValue(color.lightness());
+        m_Impl->m_HslAlphaSlider->updateValue(color.alpha());
 
-        d->m_HsvHueSlider->updateValue(color.hsvHue());
-        d->m_HsvSaturationSlider->updateValue(color.hsvSaturation());
-        d->m_HsvValueSlider->updateValue(color.value());
-        d->m_HsvAlphaSlider->updateValue(color.alpha());
+        m_Impl->m_HsvHueSlider->updateValue(color.hsvHue());
+        m_Impl->m_HsvSaturationSlider->updateValue(color.hsvSaturation());
+        m_Impl->m_HsvValueSlider->updateValue(color.value());
+        m_Impl->m_HsvAlphaSlider->updateValue(color.alpha());
     }
 
-    if (d->m_Color != color)
+    if (m_Impl->m_Color != color)
     {
-        d->m_Color = color;
+        m_Impl->m_Color = color;
         update();
     }
 }
 
 void ColorPickerPopup::setColor(const QColor& color)
 {
-    Q_D(ColorPickerPopup);
-    if (d->m_Color != color)
+    if (m_Impl->m_Color != color)
     {
         updateColor(color);
-        Q_EMIT colorChanged(d->m_Color);
+        Q_EMIT colorChanged(m_Impl->m_Color);
     }
 }
 
 void ColorPickerPopup::showEvent(QShowEvent* event)
 {
-    Q_D(ColorPickerPopup);
     QPoint p(pos());
-    int fw           = d->m_Frame->lineWidth();
-    QMargins margins = d->m_Frame->layout()->contentsMargins();
+    int fw           = m_Impl->m_Frame->lineWidth();
+    QMargins margins = m_Impl->m_Frame->layout()->contentsMargins();
     p.setX(p.x() - margins.left() - fw);
     p.setY(p.y() - margins.top() - fw);
     QRect r = qApp->desktop()->screenGeometry(this);
@@ -689,32 +681,28 @@ void ColorPickerPopup::changeEvent(QEvent* event)
 
 bool ColorPickerPopup::displayAlpha() const
 {
-    Q_D(const ColorPickerPopup);
-    return d->m_Hex->displayAlpha();
+    return m_Impl->m_Hex->displayAlpha();
 }
 
 void ColorPickerPopup::setDisplayAlpha(bool visible)
 {
-    Q_D(ColorPickerPopup);
-    d->m_RgbAlphaLabel->setVisible(visible);
-    d->m_HslAlphaLabel->setVisible(visible);
-    d->m_HsvAlphaLabel->setVisible(visible);
-    d->m_RgbAlphaSlider->setVisible(visible);
-    d->m_HslAlphaSlider->setVisible(visible);
-    d->m_HsvAlphaSlider->setVisible(visible);
-    d->m_Hex->setDisplayAlpha(visible);
+    m_Impl->m_RgbAlphaLabel->setVisible(visible);
+    m_Impl->m_HslAlphaLabel->setVisible(visible);
+    m_Impl->m_HsvAlphaLabel->setVisible(visible);
+    m_Impl->m_RgbAlphaSlider->setVisible(visible);
+    m_Impl->m_HslAlphaSlider->setVisible(visible);
+    m_Impl->m_HsvAlphaSlider->setVisible(visible);
+    m_Impl->m_Hex->setDisplayAlpha(visible);
 }
 
 ColorPicker::EditType ColorPickerPopup::editType() const
 {
-    Q_D(const ColorPickerPopup);
-    return d->m_EditType;
+    return m_Impl->m_EditType;
 }
 
 void ColorPickerPopup::setEditType(ColorPicker::EditType type)
 {
-    Q_D(ColorPickerPopup);
-    d->m_EditType = type;
+    m_Impl->m_EditType = type;
 
     auto update_slider = [&](SliderEdit* w, ColorChannel c)
     {
@@ -734,20 +722,20 @@ void ColorPickerPopup::setEditType(ColorPicker::EditType type)
         }
     };
 
-    update_slider(d->m_ValueSlider, ColorChannel::Value);
+    update_slider(m_Impl->m_ValueSlider, ColorChannel::Value);
 
-    update_slider(d->m_RedSlider, ColorChannel::Red);
-    update_slider(d->m_GreenSlider, ColorChannel::Green);
-    update_slider(d->m_BlueSlider, ColorChannel::Blue);
-    update_slider(d->m_RgbAlphaSlider, ColorChannel::Alpha);
+    update_slider(m_Impl->m_RedSlider, ColorChannel::Red);
+    update_slider(m_Impl->m_GreenSlider, ColorChannel::Green);
+    update_slider(m_Impl->m_BlueSlider, ColorChannel::Blue);
+    update_slider(m_Impl->m_RgbAlphaSlider, ColorChannel::Alpha);
 
-    update_slider(d->m_HslHueSlider, ColorChannel::HslHue);
-    update_slider(d->m_HslSaturationSlider, ColorChannel::HslSaturation);
-    update_slider(d->m_LightnessSlider, ColorChannel::Lightness);
-    update_slider(d->m_HslAlphaSlider, ColorChannel::Alpha);
+    update_slider(m_Impl->m_HslHueSlider, ColorChannel::HslHue);
+    update_slider(m_Impl->m_HslSaturationSlider, ColorChannel::HslSaturation);
+    update_slider(m_Impl->m_LightnessSlider, ColorChannel::Lightness);
+    update_slider(m_Impl->m_HslAlphaSlider, ColorChannel::Alpha);
 
-    update_slider(d->m_HsvHueSlider, ColorChannel::HsvHue);
-    update_slider(d->m_HsvSaturationSlider, ColorChannel::HsvSaturation);
-    update_slider(d->m_HsvValueSlider, ColorChannel::Value);
-    update_slider(d->m_HsvAlphaSlider, ColorChannel::Alpha);
+    update_slider(m_Impl->m_HsvHueSlider, ColorChannel::HsvHue);
+    update_slider(m_Impl->m_HsvSaturationSlider, ColorChannel::HsvSaturation);
+    update_slider(m_Impl->m_HsvValueSlider, ColorChannel::Value);
+    update_slider(m_Impl->m_HsvAlphaSlider, ColorChannel::Alpha);
 }

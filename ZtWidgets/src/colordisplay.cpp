@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Victor Wåhlström
+ * Copyright (c) 2013-2021 Victor Wåhlström
  *
  * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
@@ -32,25 +32,21 @@
 class ColorDisplayPrivate
 {
     Q_DISABLE_COPY(ColorDisplayPrivate)
-    Q_DECLARE_PUBLIC(ColorDisplay)
 
-  private:
-    explicit ColorDisplayPrivate(ColorDisplay*);
-
-    ColorDisplay* const q_ptr;
+  public:
+    explicit ColorDisplayPrivate();
 
     QColor m_Color;
 };
 
-ColorDisplayPrivate::ColorDisplayPrivate(ColorDisplay* display)
-    : q_ptr(display)
-    , m_Color(Qt::white)
+ColorDisplayPrivate::ColorDisplayPrivate()
+    : m_Color(Qt::white)
 {}
 //! @endcond
 
 ColorDisplay::ColorDisplay(QWidget* parent)
     : QWidget(parent)
-    , d_ptr(new ColorDisplayPrivate(this))
+    , m_Impl(new ColorDisplayPrivate())
 {
     setMinimumSize(15, 15);
     QSizePolicy size_policy;
@@ -60,15 +56,14 @@ ColorDisplay::ColorDisplay(QWidget* parent)
 
 ColorDisplay::~ColorDisplay()
 {
-    delete d_ptr;
+    delete m_Impl;
 }
 
 void ColorDisplay::updateColor(const QColor& color)
 {
-    Q_D(ColorDisplay);
-    if (d->m_Color != color)
+    if (m_Impl->m_Color != color)
     {
-        d->m_Color = color;
+        m_Impl->m_Color = color;
         update();
     }
 }
@@ -80,13 +75,12 @@ void ColorDisplay::mouseReleaseEvent(QMouseEvent*)
 
 void ColorDisplay::paintEvent(QPaintEvent*)
 {
-    Q_D(ColorDisplay);
     QPainter painter(this);
     painter.save();
 
     painter.setClipRect(rect());
     drawCheckerboard(painter, rect(), 5);
-    painter.fillRect(rect(), d->m_Color);
+    painter.fillRect(rect(), m_Impl->m_Color);
 
     painter.restore();
 }
